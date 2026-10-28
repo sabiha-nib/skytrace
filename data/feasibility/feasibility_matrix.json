@@ -1,0 +1,101 @@
+{
+  "rows": [
+    {
+      "target": "Barnard's Star",
+      "scientific_use": "astrometric validation (high proper motion)",
+      "release": "",
+      "retrieval_status": "BLOCKED: target resolution failed: data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27Barnard%27%27s+star%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss"
+    },
+    {
+      "target": "Epsilon Indi B",
+      "scientific_use": "astrometric test (brown-dwarf binary Ba/Bb, unresolved at 6.2\" pixels)",
+      "release": "",
+      "retrieval_status": "BLOCKED: target resolution failed: data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27eps+Ind+B%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss"
+    },
+    {
+      "target": "WISE 0855-0714",
+      "scientific_use": "astrometric test (very faint Y dwarf)",
+      "release": "",
+      "retrieval_status": "BLOCKED: target resolution failed: data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27WISE+J085510.83-071442.5%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss"
+    },
+    {
+      "target": "RW Aurigae",
+      "scientific_use": "variability test (T Tauri star; dimming event reported from Feb 2025)",
+      "release": "",
+      "retrieval_status": "BLOCKED: target resolution failed: data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27RW+Aur%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss"
+    },
+    {
+      "target": "R Draconis",
+      "scientific_use": "variability test (Mira variable)",
+      "release": "",
+      "retrieval_status": "BLOCKED: target resolution failed: data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27R+Dra%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss"
+    }
+  ],
+  "summaries": [
+    {
+      "target": "Barnard's Star",
+      "resolved": false,
+      "events": [
+        {
+          "step": "resolve:simbad",
+          "status": "failed",
+          "detail": "data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27Barnard%27%27s+star%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss",
+          "data": {},
+          "provenance": []
+        }
+      ]
+    },
+    {
+      "target": "Epsilon Indi B",
+      "resolved": false,
+      "events": [
+        {
+          "step": "resolve:simbad",
+          "status": "failed",
+          "detail": "data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27eps+Ind+B%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss",
+          "data": {},
+          "provenance": []
+        }
+      ]
+    },
+    {
+      "target": "WISE 0855-0714",
+      "resolved": false,
+      "events": [
+        {
+          "step": "resolve:simbad",
+          "status": "failed",
+          "detail": "data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27WISE+J085510.83-071442.5%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss",
+          "data": {},
+          "provenance": []
+        }
+      ]
+    },
+    {
+      "target": "RW Aurigae",
+      "resolved": false,
+      "events": [
+        {
+          "step": "resolve:simbad",
+          "status": "failed",
+          "detail": "data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27RW+Aur%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss",
+          "data": {},
+          "provenance": []
+        }
+      ]
+    },
+    {
+      "target": "R Draconis",
+      "resolved": false,
+      "events": [
+        {
+          "step": "resolve:simbad",
+          "status": "failed",
+          "detail": "data unavailable for https://simbad.cds.unistra.fr/simbad/sim-tap/sync?FORMAT=csv&LANG=ADQL&MAXREC=20000&QUERY=SELECT+b.main_id%2C+b.ra%2C+b.dec%2C+b.coo_bibcode%2C+b.pmra%2C+b.pmdec%2C+b.pm_bibcode%2C+b.plx_value%2C+b.rvz_radvel%2C+b.sp_type%2C+b.otype+FROM+basic+AS+b+JOIN+ident+AS+i+ON+i.oidref+%3D+b.oid+WHERE+i.id+%3D+%27R+Dra%27&REQUEST=doQuery; attempts: live#1: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#2: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); live#3: ProxyError: Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))); cache: miss",
+          "data": {},
+          "provenance": []
+        }
+      ]
+    }
+  ]
+}

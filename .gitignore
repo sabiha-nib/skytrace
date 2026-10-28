@@ -1,0 +1,11 @@
+.env
+*.key
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+# Archive downloads and derived products are reproducible from provenance records.
+cache/*
+!cache/.gitkeep
+data/runs/

@@ -1,0 +1,39 @@
+{
+  "_comment": "Target identities. The pipeline resolves coordinates and astrometry live from SIMBAD and Gaia DR3; 'hint' values are secondary-source context for planning only and are never used as measurement references.",
+  "targets": [
+    {
+      "name": "Barnard's Star",
+      "simbad_id": "Barnard's star",
+      "role": "astrometric validation (high proper motion)",
+      "hint": {"ra": "17h57m48.49847s", "dec": "+04d41m36.1139s", "epoch": "J2000", "pmra_mas_yr": -801.551, "pmdec_mas_yr": 10362.394,
+               "J": 5.24, "K": 4.524, "source": "Wikipedia infobox (secondary; cites Gaia DR3), fetched 2026-10-29"}
+    },
+    {
+      "name": "Epsilon Indi B",
+      "simbad_id": "eps Ind B",
+      "role": "astrometric test (brown-dwarf binary Ba/Bb, unresolved at 6.2\" pixels)",
+      "hint": {"pmra_mas_yr": 3981.977, "pmdec_mas_yr": -2466.832, "ba_bb_separation_arcsec": 0.6,
+               "note": "Wikipedia infobox RA/Dec belongs to the system (eps Ind A), not to B", "source": "Wikipedia (secondary), fetched 2026-10-29"}
+    },
+    {
+      "name": "WISE 0855-0714",
+      "simbad_id": "WISE J085510.83-071442.5",
+      "role": "astrometric test (very faint Y dwarf)",
+      "supplied_coords": {"ra": "08h55m10.831s", "dec": "-7d14m42.53s", "source": "SKYTRACE brief (challenge-supplied)"},
+      "hint": {"pmra_mas_yr": -8123.7, "pmdec_mas_yr": 673.2, "J": 25.0, "W2": 13.89,
+               "source": "Wikipedia (secondary), fetched 2026-10-29"}
+    },
+    {
+      "name": "RW Aurigae",
+      "simbad_id": "RW Aur",
+      "role": "variability test (T Tauri star; dimming event reported from Feb 2025)",
+      "hint": {"G": 12.18, "companion_sep_arcsec": 1.448, "source": "Wikipedia (secondary), fetched 2026-10-29"}
+    },
+    {
+      "name": "R Draconis",
+      "simbad_id": "R Dra",
+      "role": "variability test (Mira variable)",
+      "hint": {"note": "no reference values verified yet"}
+    }
+  ]
+}
