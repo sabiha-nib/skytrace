@@ -30,5 +30,6 @@ pythonpath = ["src"]
 markers = [
     "live: needs network access to IRSA / SIMBAD / Gaia / Meta (run with: pytest -m live)",
     "astropy: needs astropy installed",
+    "e2e: browser acceptance test (Playwright + Chromium; run with: pytest -m e2e)",
 ]
-addopts = "-m 'not live'"
+addopts = "-m 'not live and not e2e'"

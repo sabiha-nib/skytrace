@@ -132,7 +132,7 @@ def measure_exposure(prod: ProductLike, obs_id: str, detector: int, mjd: float,
         quality = f"blended: catalogue source within {blend[0]:.2f} px"
 
     plate_d, xi_eta, cov3 = None, None, None
-    if refs and c.converged and target_detected:
+    if refs:  # the plate is solved whenever references exist; the target position needs a usable target
         rx, ry, rs, rra, rdec, rid = [], [], [], [], [], []
         ref_rejects: dict[str, int] = {}
         cat_xy = cat_all
@@ -161,12 +161,13 @@ def measure_exposure(prod: ProductLike, obs_id: str, detector: int, mjd: float,
             rra.append(r["ra"]); rdec.append(r["dec"]); rid.append(r.get("source_id"))
         try:
             sol: PlateSolution = solve_plate(rra, rdec, rx, ry, rs, tangent)
-            cov_xy = np.array([[c.sigma_x ** 2 + centroid_floor_px ** 2, c.cov_xy],
-                               [c.cov_xy, c.sigma_y ** 2 + centroid_floor_px ** 2]])
-            xi, eta, C = sol.apply(c.x, c.y, cov_xy)
-            k = 3600e3
-            xi_eta = (float(xi * k), float(eta * k))
-            cov3 = (float(C[0, 0] * k * k), float(C[1, 1] * k * k), float(C[0, 1] * k * k))
+            if c.converged and target_detected:
+                cov_xy = np.array([[c.sigma_x ** 2 + centroid_floor_px ** 2, c.cov_xy],
+                                   [c.cov_xy, c.sigma_y ** 2 + centroid_floor_px ** 2]])
+                xi, eta, C = sol.apply(c.x, c.y, cov_xy)
+                k = 3600e3
+                xi_eta = (float(xi * k), float(eta * k))
+                cov3 = (float(C[0, 0] * k * k), float(C[1, 1] * k * k), float(C[0, 1] * k * k))
             rej = set(sol.rejected_refs)
             plate_d = {"n_refs": sol.n_refs, "n_candidates": len(rx), "rms_mas": sol.rms_mas,
                        "ref_rejections": ref_rejects, "selection": "REFSEL-1",

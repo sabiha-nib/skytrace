@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skytrace</title>
+  <meta name="description" content="Investigate repeated SPHEREx observations: compare epochs at matched wavelengths, measure motion and brightness, and trace every claim to its data.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f1a2b'/%3E%3Ccircle cx='11' cy='20' r='3' fill='%23f0a35e'/%3E%3Ccircle cx='21' cy='12' r='3' fill='%235c83d9'/%3E%3Cpath d='M11 20 L21 12' stroke='%23e6b450' stroke-width='1.5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <h1 class="wordmark">Skytrace<small>SPHEREx observations across time</small></h1>
+    <div class="target-picker">
+      <label for="target-select">Target</label>
+      <select id="target-select" aria-describedby="data-pill"></select>
+    </div>
+    <span class="pill none" id="data-pill">No target</span>
+    <span class="spacer"></span>
+    <span class="pill offline" id="offline-pill" hidden>Offline mode</span>
+    <span class="pill model" id="model-pill" title="">Copilot status</span>
+    <button class="btn primary" id="run-btn" disabled>Run analysis</button>
+    <button class="btn copilot-toggle" id="copilot-toggle" aria-controls="copilot">Copilot</button>
+  </header>
+
+  <section class="ruler" aria-labelledby="ruler-title">
+    <div class="ruler-head">
+      <h2 id="ruler-title">Where each observation was measured</h2>
+      <p id="ruler-caption">Each SPHEREx detector covers part of 0.75–5.0 µm, and the wavelength at a star depends on where it lands. Only observations stacked vertically (same wavelength) can be compared for brightness.</p>
+    </div>
+    <svg id="ruler-svg" role="img" aria-label="Wavelength versus time of the selected target's observations"></svg>
+  </section>
+
+  <nav class="nav" aria-label="Workspaces">
+    <button data-ws="explorer" aria-current="page">Sky Explorer</button>
+    <button data-ws="time">Time Machine</button>
+    <button data-ws="lab">Discovery Lab</button>
+    <button data-ws="graph">Evidence Graph</button>
+    <button data-ws="records">Investigations</button>
+    <div class="nav-foot" id="nav-foot"></div>
+  </nav>
+
+  <main class="main" id="main">
+    <div id="global-banner"></div>
+
+    <section class="workspace active" id="ws-explorer" aria-labelledby="ws-explorer-title">
+      <h2 class="ws-title" id="ws-explorer-title">Sky Explorer</h2>
+      <p class="ws-sub">Inspect every archive image that covers the target, with its date, detector, wavelength and provenance.</p>
+      <div id="explorer-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-time" aria-labelledby="ws-time-title">
+      <h2 class="ws-title" id="ws-time-title">Time Machine</h2>
+      <p class="ws-sub">Compare two observations. Brightness can only be compared at a matched wavelength; positions can be compared across wavelengths, with care.</p>
+      <div id="time-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-lab" aria-labelledby="ws-lab-title">
+      <h2 class="ws-title" id="ws-lab-title">Discovery Lab</h2>
+      <p class="ws-sub">What the measurements support, how they were made, and what else could explain them.</p>
+      <div id="lab-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-graph" aria-labelledby="ws-graph-title">
+      <h2 class="ws-title" id="ws-graph-title">Evidence Graph</h2>
+      <p class="ws-sub">Every node is a recorded fact: an observation, a measurement, a method, a comparison, a claim or a limitation. Select a claim to trace it back to its observations.</p>
+      <div id="graph-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-records" aria-labelledby="ws-records-title">
+      <h2 class="ws-title" id="ws-records-title">Investigations</h2>
+      <p class="ws-sub">Save an investigation with its parameters, data checksums, results and copilot conversation. Reopen it later, or replay it to check that it reproduces.</p>
+      <div id="records-body"></div>
+    </section>
+  </main>
+
+  <aside class="copilot" id="copilot" aria-labelledby="copilot-title">
+    <header>
+      <h2 id="copilot-title">Research copilot</h2>
+      <p id="copilot-status">Run an analysis to ask questions about its evidence.</p>
+    </header>
+    <div class="thread" id="thread" aria-live="polite"></div>
+    <div class="composer">
+      <div class="chips" id="suggestions"></div>
+      <form id="ask-form">
+        <label class="sr-only" for="ask-input">Ask about the evidence</label>
+        <textarea id="ask-input" placeholder="Ask about the evidence…" disabled></textarea>
+        <button class="btn primary" type="submit" id="ask-btn" disabled>Ask</button>
+      </form>
+    </div>
+  </aside>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script type="module" src="/static/js/main.js"></script>
+</body>
+</html>
