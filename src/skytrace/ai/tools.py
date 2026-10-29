@@ -157,7 +157,9 @@ def t_compat(s: ToolSession, a: CompatArgs) -> dict:
                                      "delta_t_days": d["delta_t_days"]} for d in partners][:30],
             "n_compatible_partners": len(partners),
             "investigation_rejection_reasons": pe["data"].get("rejection_reasons") if pe else None,
-            "rule": "WLMATCH-1: same detector and |Δλ| <= 0.5 x bandwidth"}
+            "rule": (pe["data"].get("rule", "WLMATCH-1") if pe else "WLMATCH-2") +
+                    ": same detector, usable photometry, |Δλ| + margin <= tolerance x bandwidth"
+                    + (", same release" if pe and pe["data"].get("same_release") else "")}
 
 
 def t_quality(s: ToolSession, a: KeyArgs) -> dict:
@@ -248,7 +250,8 @@ def t_summary(s: ToolSession, _: NoArgs) -> dict:
     if pe:
         acc = len(pe["data"].get("accepted", []))
         rr = pe["data"].get("rejection_reasons", {})
-        pairs = {"accepted": acc, "considered": acc + sum(rr.values()), "rejection_reasons": rr, "rule": "WLMATCH-1"}
+        pairs = {"accepted": acc, "considered": acc + sum(rr.values()), "rejection_reasons": rr,
+                 "rule": pe["data"].get("rule", "WLMATCH-1")}
     return {"target": s.view.r["target"], "synthetic": s.view.is_synthetic(), "data_origins": s.view.data_origins(),
             "wavelength_pairs": pairs,
             "outcomes": [{k: o[k] for k in ("question", "category", "statement", "evidence", "criteria", "limitations")}
@@ -269,7 +272,7 @@ def t_validate(s: ToolSession, a: ClaimArgs) -> dict:
 TOOLS: dict[str, tuple[type[_Args], Callable[[ToolSession, Any], dict], str]] = {
     "list_target_observations": (ListObsArgs, t_list, "List the target's archive images with inclusion, measurement status and wavelength at the target."),
     "get_observation_metadata": (KeyArgs, t_meta, "Archive metadata, file checksum, provenance and product structure for one observation."),
-    "get_wavelength_compatibility": (CompatArgs, t_compat, "Whether two observations can be compared photometrically (rule WLMATCH-1), or the compatible partners of one."),
+    "get_wavelength_compatibility": (CompatArgs, t_compat, "Whether two observations can be compared photometrically (rule WLMATCH-2), or the compatible partners of one."),
     "inspect_image_quality": (KeyArgs, t_quality, "Quality flags, fit diagnostics, plate-solution details and rejection reasons for one observation."),
     "get_source_measurements": (OptKeyArgs, t_meas, "Measured centroid, flux, S/N and wavelength for one observation, or a list."),
     "compare_observation_epochs": (PairArgs, t_compare, "Compare two observations: wavelength compatibility, flux difference (only if compatible) and position difference."),

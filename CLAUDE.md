@@ -21,7 +21,7 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
 ## Rules
 - SPHEREx QR3 by default (doi:10.26131/IRSA662), QR2 fallback (10.26131/IRSA652). Never QR1.
 - Use only documented IRSA interfaces; never invent endpoints.
-- Flux comparisons only for wavelength-matched pairs (WLMATCH-1); log every rejection with a reason.
+- Flux comparisons only for wavelength-matched pairs (WLMATCH-2); log every rejection with a reason.
 - Never fill missing values. Never call a candidate a discovery. z is not a probability.
 - Synthetic data: `fixtures/synthetic/`, `SYNTHETIC = T`, origin `synthetic`, SYN-* names. Never in `data/bundles/`.
 - Keys only from the environment; never in code, logs, records or the browser.

@@ -68,7 +68,9 @@ def _detector(row: dict, url: str) -> int | None:
     m = re.search(r"D([1-6])\b", name)
     if m:
         return int(m.group(1))
-    return parse_filename(url)[1]
+    # IRSA SIA puts the detector in obs_publisher_did and the file name, not in obs_id;
+    # energy_bandpassname may be just "Infrared".
+    return parse_filename(url)[1] or parse_filename(str(row.get("obs_publisher_did") or ""))[1]
 
 
 def observations_from_sia(rows: list[dict], release: str) -> list[Observation]:
@@ -76,6 +78,7 @@ def observations_from_sia(rows: list[dict], release: str) -> list[Observation]:
     for r in rows:
         url = str(r.get("access_url") or "")
         obs_fn, _ = parse_filename(url)
+        obs_fn = obs_fn or parse_filename(str(r.get("obs_publisher_did") or ""))[0]
         tmin, tmax = r.get("t_min"), r.get("t_max")
         out.append(Observation(
             release=release, obs_id=str(r.get("obs_id") or obs_fn or url),

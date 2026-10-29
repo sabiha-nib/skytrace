@@ -37,6 +37,10 @@ export function deriveModel(record) {
   m.spectrum = first("spectrum")?.data?.points || [];
   m.pairRejections = first("pairs")?.data?.rejection_reasons || {};
   m.tolerance = record.parameters.wavelength_tolerance_channels;
+  m.marginUm = record.parameters.wavelength_margin_um ?? 0;
+  m.sameRelease = record.parameters.photometry_same_release ?? false;
+  m.pairRule = first("pairs")?.data?.rule || "WLMATCH-1";
+  m.calcheck = first("variability")?.data?.calibration_check || null;
   return m;
 }
 
@@ -44,18 +48,22 @@ export function compatible(model, a, b) {
   return model ? model.acceptedSet.has(a + "|" + b) : false;
 }
 
-// Client-side mirror of WLMATCH-1, used only to explain to the user why a pair is unavailable.
-// The server's decision (accepted pairs in the record) is authoritative.
+// Client-side mirror of the wavelength-match rule (WLMATCH-2; WLMATCH-1 for older records), used only to
+// explain to the user why a pair is unavailable. The server's decision (accepted pairs in the record) is authoritative.
 export function compatibilityReason(model, a, b) {
   const ma = model?.measurements[a], mb = model?.measurements[b];
   if (!ma || !mb) return "no measurement for one of the observations";
   if (ma.detector !== mb.detector) return `different detectors (D${ma.detector} vs D${mb.detector})`;
-  if (ma.quality !== "ok") return `${a} unusable: ${ma.quality}`;
-  if (mb.quality !== "ok") return `${b} unusable: ${mb.quality}`;
+  const qa = ma.quality_code ?? (ma.quality === "ok" ? "ok" : ma.quality), qb = mb.quality_code ?? (mb.quality === "ok" ? "ok" : mb.quality);
+  if (qa !== "ok") return `${a} unusable for photometry: ${qa}`;
+  if (qb !== "ok") return `${b} unusable for photometry: ${qb}`;
+  if (model.sameRelease && ma.release !== mb.release) return `different releases (${ma.release} vs ${mb.release}): calibrations may differ`;
   if (ma.wavelength_um == null || mb.wavelength_um == null) return "wavelength unknown";
   const dl = Math.abs(ma.wavelength_um - mb.wavelength_um);
   const tol = model.tolerance * Math.min(ma.bandwidth_um, mb.bandwidth_um);
-  return dl > tol ? `wavelength mismatch: |Δλ| = ${dl.toFixed(4)} µm > ${tol.toFixed(4)} µm` : `|Δλ| = ${dl.toFixed(4)} µm ≤ ${tol.toFixed(4)} µm`;
+  if (dl > tol) return `wavelength mismatch: |Δλ| = ${dl.toFixed(4)} µm > ${tol.toFixed(4)} µm`;
+  if (dl + model.marginUm > tol) return `wavelength match ambiguous: |Δλ| = ${dl.toFixed(4)} µm is within the ${(model.marginUm * 1000).toFixed(1)} nm accuracy margin of ${tol.toFixed(4)} µm`;
+  return `|Δλ| = ${dl.toFixed(4)} µm ≤ ${tol.toFixed(4)} µm`;
 }
 
 export function writeHash() {

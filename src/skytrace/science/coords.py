@@ -174,3 +174,24 @@ def parallax_offset_mas(ra: float, dec: float, parallax_mas: float, observer_xyz
     dra = parallax_mas * (x * math.sin(a) - y * math.cos(a))
     ddec = parallax_mas * (x * math.cos(a) * math.sin(d) + y * math.sin(a) * math.sin(d) - z * math.cos(d))
     return dra, ddec
+
+
+def apparent_position(ast: Astrometry, mjd: float) -> tuple[float, float]:
+    """Catalogue astrometry -> position seen from Earth/SPHEREx at mjd: space motion + annual parallax.
+
+    Aberration and light deflection are common to the whole 0.1 deg field and cancel in
+    differential astrometry, so they are not applied.
+    """
+    from .ephemeris import observer_barycentric_au
+    ra, dec = propagate(ast, float(mjd_to_jyear(mjd)))
+    if not ast.parallax:
+        return ra, dec
+    dra, ddec = parallax_offset_mas(ra, dec, ast.parallax, observer_barycentric_au(mjd))
+    return ra + dra / 3600e3 / math.cos(math.radians(dec)), dec + ddec / 3600e3
+
+
+def parallax_offset_at(ast: Astrometry, mjd: float) -> tuple[float, float]:
+    """Parallax displacement (d_ra*cos(dec), d_dec) in mas at mjd."""
+    from .ephemeris import observer_barycentric_au
+    ra, dec = propagate(ast, float(mjd_to_jyear(mjd)))
+    return parallax_offset_mas(ra, dec, ast.parallax, observer_barycentric_au(mjd)) if ast.parallax else (0.0, 0.0)

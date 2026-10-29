@@ -99,7 +99,7 @@ def assess_variability(flux_pairs: list[dict], spectral_pairs: list[dict], n_pai
     lim = ["Aperture fluxes are not aperture-corrected; only matched pairs are compared.",
            "Errors include photon/read noise and sky; PSF variation across the detector and calibration drift are not in the error model.",
            "Unresolved neighbours contribute to every aperture flux."]
-    crit = [f"wavelength match: rule WLMATCH-1 (same detector, |Δλ| ≤ 0.5 × bandwidth)",
+    crit = [f"wavelength match: rule WLMATCH-2 (same detector, same release, |Δλ| + 2 nm ≤ 0.5 × bandwidth)",
             f"candidate: |z| ≥ {T['variability_z']} in at least one matched pair of unflagged measurements"]
     zs = [abs(p["z"]) for p in flux_pairs if p.get("z") is not None and math.isfinite(p["z"])]
     ev = {"n_matched_pairs": len(zs), "n_pairs_considered": n_pairs_considered,

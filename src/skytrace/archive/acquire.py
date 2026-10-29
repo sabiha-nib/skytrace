@@ -222,7 +222,9 @@ def acquire(fetcher: Fetcher, cfg: dict, out_root: Path = bmod.ARCHIVE_ROOT, *, 
         rows, rprov = refs_mod.gaia_cone(fetcher, *propagate(ast, 2016.0), size_deg * 0.75, 10.0, 17.5, limit=800)
         stars = [{"source_id": str(r["source_id"]), "ra": r["ra"], "dec": r["dec"], "ref_epoch": r.get("ref_epoch") or 2016.0,
                   "pmra": r.get("pmra"), "pmdec": r.get("pmdec"), "pmra_error": r.get("pmra_error"),
-                  "pmdec_error": r.get("pmdec_error"), "g_mag": r.get("phot_g_mean_mag"), "ruwe": r.get("ruwe")}
+                  "pmdec_error": r.get("pmdec_error"), "g_mag": r.get("phot_g_mean_mag"), "ruwe": r.get("ruwe"),
+                  "parallax": r.get("parallax"), "astrometric_params_solved": r.get("astrometric_params_solved"),
+                  "duplicated_source": r.get("duplicated_source")}
                  for r in rows if r.get("pmra") is not None
                  and str(r["source_id"]) != str(tinfo["identity"].get("gaia_dr3_source_id"))]
         bmod.write_json(bdir / "references.json", {"catalogue": refs_mod.GAIA_DR3, "query": rprov.source_url,

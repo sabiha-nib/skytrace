@@ -3,7 +3,7 @@
 Shared by the copilot tools, the API and the evidence graph so that every
 consumer reads the same logged facts. Nothing here computes a new measurement
 except `pair_comparison`, which applies the already-defined deterministic rules
-(WLMATCH-1, PAIRDIFF-1) to two logged measurements.
+(WLMATCH-2, PAIRDIFF-1/2) to two logged measurements.
 """
 
 from __future__ import annotations
@@ -165,7 +165,8 @@ def evidence_graph(v: InvestigationView, target_id: str) -> dict:
     pe = v.first("pairs")
     flux_by = {(p["a"], p["b"]): p for p in v.flux_pairs()}
     if pe:
-        wl = node("method:WLMATCH-1", "method", "WLMATCH-1")
+        rule = pe["data"].get("rule", "WLMATCH-1")
+        wl = node("method:" + rule, "method", rule)
         for d in v.accepted_pairs():
             fp = flux_by.get((d["a"], d["b"]))
             pnode = node(f"pair:{d['a']}|{d['b']}", "comparison", f"{d['a']} ↔ {d['b']}", z=fp["z"] if fp else None,

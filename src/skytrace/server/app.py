@@ -302,9 +302,15 @@ async def analyze(request: Request):
     body = await _body(request)
     params = body.get("params") or {}
     allowed = {"aperture_radius_px": (1.0, 5.0), "fit_half_size_px": (3, 8), "wavelength_tolerance_channels": (0.1, 1.0),
-               "epoch_clip_sigma": (2.0, 10.0)}
+               "epoch_clip_sigma": (2.0, 10.0), "wavelength_margin_um": (0.0, 0.01), "epoch_gap_days": (0.5, 60.0)}
+    booleans = {"photometry_same_release", "apply_parallax", "reference_quality_cut"}
     clean = {}
     for k, v in params.items():
+        if k in booleans:
+            if not isinstance(v, bool):
+                raise APIError(400, f"{k} must be true or false")
+            clean[k] = v
+            continue
         if k == "detectors":
             if not (isinstance(v, list) and v and all(isinstance(d, int) and 1 <= d <= 6 for d in v)):
                 raise APIError(400, "detectors must be a non-empty list of integers 1-6")

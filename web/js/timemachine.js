@@ -1,5 +1,5 @@
 // Time Machine: compare observation A (selected) with observation B.
-// Brightness comparisons are offered only for wavelength-matched pairs (WLMATCH-1, decided by the server's analysis).
+// Brightness comparisons are offered only for wavelength-matched pairs (WLMATCH-2, decided by the server's analysis).
 // Blink and fade remain available for any pair because positions can be compared across wavelengths, but a
 // persistent banner states when brightness differences are not evidence of change.
 

@@ -42,7 +42,8 @@ def gaia_cone(fetcher: Fetcher, ra: float, dec: float, radius_deg: float,
               g_min: float = 10.0, g_max: float = 16.0, limit: int = 500) -> tuple[list[dict], Provenance]:
     """Reference-star candidates. The G range excludes stars likely to be saturated or too faint."""
     adql = f"""SELECT TOP {int(limit)} source_id, ra, dec, ra_error, dec_error, pmra, pmdec,
-                      pmra_error, pmdec_error, parallax, radial_velocity, ref_epoch, phot_g_mean_mag, ruwe
+                      pmra_error, pmdec_error, parallax, radial_velocity, ref_epoch, phot_g_mean_mag, ruwe,
+                      astrometric_params_solved, duplicated_source
                FROM gaiadr3.gaia_source
                WHERE 1 = CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {ra:.7f}, {dec:.7f}, {radius_deg:.6f}))
                  AND phot_g_mean_mag BETWEEN {g_min} AND {g_max}

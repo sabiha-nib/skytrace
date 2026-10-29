@@ -46,6 +46,15 @@ class ExposureMeasurement:
     target_xi_eta_mas: tuple[float, float] | None = None   # relative to the fixed tangent point
     target_cov_mas2: tuple[float, float, float] | None = None  # (var_xi, var_eta, cov)
     notes: tuple[str, ...] = ()
+    quality_code: str = "ok"        # photometric usability, one of QUALITY_CODES
+    astro_code: str = "ok"          # astrometric usability, one of ASTRO_CODES
+    ref_photometry: tuple = ()      # reference-star aperture fluxes in this exposure (for CALCHECK)
+
+
+# Machine-readable status codes (never parse the free-text 'quality' field to decide anything).
+QUALITY_CODES = {"ok", "target_outside", "no_wavelength", "photometry_flagged", "photometry_no_sky",
+                 "photometry_off_image", "blended", "nonlinear_flag"}
+ASTRO_CODES = {"ok", "target_outside", "centroid_failed", "below_snr", "blended", "no_references", "plate_failed"}
 
 
 def measure_exposure(prod: ProductLike, obs_id: str, detector: int, mjd: float,
@@ -54,7 +63,8 @@ def measure_exposure(prod: ProductLike, obs_id: str, detector: int, mjd: float,
                      fit_half_size: int = 4, isolation_px: float = 3.0, max_ref_rchi2: float = 3.0,
                      centroid_floor_px: float = 0.02, target_window_px: float = 1.5,
                      min_target_snr: float = 5.0, neighbour_mask_px: float = 2.5) -> ExposureMeasurement:
-    """refs: reference stars already propagated to this epoch: dicts with 'ra', 'dec', 'source_id'.
+    """refs: catalogue stars already placed at this epoch: dicts with 'ra', 'dec', 'source_id' and optionally
+    'use_as_reference' (False = masked as a neighbour but never used in the plate solution).
 
     Reference selection REFSEL-1: inside the cutout, no other catalogue source within
     isolation_px, PSF fit converged with reduced chi2 <= max_ref_rchi2, and within 2 px
@@ -80,7 +90,8 @@ def measure_exposure(prod: ProductLike, obs_id: str, detector: int, mjd: float,
     ny, nx = prod.image.shape
     if not (0 <= x0 < nx and 0 <= y0 < ny):
         return ExposureMeasurement(obs_id, detector, mjd, (x0, y0), None, None, None, None, {},
-                                   "target outside cutout", notes=tuple(notes))
+                                   "target outside cutout", notes=tuple(notes),
+                                   quality_code="target_outside", astro_code="target_outside")
     try:
         wl, bw = prod.wavelength_at(x0, y0)
     except Exception as e:
@@ -123,15 +134,22 @@ def measure_exposure(prod: ProductLike, obs_id: str, detector: int, mjd: float,
                      "not used for astrometry or photometry")
         target_detected = False
 
-    quality = "ok"
+    quality, qcode = "ok", "ok"
     if wl is None:
-        quality = "no wavelength"
+        quality, qcode = "no wavelength", "no_wavelength"
     elif phot.status != "ok":
-        quality = f"photometry {phot.status}: {phot.detail}"
+        quality, qcode = f"photometry {phot.status}: {phot.detail}", f"photometry_{phot.status.replace('-', '_')}"
     elif blend is not None:
-        quality = f"blended: catalogue source within {blend[0]:.2f} px"
+        quality, qcode = f"blended: catalogue source within {blend[0]:.2f} px", "blended"
+    elif "MP_NONLINEAR" in fsum.warn_names:
+        quality, qcode = "photometry warn: non-linear pixels in the aperture (excluded from variability)", "nonlinear_flag"
+    acode = ("blended" if blend is not None else "centroid_failed" if not c.converged else
+             "below_snr" if not target_detected else "ok")
 
     plate_d, xi_eta, cov3 = None, None, None
+    ref_phot: list[dict] = []
+    if not refs and acode == "ok":
+        acode = "no_references"
     if refs:  # the plate is solved whenever references exist; the target position needs a usable target
         rx, ry, rs, rra, rdec, rid = [], [], [], [], [], []
         ref_rejects: dict[str, int] = {}
@@ -139,6 +157,8 @@ def measure_exposure(prod: ProductLike, obs_id: str, detector: int, mjd: float,
         for i, r in enumerate(refs):
             px, py = cat_xy[i]
             if not (fit_half_size <= px < nx - fit_half_size and fit_half_size <= py < ny - fit_half_size):
+                continue
+            if r.get("use_as_reference") is False:  # catalogue quality cut (REFSEL-2): still masked as a neighbour
                 continue
             # REFSEL-1 isolation: no other catalogue source (or the target) within isolation_px
             others = [np.hypot(px - qx, py - qy) for j, (qx, qy) in enumerate(cat_xy) if j != i]
@@ -159,6 +179,17 @@ def measure_exposure(prod: ProductLike, obs_id: str, detector: int, mjd: float,
             rx.append(rc.x); ry.append(rc.y)
             rs.append(float(np.hypot(max(rc.sigma_x, rc.sigma_y), centroid_floor_px)))
             rra.append(r["ra"]); rdec.append(r["dec"]); rid.append(r.get("source_id"))
+            # CALCHECK input: aperture photometry of isolated reference stars (no catalogue source within the sky annulus)
+            crowd = min([np.hypot(rc.x - qx, rc.y - qy) for j, (qx, qy) in enumerate(cat_xy) if j != i] + [np.hypot(rc.x - x0, rc.y - y0)])
+            if crowd > 7.5:
+                rp = ph.aperture_photometry(prod.image, prod.variance, rc.x, rc.y,
+                                            ph.pixel_solid_angle_from_scale(sx, sy), r_ap=aperture_px, bad=bad)
+                try:
+                    rwl, rbw = prod.wavelength_at(rc.x, rc.y)
+                except Exception:
+                    rwl = rbw = None
+                ref_phot.append({"source_id": r.get("source_id"), "flux_ujy": rp.flux_ujy, "flux_err_ujy": rp.flux_err_ujy,
+                                 "status": rp.status, "wavelength_um": rwl, "bandwidth_um": rbw})
         try:
             sol: PlateSolution = solve_plate(rra, rdec, rx, ry, rs, tangent)
             if c.converged and target_detected:
@@ -177,12 +208,14 @@ def measure_exposure(prod: ProductLike, obs_id: str, detector: int, mjd: float,
                                    for i in range(len(rx))]}
         except AstrometryError as e:
             notes.append(f"plate solution failed: {e}")
+            if acode == "ok":
+                acode = "plate_failed"
             plate_d = {"n_refs": 0, "n_candidates": len(rx), "failed": str(e), "ref_rejections": ref_rejects,
                        "refs_xy": [{"source_id": rid[i], "x": rx[i], "y": ry[i], "used": False} for i in range(len(rx))]}
 
     return ExposureMeasurement(obs_id, detector, mjd, (float(x0), float(y0)), wl, bw, asdict(c),
                                {**asdict(phot), "snr": phot.snr, "ab_mag": phot.ab_mag},
-                               asdict(fsum), quality, plate_d, xi_eta, cov3, tuple(notes))
+                               asdict(fsum), quality, plate_d, xi_eta, cov3, tuple(notes), qcode, acode, tuple(ref_phot))
 
 
 def predicted_xi_eta_mas(ra: float, dec: float, tangent: tuple[float, float]) -> tuple[float, float]:

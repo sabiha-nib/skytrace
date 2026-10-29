@@ -21,6 +21,7 @@ Then, across exposures:
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 import numpy as np
@@ -212,3 +213,42 @@ def compare_to_catalogue(fit: MotionFit, pmra: float, pmdec: float,
                 "that the measurement is correct. Tangent-plane axes approximate (pmra*, pmdec) "
                 "near the tangent point.",
     }
+
+
+# ---------------------------------------------------------------------------- LINFIT-EPOCH-1
+EPOCH_METHOD = "LINFIT-EPOCH-1"
+
+
+def group_epochs(t_mjd, gap_days: float) -> list[list[int]]:
+    """Group exposure indices into visits: a new epoch starts after a gap > gap_days."""
+    order = sorted(range(len(t_mjd)), key=lambda i: t_mjd[i])
+    groups: list[list[int]] = []
+    for i in order:
+        if groups and t_mjd[i] - t_mjd[groups[-1][-1]] <= gap_days:
+            groups[-1].append(i)
+        else:
+            groups.append([i])
+    return groups
+
+
+def epoch_average(t_mjd, xi, eta, sx, se, groups: list[list[int]]) -> list[dict]:
+    """Weighted mean position per epoch.
+
+    The error of each epoch mean is max(formal error of the mean, empirical scatter / sqrt(n))
+    (empirical term only for n >= 3). Exposures in one visit share the same reference stars and
+    similar detector positions, so their errors are partly correlated; taking the larger of the two
+    keeps the epoch error from shrinking below what the data show. This is the LINFIT-EPOCH-1 input.
+    """
+    out = []
+    for g in groups:
+        t = np.array([t_mjd[i] for i in g]); x = np.array([xi[i] for i in g]); e = np.array([eta[i] for i in g])
+        wx = 1 / np.array([sx[i] for i in g]) ** 2; we = 1 / np.array([se[i] for i in g]) ** 2
+        mx, me = float(np.sum(wx * x) / np.sum(wx)), float(np.sum(we * e) / np.sum(we))
+        fx, fe = float(np.sum(wx) ** -0.5), float(np.sum(we) ** -0.5)
+        n = len(g)
+        ex = float(np.std(x, ddof=1) / math.sqrt(n)) if n >= 3 else 0.0
+        ee = float(np.std(e, ddof=1) / math.sqrt(n)) if n >= 3 else 0.0
+        out.append({"t_mjd": float(np.mean(t)), "n_exposures": n, "xi_mas": mx, "eta_mas": me,
+                    "sig_xi_mas": max(fx, ex), "sig_eta_mas": max(fe, ee),
+                    "formal_sig_mas": [fx, fe], "empirical_sig_mas": [ex, ee], "members": list(g)})
+    return out
