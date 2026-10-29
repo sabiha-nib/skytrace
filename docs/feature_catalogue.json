@@ -1,0 +1,5377 @@
+{
+ "schema": "skytrace.feature_catalogue/1",
+ "dimensions": [
+  "scientific value",
+  "user value",
+  "differentiation",
+  "feasibility now",
+  "data readiness",
+  "verifiability",
+  "integrity safety"
+ ],
+ "statuses": {
+  "E": "existing (≤ 0.4)",
+  "N": "new in 0.5",
+  "P": "deferred",
+  "X": "out of scope"
+ },
+ "counts": {
+  "concepts": 267,
+  "domains": 25,
+  "by_status": {
+   "existing (≤ 0.4)": 104,
+   "deferred": 61,
+   "out of scope": 31,
+   "new in 0.5": 71
+  },
+  "by_tier": {
+   "A": 79,
+   "B": 92,
+   "C": 44,
+   "D": 52
+  },
+  "implemented": 175
+ },
+ "items": [
+  {
+   "id": "F01.01",
+   "domain": "Data acquisition and archives",
+   "concept": "SPHEREx QR3 spectral images via documented IRSA interfaces (QR2 fallback, never QR1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 1,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "A",
+   "dependencies": "network access to IRSA",
+   "verification": "tests/unit/test_acquire.py"
+  },
+  {
+   "id": "F01.02",
+   "domain": "Data acquisition and archives",
+   "concept": "SIMBAD target resolution with stored response",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 2,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 3.57,
+   "tier": "B",
+   "dependencies": "network",
+   "verification": "tests/unit/test_acquire.py"
+  },
+  {
+   "id": "F01.03",
+   "domain": "Data acquisition and archives",
+   "concept": "Gaia DR3 reference stars and target astrometry",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 1,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "A",
+   "dependencies": "network",
+   "verification": "tests/unit/test_acquire.py"
+  },
+  {
+   "id": "F01.04",
+   "domain": "Data acquisition and archives",
+   "concept": "Environment diagnosis of every external service (verdict per service)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "scripts/diagnose_environment.py"
+  },
+  {
+   "id": "F01.05",
+   "domain": "Data acquisition and archives",
+   "concept": "Acquisition retries with bounded back-off and a cache",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 4,
+    "data readiness": 2,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.0,
+   "tier": "D",
+   "dependencies": "network",
+   "verification": "tests/unit/test_acquire.py"
+  },
+  {
+   "id": "F01.06",
+   "domain": "Data acquisition and archives",
+   "concept": "Live acquisition of the five challenge targets",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 1,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 4.0,
+   "tier": "B",
+   "dependencies": "network access to IRSA, SIMBAD, Gaia (blocked here)",
+   "verification": "tests/live/test_live_archive.py"
+  },
+  {
+   "id": "F01.07",
+   "domain": "Data acquisition and archives",
+   "concept": "Cutout service instead of full Level-2 images",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 4,
+    "data readiness": 1,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.14,
+   "tier": "C",
+   "dependencies": "documented IRSA cutout endpoint; network",
+   "verification": "—"
+  },
+  {
+   "id": "F01.08",
+   "domain": "Data acquisition and archives",
+   "concept": "Background prefetch of neighbouring epochs",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.43,
+   "tier": "D",
+   "dependencies": "network; storage budget",
+   "verification": "—"
+  },
+  {
+   "id": "F01.09",
+   "domain": "Data acquisition and archives",
+   "concept": "Automatic acquisition of new data releases",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "C",
+   "dependencies": "release announcements; network",
+   "verification": "—"
+  },
+  {
+   "id": "F01.10",
+   "domain": "Data acquisition and archives",
+   "concept": "Scraping undocumented archive pages",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 1,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.0,
+   "tier": "D",
+   "dependencies": "—",
+   "verification": "—"
+  },
+  {
+   "id": "F02.01",
+   "domain": "Data bundles and provenance",
+   "concept": "Verified data bundles with manifest and SHA-256 per file",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/unit/test_archive.py"
+  },
+  {
+   "id": "F02.02",
+   "domain": "Data bundles and provenance",
+   "concept": "Source-label contract (archive, cache, synthetic) on every record",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/unit/test_provenance_check.py"
+  },
+  {
+   "id": "F02.03",
+   "domain": "Data bundles and provenance",
+   "concept": "Synthetic fixtures with known injected answers, labelled SYNTHETIC",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/synthetic.py"
+  },
+  {
+   "id": "F02.04",
+   "domain": "Data bundles and provenance",
+   "concept": "Provenance check PROVCHECK-1 (hashes, origins, codes, re-run determinism)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "server",
+   "verification": "tests/unit/test_provenance_check.py"
+  },
+  {
+   "id": "F02.05",
+   "domain": "Data bundles and provenance",
+   "concept": "Bundle verification script",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "scripts/verify_data_bundle.py"
+  },
+  {
+   "id": "F02.06",
+   "domain": "Data bundles and provenance",
+   "concept": "Evidence inventory per investigation (DISC-1 stage A)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "record, bundle manifest",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F02.07",
+   "domain": "Data bundles and provenance",
+   "concept": "Unknown fields left empty and counted, never guessed",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F02.08",
+   "domain": "Data bundles and provenance",
+   "concept": "Dataset DOI and release on every observation",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "archive metadata",
+   "verification": "tests/unit/test_acquire.py"
+  },
+  {
+   "id": "F02.09",
+   "domain": "Data bundles and provenance",
+   "concept": "Signed bundles (cryptographic signature of the manifest)",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 4,
+    "data readiness": 1,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "D",
+   "dependencies": "key management",
+   "verification": "—"
+  },
+  {
+   "id": "F02.10",
+   "domain": "Data bundles and provenance",
+   "concept": "Bundle diff between two acquisitions",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 4,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.43,
+   "tier": "B",
+   "dependencies": "two bundles of one target",
+   "verification": "—"
+  },
+  {
+   "id": "F03.01",
+   "domain": "Image access, FITS and WCS",
+   "concept": "Native FITS reader with validated header parsing",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/unit/test_fits_wcs.py"
+  },
+  {
+   "id": "F03.02",
+   "domain": "Image access, FITS and WCS",
+   "concept": "Gnomonic WCS with SIP distortion, validated against the reference implementation",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "astropy for the external check (not installed here)",
+   "verification": "tests/unit/test_fits_wcs_external.py"
+  },
+  {
+   "id": "F03.03",
+   "domain": "Image access, FITS and WCS",
+   "concept": "Spectral WCS: wavelength at any pixel from the LVF solution",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "Level-2 spectral WCS",
+   "verification": "tests/unit/test_wavelength_flags.py"
+  },
+  {
+   "id": "F03.04",
+   "domain": "Image access, FITS and WCS",
+   "concept": "Flag-bit policy applied before measurement (FLAGPOL-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/unit/test_wavelength_flags.py"
+  },
+  {
+   "id": "F03.05",
+   "domain": "Image access, FITS and WCS",
+   "concept": "Image stamps served at native resolution with no resampling",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/integration/test_api.py"
+  },
+  {
+   "id": "F03.06",
+   "domain": "Image access, FITS and WCS",
+   "concept": "Variance plane propagated into photometric errors",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/unit/test_measurement.py"
+  },
+  {
+   "id": "F03.07",
+   "domain": "Image access, FITS and WCS",
+   "concept": "PSF model per detector position from the archive PSF cubes",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 4
+   },
+   "mean": 3.0,
+   "tier": "C",
+   "dependencies": "PSF products; network",
+   "verification": "—"
+  },
+  {
+   "id": "F03.08",
+   "domain": "Image access, FITS and WCS",
+   "concept": "Zodiacal-light model subtraction",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.43,
+   "tier": "C",
+   "dependencies": "external model; validation data",
+   "verification": "—"
+  },
+  {
+   "id": "F03.09",
+   "domain": "Image access, FITS and WCS",
+   "concept": "Full-frame mosaic of all epochs",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 1,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "C",
+   "dependencies": "network; storage",
+   "verification": "—"
+  },
+  {
+   "id": "F03.10",
+   "domain": "Image access, FITS and WCS",
+   "concept": "Deep co-added image per detector",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "C",
+   "dependencies": "registration of many epochs",
+   "verification": "—"
+  },
+  {
+   "id": "F04.01",
+   "domain": "Sky Explorer",
+   "concept": "Image viewer with stretch, black and white points, zoom and pan",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F04.02",
+   "domain": "Sky Explorer",
+   "concept": "Overlays: catalogue position, centroid, reference stars, rejected pixels",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "measurement records",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F04.03",
+   "domain": "Sky Explorer",
+   "concept": "Observation table with detector and status filters",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F04.04",
+   "domain": "Sky Explorer",
+   "concept": "Keyboard stepping between observations",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 4,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 3.71,
+   "tier": "D",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F04.05",
+   "domain": "Sky Explorer",
+   "concept": "Pixel read-out with value and approximate sky coordinates (linearised WCS)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "WCS",
+   "verification": "tests/e2e/test_app.py"
+  },
+  {
+   "id": "F04.06",
+   "domain": "Sky Explorer",
+   "concept": "Per-observation provenance panel (file, checksum, DOI)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "bundle",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F04.07",
+   "domain": "Sky Explorer",
+   "concept": "Command-palette jump to any observation",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 4,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 3.57,
+   "tier": "D",
+   "dependencies": "palette",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F04.08",
+   "domain": "Sky Explorer",
+   "concept": "All-sky context map of where the target lies",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 2,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 2.86,
+   "tier": "D",
+   "dependencies": "sky survey tiles (external)",
+   "verification": "—"
+  },
+  {
+   "id": "F04.09",
+   "domain": "Sky Explorer",
+   "concept": "Colour composite from several detectors",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 2,
+    "verifiability": 2,
+    "integrity safety": 3
+   },
+   "mean": 1.86,
+   "tier": "D",
+   "dependencies": "mixing wavelengths misleads brightness comparison",
+   "verification": "—"
+  },
+  {
+   "id": "F04.10",
+   "domain": "Sky Explorer",
+   "concept": "AI-enhanced (super-resolved) images",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 1,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 5,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.57,
+   "tier": "D",
+   "dependencies": "fabricates detail",
+   "verification": "—"
+  },
+  {
+   "id": "F05.01",
+   "domain": "Time Machine",
+   "concept": "Blink, fade, side-by-side and difference views of two epochs",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "registration",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F05.02",
+   "domain": "Time Machine",
+   "concept": "Wavelength-compatibility banner per pair (WLMATCH-2)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "spectral WCS",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F05.03",
+   "domain": "Time Machine",
+   "concept": "Partner list with the reason each pair is not comparable",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "WLMATCH-2",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F05.04",
+   "domain": "Time Machine",
+   "concept": "Plate-solution registration onto a common grid",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "reference stars",
+   "verification": "tests/unit/test_static_preview.py"
+  },
+  {
+   "id": "F05.05",
+   "domain": "Time Machine",
+   "concept": "Registration diagnostics: per-plate scale, rotation, residuals; relative rotation, scale and shift (REGDIAG-1)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "plate solutions",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F05.06",
+   "domain": "Time Machine",
+   "concept": "Pair comparison computed in the browser by a parity-tested port",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "record",
+   "verification": "tests/unit/test_static_preview.py"
+  },
+  {
+   "id": "F05.07",
+   "domain": "Time Machine",
+   "concept": "Same display scale toggle for honest visual comparison",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F05.08",
+   "domain": "Time Machine",
+   "concept": "Ask the copilot about a specific pair",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 4,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "B",
+   "dependencies": "server copilot",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F05.09",
+   "domain": "Time Machine",
+   "concept": "Animated multi-epoch sequence (more than two epochs)",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.43,
+   "tier": "B",
+   "dependencies": "registration of all epochs",
+   "verification": "—"
+  },
+  {
+   "id": "F05.10",
+   "domain": "Time Machine",
+   "concept": "Motion vector overlay from the fitted proper motion",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 4,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "B",
+   "dependencies": "motion fit",
+   "verification": "—"
+  },
+  {
+   "id": "F05.11",
+   "domain": "Time Machine",
+   "concept": "Interpolated in-between frames",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 2
+   },
+   "mean": 1.43,
+   "tier": "D",
+   "dependencies": "invents observations",
+   "verification": "—"
+  },
+  {
+   "id": "F06.01",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "Wavelength ruler: every observation by wavelength and time (signature view)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "spectral WCS",
+   "verification": "tests/e2e/test_app.py"
+  },
+  {
+   "id": "F06.02",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "Wavelength-matched pairing with logged rejections (WLMATCH-2)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "spectral WCS",
+   "verification": "tests/unit/test_wavelength_flags.py"
+  },
+  {
+   "id": "F06.03",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "Per-target spectrum from all included measurements",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "photometry",
+   "verification": "tests/e2e/test_app.py"
+  },
+  {
+   "id": "F06.04",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "Narrow-band masking near spectral features (NBMASK-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "B",
+   "dependencies": "line list",
+   "verification": "tests/unit/test_wavelength_flags.py"
+  },
+  {
+   "id": "F06.05",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "Spectral slope test across adjacent channels for wavelength-tolerance effects",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 2,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.43,
+   "tier": "C",
+   "dependencies": "matched-channel photometry",
+   "verification": "—"
+  },
+  {
+   "id": "F06.06",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "Spectral template comparison (stellar types)",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 2,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "C",
+   "dependencies": "template library; validation",
+   "verification": "—"
+  },
+  {
+   "id": "F06.07",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "102-band spectrum assembly per epoch",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 2,
+    "data readiness": 2,
+    "verifiability": 3,
+    "integrity safety": 4
+   },
+   "mean": 3.29,
+   "tier": "C",
+   "dependencies": "full spectral coverage per epoch",
+   "verification": "—"
+  },
+  {
+   "id": "F06.08",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "Spectral change detection between epochs",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 4
+   },
+   "mean": 3.0,
+   "tier": "C",
+   "dependencies": "repeated full spectra (not in the fixtures)",
+   "verification": "—"
+  },
+  {
+   "id": "F06.09",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "Chemical composition claims from SPHEREx photometry",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 2,
+    "user value": 2,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.43,
+   "tier": "D",
+   "dependencies": "not supported by the data",
+   "verification": "—"
+  },
+  {
+   "id": "F06.10",
+   "domain": "Wavelength and spectral analysis",
+   "concept": "Redshift estimation",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 2,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.29,
+   "tier": "D",
+   "dependencies": "out of the project's question",
+   "verification": "—"
+  },
+  {
+   "id": "F07.01",
+   "domain": "Photometry and brightness change",
+   "concept": "Aperture photometry with local background (APPHOT-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/unit/test_measurement.py"
+  },
+  {
+   "id": "F07.02",
+   "domain": "Photometry and brightness change",
+   "concept": "Pair difference with propagated errors (PAIRDIFF-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "WLMATCH-2",
+   "verification": "tests/unit/test_measurement.py"
+  },
+  {
+   "id": "F07.03",
+   "domain": "Photometry and brightness change",
+   "concept": "Reference-calibrated pair difference (PAIRDIFF-2)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "≥ 3 matched reference stars",
+   "verification": "tests/unit/test_calibration_v2.py"
+  },
+  {
+   "id": "F07.04",
+   "domain": "Photometry and brightness change",
+   "concept": "Error-scale calibration check from constant references (CALCHECK-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "reference stars",
+   "verification": "tests/unit/test_calibration_v2.py"
+  },
+  {
+   "id": "F07.05",
+   "domain": "Photometry and brightness change",
+   "concept": "5σ sensitivity statement: smallest detectable change",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "noise model",
+   "verification": "tests/unit/test_assess2.py"
+  },
+  {
+   "id": "F07.06",
+   "domain": "Photometry and brightness change",
+   "concept": "Detection threshold |z| ≥ 5 with z described as a significance, never a probability",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/unit/test_assess2.py"
+  },
+  {
+   "id": "F07.07",
+   "domain": "Photometry and brightness change",
+   "concept": "Variance decomposition of every z denominator (UNC-1)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "logged inputs",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F07.08",
+   "domain": "Photometry and brightness change",
+   "concept": "Recompute check: logged z versus z recomputed from logged inputs",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "logged inputs",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F07.09",
+   "domain": "Photometry and brightness change",
+   "concept": "PSF-fitting photometry",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 4
+   },
+   "mean": 3.0,
+   "tier": "C",
+   "dependencies": "PSF model",
+   "verification": "—"
+  },
+  {
+   "id": "F07.10",
+   "domain": "Photometry and brightness change",
+   "concept": "Light-curve period search",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.57,
+   "tier": "C",
+   "dependencies": "dense time sampling (not available)",
+   "verification": "—"
+  },
+  {
+   "id": "F07.11",
+   "domain": "Photometry and brightness change",
+   "concept": "Variability classification (e.g. star type)",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.57,
+   "tier": "D",
+   "dependencies": "far beyond the evidence",
+   "verification": "—"
+  },
+  {
+   "id": "F08.01",
+   "domain": "Astrometry and motion",
+   "concept": "Gaussian centroids (CENTROID-G2D-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/unit/test_measurement.py"
+  },
+  {
+   "id": "F08.02",
+   "domain": "Astrometry and motion",
+   "concept": "Per-exposure plate solutions with leave-one-out residuals (PLATE-LOO-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "reference stars",
+   "verification": "tests/unit/test_measurement.py"
+  },
+  {
+   "id": "F08.03",
+   "domain": "Astrometry and motion",
+   "concept": "Reference selection with RUWE and quality cuts (REFSEL-2)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "Gaia",
+   "verification": "tests/unit/test_measurement.py"
+  },
+  {
+   "id": "F08.04",
+   "domain": "Astrometry and motion",
+   "concept": "Parallax and aberration handling before the fit (EPHEM-AA-LP-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "ephemeris",
+   "verification": "tests/unit/test_ephemeris.py"
+  },
+  {
+   "id": "F08.05",
+   "domain": "Astrometry and motion",
+   "concept": "Epoch-averaged linear motion fit (LINFIT-EPOCH-1) with per-exposure cross-check (LINFIT-LOO-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "≥ 2 epochs",
+   "verification": "tests/unit/test_measurement.py"
+  },
+  {
+   "id": "F08.06",
+   "domain": "Astrometry and motion",
+   "concept": "Comparison with the catalogue proper motion (z per axis)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "catalogue astrometry",
+   "verification": "tests/unit/test_assess2.py"
+  },
+  {
+   "id": "F08.07",
+   "domain": "Astrometry and motion",
+   "concept": "Registration-limit test: is the motion larger than the registration error? (HYPO-1 T-REG)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "plate residuals",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F08.08",
+   "domain": "Astrometry and motion",
+   "concept": "Parallax-bound test: can parallax alone explain the shift? (HYPO-1 T-PLX)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "parallax",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F08.09",
+   "domain": "Astrometry and motion",
+   "concept": "Chromatic centroid offsets per detector",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 2,
+    "verifiability": 3,
+    "integrity safety": 4
+   },
+   "mean": 3.14,
+   "tier": "C",
+   "dependencies": "per-detector motion fits",
+   "verification": "—"
+  },
+  {
+   "id": "F08.10",
+   "domain": "Astrometry and motion",
+   "concept": "Orbit fitting for moving solar-system objects",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 2,
+    "integrity safety": 2
+   },
+   "mean": 2.0,
+   "tier": "D",
+   "dependencies": "different science case",
+   "verification": "—"
+  },
+  {
+   "id": "F08.11",
+   "domain": "Astrometry and motion",
+   "concept": "Planet X candidate search",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.71,
+   "tier": "D",
+   "dependencies": "would invite unsupported discovery claims",
+   "verification": "—"
+  },
+  {
+   "id": "F09.01",
+   "domain": "Calibration and quality control",
+   "concept": "Exposure-level quality flags and rejection reasons",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/unit/test_measurement.py"
+  },
+  {
+   "id": "F09.02",
+   "domain": "Calibration and quality control",
+   "concept": "Data-quality outcome: how much is usable and why",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "ASSESS-2",
+   "verification": "tests/unit/test_assess2.py"
+  },
+  {
+   "id": "F09.03",
+   "domain": "Calibration and quality control",
+   "concept": "Robustness tests with injected gain changes and outliers",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "synthetic",
+   "verification": "tests/robustness/test_robustness.py"
+  },
+  {
+   "id": "F09.04",
+   "domain": "Calibration and quality control",
+   "concept": "Calibration audit document",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "none",
+   "verification": "docs/CALIBRATION_AUDIT.md"
+  },
+  {
+   "id": "F09.05",
+   "domain": "Calibration and quality control",
+   "concept": "Calibration-change hypothesis tested by the reference ratio (T-REFRATIO)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "matched references",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F09.06",
+   "domain": "Calibration and quality control",
+   "concept": "Error-model hypothesis tested by the calibration check (T-CALCHECK)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "CALCHECK-1",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F09.07",
+   "domain": "Calibration and quality control",
+   "concept": "Cross-detector flux consistency check",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.57,
+   "tier": "B",
+   "dependencies": "overlapping wavelengths",
+   "verification": "—"
+  },
+  {
+   "id": "F09.08",
+   "domain": "Calibration and quality control",
+   "concept": "Persistence and saturation detection",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 4
+   },
+   "mean": 2.71,
+   "tier": "C",
+   "dependencies": "detector models",
+   "verification": "—"
+  },
+  {
+   "id": "F09.09",
+   "domain": "Calibration and quality control",
+   "concept": "Automatic exclusion tuned by machine learning",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 1,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.29,
+   "tier": "D",
+   "dependencies": "opaque, unverifiable",
+   "verification": "—"
+  },
+  {
+   "id": "F09.10",
+   "domain": "Calibration and quality control",
+   "concept": "Manual exclusion with a logged reason",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 4,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.57,
+   "tier": "B",
+   "dependencies": "record schema change",
+   "verification": "—"
+  },
+  {
+   "id": "F10.01",
+   "domain": "Outcome assessment",
+   "concept": "Deterministic outcome categories per question (ASSESS-2)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "measurements",
+   "verification": "tests/unit/test_assess2.py"
+  },
+  {
+   "id": "F10.02",
+   "domain": "Outcome assessment",
+   "concept": "Criteria shown with each outcome",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "ASSESS-2",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F10.03",
+   "domain": "Outcome assessment",
+   "concept": "Failed fit never reported as no motion",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "ASSESS-2",
+   "verification": "tests/unit/test_assess2.py"
+  },
+  {
+   "id": "F10.04",
+   "domain": "Outcome assessment",
+   "concept": "Absence of a detection reported with the sensitivity, not as proof",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "ASSESS-2",
+   "verification": "tests/unit/test_assess2.py"
+  },
+  {
+   "id": "F10.05",
+   "domain": "Outcome assessment",
+   "concept": "Limitations attached to each outcome",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "ASSESS-2",
+   "verification": "tests/unit/test_assess2.py"
+  },
+  {
+   "id": "F10.06",
+   "domain": "Outcome assessment",
+   "concept": "Stability check: outcomes under five parameter perturbations (STAB-1)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "server",
+   "verification": "tests/robustness/test_robustness.py"
+  },
+  {
+   "id": "F10.07",
+   "domain": "Outcome assessment",
+   "concept": "Outcome comparison between two saved investigations",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "vault",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F10.08",
+   "domain": "Outcome assessment",
+   "concept": "Outcome confidence as a probability",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 1,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.0,
+   "tier": "D",
+   "dependencies": "no calibrated probability model exists",
+   "verification": "—"
+  },
+  {
+   "id": "F10.09",
+   "domain": "Outcome assessment",
+   "concept": "Expert-tunable thresholds in the interface",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 2
+   },
+   "mean": 2.86,
+   "tier": "C",
+   "dependencies": "risk of threshold shopping",
+   "verification": "—"
+  },
+  {
+   "id": "F10.10",
+   "domain": "Outcome assessment",
+   "concept": "Outcome history across data releases",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.86,
+   "tier": "C",
+   "dependencies": "several releases",
+   "verification": "—"
+  },
+  {
+   "id": "F11.01",
+   "domain": "Discovery Engine",
+   "concept": "Engine stages A–G (inventory, question, plan, execution, review, next steps, record)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 5,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "record",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F11.02",
+   "domain": "Discovery Engine",
+   "concept": "Registered research questions with requirements (answerable / with limits / not answerable)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 5,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 5.0,
+   "tier": "A",
+   "dependencies": "capability registry",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F11.03",
+   "domain": "Discovery Engine",
+   "concept": "Unanswerable questions stated with the reason (cause, discovery, distance)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F11.04",
+   "domain": "Discovery Engine",
+   "concept": "Test plan per question: inputs, method, preconditions, assumptions, outputs, validation, limitations",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "capability registry",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F11.05",
+   "domain": "Discovery Engine",
+   "concept": "Execution links to where each test runs",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "interface",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F11.06",
+   "domain": "Discovery Engine",
+   "concept": "Evidence review linking outcomes, hypotheses and uncertainty",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "DISC-1",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F11.07",
+   "domain": "Discovery Engine",
+   "concept": "Rule-based next steps with what they can and cannot establish",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 5,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 5.0,
+   "tier": "A",
+   "dependencies": "registry, availability",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F11.08",
+   "domain": "Discovery Engine",
+   "concept": "Next steps that need unavailable services say so",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "availability",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F11.09",
+   "domain": "Discovery Engine",
+   "concept": "Research question kept with the saved investigation",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "vault",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F11.10",
+   "domain": "Discovery Engine",
+   "concept": "Automatic multi-target survey mode",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "C",
+   "dependencies": "many acquired targets",
+   "verification": "—"
+  },
+  {
+   "id": "F11.11",
+   "domain": "Discovery Engine",
+   "concept": "Expected-information-gain ranking of next steps",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 2,
+    "integrity safety": 1
+   },
+   "mean": 2.0,
+   "tier": "D",
+   "dependencies": "would need a probability model we do not have",
+   "verification": "—"
+  },
+  {
+   "id": "F12.01",
+   "domain": "Hypothesis testing",
+   "concept": "Hypothesis Arena: competing explanations × recorded tests matrix (HYPO-1)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 5,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 5.0,
+   "tier": "A",
+   "dependencies": "record",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F12.02",
+   "domain": "Hypothesis testing",
+   "concept": "Six test statuses with stated rules; no probabilities",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F12.03",
+   "domain": "Hypothesis testing",
+   "concept": "Published overall rule, identical in Python and the browser",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "rules.js parity",
+   "verification": "tests/unit/test_static_preview.py"
+  },
+  {
+   "id": "F12.04",
+   "domain": "Hypothesis testing",
+   "concept": "Explanations without an implemented test shown as not tested",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F12.05",
+   "domain": "Hypothesis testing",
+   "concept": "User-written hypotheses labelled as interpretations, attached to recorded tests",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "context",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F12.06",
+   "domain": "Hypothesis testing",
+   "concept": "Undo after removing a hypothesis",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 4,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 3.71,
+   "tier": "D",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F12.07",
+   "domain": "Hypothesis testing",
+   "concept": "Known-answer tests: gain-change fixture makes the calibration hypothesis consistent",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "synthetic",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F12.08",
+   "domain": "Hypothesis testing",
+   "concept": "Neighbour-blend test (T-NEIGHBOUR)",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 2,
+    "verifiability": 3,
+    "integrity safety": 4
+   },
+   "mean": 3.14,
+   "tier": "C",
+   "dependencies": "deeper catalogue of neighbours",
+   "verification": "—"
+  },
+  {
+   "id": "F12.09",
+   "domain": "Hypothesis testing",
+   "concept": "Spectral-slope test (T-SLOPE)",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 2,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.43,
+   "tier": "C",
+   "dependencies": "matched-channel photometry",
+   "verification": "—"
+  },
+  {
+   "id": "F12.10",
+   "domain": "Hypothesis testing",
+   "concept": "Bayesian model comparison",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 2,
+    "integrity safety": 1
+   },
+   "mean": 2.0,
+   "tier": "D",
+   "dependencies": "no defensible priors or likelihoods for these data",
+   "verification": "—"
+  },
+  {
+   "id": "F12.11",
+   "domain": "Hypothesis testing",
+   "concept": "Model-generated hypotheses entered into the matrix",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 2,
+    "integrity safety": 2
+   },
+   "mean": 1.86,
+   "tier": "D",
+   "dependencies": "unverifiable; the model never measures",
+   "verification": "—"
+  },
+  {
+   "id": "F13.01",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Motion uncertainty components: fit σ, per-exposure cross-check, catalogue error",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "record",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F13.02",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Parallax residual shown as a bound, never as a σ",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "parallax",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F13.03",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Brightness z denominator shares: exposure A, exposure B, calibration",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "logged inputs",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F13.04",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Sensitivity to analysis choices kept separate from statistical uncertainty",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "STAB-1",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F13.05",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Named list of effects no method quantifies",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F13.06",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Within-visit scatter floor reported as a count of affected visits",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "LINFIT-EPOCH-1",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F13.07",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Bootstrap confidence intervals",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.43,
+   "tier": "B",
+   "dependencies": "enough epochs for resampling",
+   "verification": "—"
+  },
+  {
+   "id": "F13.08",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Systematic-error budget per detector",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 2,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 3.0,
+   "tier": "C",
+   "dependencies": "calibration studies",
+   "verification": "—"
+  },
+  {
+   "id": "F13.09",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Error bars on screen without a stated source",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.14,
+   "tier": "D",
+   "dependencies": "unverifiable",
+   "verification": "—"
+  },
+  {
+   "id": "F13.10",
+   "domain": "Uncertainty and sensitivity",
+   "concept": "Monte-Carlo propagation through the whole pipeline",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.14,
+   "tier": "C",
+   "dependencies": "compute budget",
+   "verification": "—"
+  },
+  {
+   "id": "F14.01",
+   "domain": "Evidence graph and traceability",
+   "concept": "Graph of sources, target, observations, measurements, comparisons, claims, methods, limitations",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 5,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 5.0,
+   "tier": "A",
+   "dependencies": "record",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F14.02",
+   "domain": "Evidence graph and traceability",
+   "concept": "Claim tracing back to observations with typed steps",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 5,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 5.0,
+   "tier": "A",
+   "dependencies": "graph",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F14.03",
+   "domain": "Evidence graph and traceability",
+   "concept": "Observation nodes with file, checksum and archive identifier",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "bundle",
+   "verification": "tests/unit/test_report_ai.py"
+  },
+  {
+   "id": "F14.04",
+   "domain": "Evidence graph and traceability",
+   "concept": "Method nodes from recorded method versions",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "record parameters",
+   "verification": "tests/unit/test_report_ai.py"
+  },
+  {
+   "id": "F14.05",
+   "domain": "Evidence graph and traceability",
+   "concept": "Competing explanations as graph nodes with their recorded tests",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "HYPO-1",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F14.06",
+   "domain": "Evidence graph and traceability",
+   "concept": "Keyboard-operable graph nodes",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F14.07",
+   "domain": "Evidence graph and traceability",
+   "concept": "Evidence graph export (JSON)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "studio",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F14.08",
+   "domain": "Evidence graph and traceability",
+   "concept": "Graph diff between two investigations",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 4,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.57,
+   "tier": "B",
+   "dependencies": "two graphs",
+   "verification": "—"
+  },
+  {
+   "id": "F14.09",
+   "domain": "Evidence graph and traceability",
+   "concept": "Force-directed free layout",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 2,
+    "feasibility now": 2,
+    "data readiness": 5,
+    "verifiability": 3,
+    "integrity safety": 2
+   },
+   "mean": 2.43,
+   "tier": "D",
+   "dependencies": "hides the evidence order",
+   "verification": "—"
+  },
+  {
+   "id": "F14.10",
+   "domain": "Evidence graph and traceability",
+   "concept": "Graph query language",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.0,
+   "tier": "D",
+   "dependencies": "users who need it",
+   "verification": "—"
+  },
+  {
+   "id": "F15.01",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Meta model copilot through read-only tools",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 2,
+    "verifiability": 4,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "A",
+   "dependencies": "META_API_KEY (not configured here)",
+   "verification": "tests/unit/test_report_ai.py"
+  },
+  {
+   "id": "F15.02",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Local deterministic assistant when no key or offline",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/unit/test_report_ai.py"
+  },
+  {
+   "id": "F15.03",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Twelve read-only tools, including the capability registry",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "registry",
+   "verification": "tests/unit/test_tool_contracts.py"
+  },
+  {
+   "id": "F15.04",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Capability questions answered from the registry",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "list_capabilities",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F15.05",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Answer layout: Answer · Evidence · Method · Limitations · Next step",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "answer schema",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F15.06",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Evidence chips linking claims to tool outputs",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "tool calls",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F15.07",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Conversation saved with the investigation",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "vault",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F15.08",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Meta smoke test script",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 5,
+    "data readiness": 2,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 3.71,
+   "tier": "B",
+   "dependencies": "key",
+   "verification": "scripts/meta_smoke_test.py"
+  },
+  {
+   "id": "F15.09",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Streaming answers",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 4,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.14,
+   "tier": "D",
+   "dependencies": "model API streaming",
+   "verification": "—"
+  },
+  {
+   "id": "F15.10",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Copilot that runs new measurements",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 2,
+    "user value": 2,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.43,
+   "tier": "D",
+   "dependencies": "the model never measures (rule)",
+   "verification": "—"
+  },
+  {
+   "id": "F15.11",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Voice interface",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 3,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.14,
+   "tier": "D",
+   "dependencies": "outside the brief",
+   "verification": "—"
+  },
+  {
+   "id": "F15.12",
+   "domain": "Copilot and the evidence guard",
+   "concept": "GUARD-3: every number in an answer must match a tool output",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 5,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 5.0,
+   "tier": "A",
+   "dependencies": "tool outputs",
+   "verification": "tests/unit/test_report_ai.py"
+  },
+  {
+   "id": "F15.13",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Withheld drafts shown with the guard's reasons",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "guard",
+   "verification": "tests/unit/test_report_ai.py"
+  },
+  {
+   "id": "F15.14",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Claims typed as evidence, interpretation or speculation",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "schema",
+   "verification": "tests/unit/test_report_ai.py"
+  },
+  {
+   "id": "F15.15",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Discovery wording blocked for candidates",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "guard",
+   "verification": "tests/unit/test_report_ai.py"
+  },
+  {
+   "id": "F15.16",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Tool contract tests",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/unit/test_tool_contracts.py"
+  },
+  {
+   "id": "F15.17",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Local answers pass the same guard",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "guard",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F15.18",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Prompt-injection screening of imported text",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.29,
+   "tier": "C",
+   "dependencies": "imported notes reach the model",
+   "verification": "—"
+  },
+  {
+   "id": "F15.19",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Red-team evaluation set for the model",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 1,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.14,
+   "tier": "C",
+   "dependencies": "model access",
+   "verification": "—"
+  },
+  {
+   "id": "F15.20",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Model output cached as evidence",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 1,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.0,
+   "tier": "D",
+   "dependencies": "a model answer is never evidence",
+   "verification": "—"
+  },
+  {
+   "id": "F15.21",
+   "domain": "Copilot and the evidence guard",
+   "concept": "Free web search by the copilot",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 2,
+    "integrity safety": 2
+   },
+   "mean": 1.86,
+   "tier": "D",
+   "dependencies": "unverifiable sources; network",
+   "verification": "—"
+  },
+  {
+   "id": "F16.01",
+   "domain": "Investigation vault and records",
+   "concept": "Save, reopen, delete investigations with two-step delete",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "server or browser storage",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F16.02",
+   "domain": "Investigation vault and records",
+   "concept": "Export and import records with content-hash verification",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "hash",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F16.03",
+   "domain": "Investigation vault and records",
+   "concept": "Import preview before anything is stored",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "hash.js",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F16.04",
+   "domain": "Investigation vault and records",
+   "concept": "Search across name, target, notes, tags and hash",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 2,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F16.05",
+   "domain": "Investigation vault and records",
+   "concept": "Tags and tag filter",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F16.06",
+   "domain": "Investigation vault and records",
+   "concept": "Rename and retag in place",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "PATCH /api/records",
+   "verification": "tests/integration/test_api.py"
+  },
+  {
+   "id": "F16.07",
+   "domain": "Investigation vault and records",
+   "concept": "Duplicate a saved investigation",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "clone endpoint",
+   "verification": "tests/integration/test_api.py"
+  },
+  {
+   "id": "F16.08",
+   "domain": "Investigation vault and records",
+   "concept": "Compare two saved investigations (parameters, outcomes, context)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "records",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F16.09",
+   "domain": "Investigation vault and records",
+   "concept": "Saved context (research question, user hypotheses) treated as untrusted",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "sanitiser",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F16.10",
+   "domain": "Investigation vault and records",
+   "concept": "Shared team vault",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 2,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "C",
+   "dependencies": "accounts, permissions",
+   "verification": "—"
+  },
+  {
+   "id": "F16.11",
+   "domain": "Investigation vault and records",
+   "concept": "Cloud sync of records",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 2,
+    "data readiness": 2,
+    "verifiability": 3,
+    "integrity safety": 2
+   },
+   "mean": 2.14,
+   "tier": "D",
+   "dependencies": "would send records off the machine",
+   "verification": "—"
+  },
+  {
+   "id": "F17.01",
+   "domain": "Reports, figures and export",
+   "concept": "Markdown report with methods, limitations and provenance",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "record",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F17.02",
+   "domain": "Reports, figures and export",
+   "concept": "Report Studio: report, record, graph, discovery report, package in one place",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "server or precomputed files",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F17.03",
+   "domain": "Reports, figures and export",
+   "concept": "Figure export as standalone SVG with target, hash, methods and synthetic label",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "charts",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F17.04",
+   "domain": "Reports, figures and export",
+   "concept": "Reproducibility package (deterministic ZIP with SHA256SUMS) (PKG-1)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "record, bundle manifest",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F17.05",
+   "domain": "Reports, figures and export",
+   "concept": "Viewer downloads through the host's download capability",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "host",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F17.06",
+   "domain": "Reports, figures and export",
+   "concept": "PDF report",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 5,
+    "integrity safety": 3
+   },
+   "mean": 3.29,
+   "tier": "B",
+   "dependencies": "PDF renderer",
+   "verification": "—"
+  },
+  {
+   "id": "F17.07",
+   "domain": "Reports, figures and export",
+   "concept": "Citation (BibTeX) for datasets and methods",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 4,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 4
+   },
+   "mean": 3.86,
+   "tier": "B",
+   "dependencies": "DOIs",
+   "verification": "—"
+  },
+  {
+   "id": "F17.08",
+   "domain": "Reports, figures and export",
+   "concept": "Publication-ready figure styling presets",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 4
+   },
+   "mean": 3.43,
+   "tier": "C",
+   "dependencies": "none",
+   "verification": "—"
+  },
+  {
+   "id": "F17.09",
+   "domain": "Reports, figures and export",
+   "concept": "Automatic paper drafting",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 2,
+    "integrity safety": 1
+   },
+   "mean": 1.57,
+   "tier": "D",
+   "dependencies": "invites unsupported claims",
+   "verification": "—"
+  },
+  {
+   "id": "F17.10",
+   "domain": "Reports, figures and export",
+   "concept": "Slides from an investigation",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 4
+   },
+   "mean": 3.29,
+   "tier": "D",
+   "dependencies": "export format",
+   "verification": "—"
+  },
+  {
+   "id": "F18.01",
+   "domain": "Reproducibility and replay",
+   "concept": "Content hash of every investigation record",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "stable JSON",
+   "verification": "tests/unit/test_static_preview.py"
+  },
+  {
+   "id": "F18.02",
+   "domain": "Reproducibility and replay",
+   "concept": "Replay: re-execute a saved investigation and compare hashes",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.86,
+   "tier": "A",
+   "dependencies": "server, bundle",
+   "verification": "tests/integration/test_api.py"
+  },
+  {
+   "id": "F18.03",
+   "domain": "Reproducibility and replay",
+   "concept": "Browser check against precomputed runs in the static preview",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "precomputed runs",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F18.04",
+   "domain": "Reproducibility and replay",
+   "concept": "Content hash recomputed in the browser exactly as Python",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "hash.js parity",
+   "verification": "tests/unit/test_static_preview.py"
+  },
+  {
+   "id": "F18.05",
+   "domain": "Reproducibility and replay",
+   "concept": "Software versions recorded with every result",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/integration/test_api.py"
+  },
+  {
+   "id": "F18.06",
+   "domain": "Reproducibility and replay",
+   "concept": "Package verification instructions (sha256sum -c)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "PKG-1",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F18.07",
+   "domain": "Reproducibility and replay",
+   "concept": "Container image for exact environment replay",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.14,
+   "tier": "C",
+   "dependencies": "container registry",
+   "verification": "—"
+  },
+  {
+   "id": "F18.08",
+   "domain": "Reproducibility and replay",
+   "concept": "Cross-platform determinism test (macOS/Linux)",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.0,
+   "tier": "C",
+   "dependencies": "second platform",
+   "verification": "—"
+  },
+  {
+   "id": "F18.09",
+   "domain": "Reproducibility and replay",
+   "concept": "Replay across data releases with a difference report",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 1,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.86,
+   "tier": "C",
+   "dependencies": "several releases",
+   "verification": "—"
+  },
+  {
+   "id": "F18.10",
+   "domain": "Reproducibility and replay",
+   "concept": "Blockchain notarisation of records",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 1,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 2,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.29,
+   "tier": "D",
+   "dependencies": "adds nothing a hash does not",
+   "verification": "—"
+  },
+  {
+   "id": "F19.01",
+   "domain": "Interaction and navigation",
+   "concept": "Workspaces with back/forward history and deep links",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F19.02",
+   "domain": "Interaction and navigation",
+   "concept": "Discovery loop bar (Explore → … → Share)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 2,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F19.03",
+   "domain": "Interaction and navigation",
+   "concept": "Command palette (Ctrl/⌘+K, /) with fuzzy search",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 1,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F19.04",
+   "domain": "Interaction and navigation",
+   "concept": "Keyboard shortcuts (Alt+1…7, ?, Esc, arrows, Space)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F19.05",
+   "domain": "Interaction and navigation",
+   "concept": "Glossary and shortcut reference dialog",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 2,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F19.06",
+   "domain": "Interaction and navigation",
+   "concept": "Three levels of detail: Explore, Investigate, Research",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F19.07",
+   "domain": "Interaction and navigation",
+   "concept": "Persistent investigation context across workspaces",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "state",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F19.08",
+   "domain": "Interaction and navigation",
+   "concept": "Guided tour for first-time users",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.14,
+   "tier": "D",
+   "dependencies": "content",
+   "verification": "—"
+  },
+  {
+   "id": "F19.09",
+   "domain": "Interaction and navigation",
+   "concept": "Undo for every action",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.86,
+   "tier": "D",
+   "dependencies": "action log",
+   "verification": "—"
+  },
+  {
+   "id": "F19.10",
+   "domain": "Interaction and navigation",
+   "concept": "Multi-window layouts",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 2,
+    "feasibility now": 1,
+    "data readiness": 3,
+    "verifiability": 3,
+    "integrity safety": 3
+   },
+   "mean": 2.14,
+   "tier": "D",
+   "dependencies": "complexity",
+   "verification": "—"
+  },
+  {
+   "id": "F20.01",
+   "domain": "Accessibility",
+   "concept": "Semantic landmarks, labelled controls, keyboard operation",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F20.02",
+   "domain": "Accessibility",
+   "concept": "Modal dialogs with focus trap and focus return",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F20.03",
+   "domain": "Accessibility",
+   "concept": "Status announced with aria-live regions",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_app.py"
+  },
+  {
+   "id": "F20.04",
+   "domain": "Accessibility",
+   "concept": "Reduced-motion support",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "none",
+   "verification": "web/css/app.css"
+  },
+  {
+   "id": "F20.05",
+   "domain": "Accessibility",
+   "concept": "Colour never the only carrier of meaning (status text on every chip)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F20.06",
+   "domain": "Accessibility",
+   "concept": "Responsive layouts at tablet and phone widths without horizontal scroll",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F20.07",
+   "domain": "Accessibility",
+   "concept": "Screen-reader audit with assistive technology",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.86,
+   "tier": "D",
+   "dependencies": "AT testing",
+   "verification": "—"
+  },
+  {
+   "id": "F20.08",
+   "domain": "Accessibility",
+   "concept": "Light theme",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 4,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 4
+   },
+   "mean": 3.43,
+   "tier": "D",
+   "dependencies": "design tokens",
+   "verification": "—"
+  },
+  {
+   "id": "F20.09",
+   "domain": "Accessibility",
+   "concept": "Sonification of light curves",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "D",
+   "dependencies": "audio design",
+   "verification": "—"
+  },
+  {
+   "id": "F20.10",
+   "domain": "Accessibility",
+   "concept": "Localisation",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 4,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.29,
+   "tier": "D",
+   "dependencies": "translations",
+   "verification": "—"
+  },
+  {
+   "id": "F21.01",
+   "domain": "Visual design and visualization",
+   "concept": "Midnight observatory theme with data-bearing detector colours",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "none",
+   "verification": "web/css/app.css"
+  },
+  {
+   "id": "F21.02",
+   "domain": "Visual design and visualization",
+   "concept": "Proper-motion and brightness charts from recorded values",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "record",
+   "verification": "tests/e2e/test_app.py"
+  },
+  {
+   "id": "F21.03",
+   "domain": "Visual design and visualization",
+   "concept": "Uncertainty component chart (σ bars, bounds as ticks)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "UNC-1",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F21.04",
+   "domain": "Visual design and visualization",
+   "concept": "Variance-share bars per pair",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "UNC-1",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F21.05",
+   "domain": "Visual design and visualization",
+   "concept": "Evidence matrix with status chips",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "HYPO-1",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F21.06",
+   "domain": "Visual design and visualization",
+   "concept": "Synthetic-data label on every view and export",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F21.07",
+   "domain": "Visual design and visualization",
+   "concept": "Animated star field background",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 5,
+    "verifiability": 1,
+    "integrity safety": 4
+   },
+   "mean": 2.14,
+   "tier": "D",
+   "dependencies": "decorative; distracts from data",
+   "verification": "—"
+  },
+  {
+   "id": "F21.08",
+   "domain": "Visual design and visualization",
+   "concept": "3D sky globe",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 2,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "D",
+   "dependencies": "rendering library",
+   "verification": "—"
+  },
+  {
+   "id": "F21.09",
+   "domain": "Visual design and visualization",
+   "concept": "Fake live counters or activity indicators",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 1,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.0,
+   "tier": "D",
+   "dependencies": "misleading (rule)",
+   "verification": "—"
+  },
+  {
+   "id": "F21.10",
+   "domain": "Visual design and visualization",
+   "concept": "Interactive chart brushing and linked selection",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 4
+   },
+   "mean": 3.57,
+   "tier": "B",
+   "dependencies": "chart layer",
+   "verification": "—"
+  },
+  {
+   "id": "F22.01",
+   "domain": "Offline operation and static preview",
+   "concept": "OFFLINE=1 forbids all network use",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/unit/test_offline_workflow.py"
+  },
+  {
+   "id": "F22.02",
+   "domain": "Offline operation and static preview",
+   "concept": "Static preview recorded from the real server at build time",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "build script",
+   "verification": "tests/unit/test_static_preview.py"
+  },
+  {
+   "id": "F22.03",
+   "domain": "Offline operation and static preview",
+   "concept": "Precomputed discovery reports, packages and capability registry in the preview",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "build script",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F22.04",
+   "domain": "Offline operation and static preview",
+   "concept": "Preview capability registry says what runs where (browser port, precomputed, server only)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "build script",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F22.05",
+   "domain": "Offline operation and static preview",
+   "concept": "Parameter sets not precomputed are refused, not imitated",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "PreviewLimit",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F22.06",
+   "domain": "Offline operation and static preview",
+   "concept": "Browser storage for preview records, with fallback to memory",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F22.07",
+   "domain": "Offline operation and static preview",
+   "concept": "Offline map tiles",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 2,
+    "verifiability": 2,
+    "integrity safety": 2
+   },
+   "mean": 1.57,
+   "tier": "D",
+   "dependencies": "no map in the product",
+   "verification": "—"
+  },
+  {
+   "id": "F22.08",
+   "domain": "Offline operation and static preview",
+   "concept": "Service worker for installable offline app",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.0,
+   "tier": "D",
+   "dependencies": "packaging",
+   "verification": "—"
+  },
+  {
+   "id": "F22.09",
+   "domain": "Offline operation and static preview",
+   "concept": "In-browser Python (WebAssembly) re-execution",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 2,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.86,
+   "tier": "C",
+   "dependencies": "large runtime",
+   "verification": "—"
+  },
+  {
+   "id": "F22.10",
+   "domain": "Offline operation and static preview",
+   "concept": "Pretending to re-execute in the preview",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 1,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 1,
+    "verifiability": 1,
+    "integrity safety": 1
+   },
+   "mean": 1.0,
+   "tier": "D",
+   "dependencies": "dishonest (rule)",
+   "verification": "—"
+  },
+  {
+   "id": "F23.01",
+   "domain": "Testing, quality gates and performance",
+   "concept": "Unit, integration and robustness test suites",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "scripts/verify.py"
+  },
+  {
+   "id": "F23.02",
+   "domain": "Testing, quality gates and performance",
+   "concept": "End-to-end control tests in server and static modes",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "Playwright",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F23.03",
+   "domain": "Testing, quality gates and performance",
+   "concept": "JavaScript/Python parity tests (hash, pair comparison, overall rule, intent routing)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "node",
+   "verification": "tests/unit/test_static_preview.py"
+  },
+  {
+   "id": "F23.04",
+   "domain": "Testing, quality gates and performance",
+   "concept": "Feature-catalogue consistency test",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "this script",
+   "verification": "tests/unit/test_feature_catalogue.py"
+  },
+  {
+   "id": "F23.05",
+   "domain": "Testing, quality gates and performance",
+   "concept": "Gate report with PASS / FAIL / BLOCKED / NOT RUN",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "docs/TEST_REPORT.md"
+  },
+  {
+   "id": "F23.06",
+   "domain": "Testing, quality gates and performance",
+   "concept": "Page-load and analysis timing measurements",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 3.86,
+   "tier": "C",
+   "dependencies": "Playwright",
+   "verification": "docs/TEST_REPORT.md"
+  },
+  {
+   "id": "F23.07",
+   "domain": "Testing, quality gates and performance",
+   "concept": "No external requests during use (asserted)",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F23.08",
+   "domain": "Testing, quality gates and performance",
+   "concept": "Visual regression snapshots",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.0,
+   "tier": "D",
+   "dependencies": "baseline images",
+   "verification": "—"
+  },
+  {
+   "id": "F23.09",
+   "domain": "Testing, quality gates and performance",
+   "concept": "Load testing with many simultaneous users",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 2,
+    "feasibility now": 2,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.57,
+   "tier": "D",
+   "dependencies": "single-user tool",
+   "verification": "—"
+  },
+  {
+   "id": "F23.10",
+   "domain": "Testing, quality gates and performance",
+   "concept": "Fuzzing of the record importer",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 5,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.29,
+   "tier": "C",
+   "dependencies": "fuzzer",
+   "verification": "—"
+  },
+  {
+   "id": "F24.01",
+   "domain": "Security, privacy and governance",
+   "concept": "Keys only from the environment; never in code, logs, records or the browser",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/unit/test_report_ai.py"
+  },
+  {
+   "id": "F24.02",
+   "domain": "Security, privacy and governance",
+   "concept": "Strict content security policy, no external scripts",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/integration/test_api.py"
+  },
+  {
+   "id": "F24.03",
+   "domain": "Security, privacy and governance",
+   "concept": "Imported records verified and size-bounded; context sanitised",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F24.04",
+   "domain": "Security, privacy and governance",
+   "concept": "Request size limits and parameter bounds on the server",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/integration/test_api.py"
+  },
+  {
+   "id": "F24.05",
+   "domain": "Security, privacy and governance",
+   "concept": "No telemetry",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F24.06",
+   "domain": "Security, privacy and governance",
+   "concept": "Path-safe record identifiers",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.14,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/integration/test_api.py"
+  },
+  {
+   "id": "F24.07",
+   "domain": "Security, privacy and governance",
+   "concept": "Authentication for multi-user deployment",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 3,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 3,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 2.71,
+   "tier": "D",
+   "dependencies": "deployment need",
+   "verification": "—"
+  },
+  {
+   "id": "F24.08",
+   "domain": "Security, privacy and governance",
+   "concept": "Dependency vulnerability scanning",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 4,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 3
+   },
+   "mean": 3.29,
+   "tier": "C",
+   "dependencies": "package index access (blocked here)",
+   "verification": "—"
+  },
+  {
+   "id": "F24.09",
+   "domain": "Security, privacy and governance",
+   "concept": "Usage analytics",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 3,
+    "verifiability": 3,
+    "integrity safety": 1
+   },
+   "mean": 1.71,
+   "tier": "D",
+   "dependencies": "privacy; not needed",
+   "verification": "—"
+  },
+  {
+   "id": "F24.10",
+   "domain": "Security, privacy and governance",
+   "concept": "Storing model conversations on a third-party service",
+   "status": "out of scope",
+   "status_code": "X",
+   "scores": {
+    "scientific value": 1,
+    "user value": 2,
+    "differentiation": 1,
+    "feasibility now": 1,
+    "data readiness": 3,
+    "verifiability": 2,
+    "integrity safety": 1
+   },
+   "mean": 1.57,
+   "tier": "D",
+   "dependencies": "privacy",
+   "verification": "—"
+  },
+  {
+   "id": "F25.01",
+   "domain": "Documentation and learning",
+   "concept": "Scientific methods document with versioned method IDs",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 5,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "docs/SCIENTIFIC_METHODS.md"
+  },
+  {
+   "id": "F25.02",
+   "domain": "Documentation and learning",
+   "concept": "Limitations document",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "docs/LIMITATIONS.md"
+  },
+  {
+   "id": "F25.03",
+   "domain": "Documentation and learning",
+   "concept": "Requirement traceability matrix",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 3,
+    "user value": 4,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.29,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "docs/REQUIREMENT_TRACEABILITY.md"
+  },
+  {
+   "id": "F25.04",
+   "domain": "Documentation and learning",
+   "concept": "Capability registry as machine-readable documentation (CAPREG-1)",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 4,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.71,
+   "tier": "A",
+   "dependencies": "registry",
+   "verification": "tests/unit/test_discovery.py"
+  },
+  {
+   "id": "F25.05",
+   "domain": "Documentation and learning",
+   "concept": "In-app glossary of every scientific term used",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.43,
+   "tier": "B",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_controls.py"
+  },
+  {
+   "id": "F25.06",
+   "domain": "Documentation and learning",
+   "concept": "Explanations of 'other possible causes' beside each outcome",
+   "status": "existing (≤ 0.4)",
+   "status_code": "E",
+   "scores": {
+    "scientific value": 4,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.57,
+   "tier": "A",
+   "dependencies": "none",
+   "verification": "tests/e2e/test_app.py"
+  },
+  {
+   "id": "F25.07",
+   "domain": "Documentation and learning",
+   "concept": "Feature catalogue with scores, tiers and verification",
+   "status": "new in 0.5",
+   "status_code": "N",
+   "scores": {
+    "scientific value": 2,
+    "user value": 3,
+    "differentiation": 3,
+    "feasibility now": 5,
+    "data readiness": 5,
+    "verifiability": 5,
+    "integrity safety": 5
+   },
+   "mean": 4.0,
+   "tier": "C",
+   "dependencies": "this script",
+   "verification": "tests/unit/test_feature_catalogue.py"
+  },
+  {
+   "id": "F25.08",
+   "domain": "Documentation and learning",
+   "concept": "Interactive tutorial target with known answers",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 3,
+    "user value": 5,
+    "differentiation": 3,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 4,
+    "integrity safety": 4
+   },
+   "mean": 3.71,
+   "tier": "B",
+   "dependencies": "synthetic fixture",
+   "verification": "—"
+  },
+  {
+   "id": "F25.09",
+   "domain": "Documentation and learning",
+   "concept": "Video walkthrough",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 1,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 3,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 4
+   },
+   "mean": 3.29,
+   "tier": "D",
+   "dependencies": "recording",
+   "verification": "—"
+  },
+  {
+   "id": "F25.10",
+   "domain": "Documentation and learning",
+   "concept": "Educator lesson plans",
+   "status": "deferred",
+   "status_code": "P",
+   "scores": {
+    "scientific value": 2,
+    "user value": 4,
+    "differentiation": 2,
+    "feasibility now": 2,
+    "data readiness": 4,
+    "verifiability": 5,
+    "integrity safety": 4
+   },
+   "mean": 3.29,
+   "tier": "C",
+   "dependencies": "curriculum partner",
+   "verification": "—"
+  }
+ ]
+}

@@ -1,3 +1,65 @@
+# Test report — v0.5.0 (2026-10-30)
+
+Statuses: **PASS** (executed, met), **FAIL** (executed, not met), **BLOCKED** (could not be executed here; the reason is
+named), **NOT RUN** (not attempted).
+
+## Gates
+
+| # | Gate | Command / evidence | Status |
+|---|---|---|---|
+| G1 | Unit, integration, robustness, parity tests | `python -m pytest` → **225 passed, 2 skipped** (astropy not installed) | PASS |
+| G2 | Every control, both modes (server and static preview), desktop/tablet/phone widths | `pytest -m e2e tests/e2e` → **51 passed** (20 control steps × 2 modes + 11-step journey) | PASS |
+| G3 | Browser ports equal Python | content hash, pair comparison (all pairs of both fixtures), registration diagnostics, overall hypothesis rule (258 combinations), question routing | PASS |
+| G4 | Known-answer tests of the Phase 5 methods | `tests/unit/test_discovery.py` (17 tests: injected motion, injected gain change, recompute of every calibrated z, package determinism, registry integrity, graph explanations) | PASS |
+| G5 | Whole-system verification | `python scripts/verify.py --e2e` → **VERIFIED 18/18**, 4 warnings (no astropy, no real bundles, no Meta key, smoke test never run) | PASS |
+| G6 | Static preview integrity | `verify.py`: preview files match `PREVIEW_MANIFEST.json` | PASS |
+| G7 | Provenance of the fixture investigations | `verify.py`: 10 checks per fixture | PASS |
+| G8 | Feature catalogue consistency | `tests/unit/test_feature_catalogue.py` (≥ 250 concepts, 25 domains, tiers recomputed, every implemented concept cites an existing verification file, generated files current) | PASS |
+| G9 | Accessibility (automated) | `tests/unit/test_accessibility.py` (contrast of every text token on every surface ≥ 4.5:1); e2e `test_y` (accessible names, dialog semantics), `test_k` (focus return), `test_r` (no horizontal scroll at 820/390 px) | PASS |
+| G10 | Accessibility with a screen reader | — | NOT RUN |
+| G11 | Performance measured | `python scripts/measure_performance.py` → `docs/performance.json` (below) | PASS |
+| G12 | Real SPHEREx acquisition and live archive tests | `pytest -m live tests/live` → 2 failed, 2 errors: proxy 403 for IRSA, SIMBAD, Gaia | BLOCKED |
+| G13 | Native reader vs astropy on a real SPHEREx file | needs network and astropy (PyPI 403) | BLOCKED |
+| G14 | Live Meta Model API call | no key in the environment; api.meta.ai refused (403) | BLOCKED |
+| G15 | Dockerfile build | base images cannot be pulled | NOT RUN |
+| G16 | Hosted preview opened after republishing | the artifact page requires a sign-in the build environment does not have; the identical files pass G2 in static mode | NOT RUN |
+| G17 | Release artifacts | `scripts/make_release.py` → `dist/skytrace-0.5.0.zip`, `dist/skytrace-preview-0.5.0.zip`, `dist/RELEASE_MANIFEST-0.5.0.json`; 0.4.0 artifacts untouched | see the manifest |
+
+## New tests in v0.5
+
+`unit/test_discovery.py` (17), `unit/test_feature_catalogue.py` (3), `unit/test_accessibility.py` (2),
+`unit/test_static_preview.py::test_js_overall_rule_matches_python` and `::test_js_intent_routing_matches_python`,
+`integration/test_api.py::test_phase5_discovery_package_capabilities_and_vault`, and in `e2e/test_controls.py`
+(both modes): levels and top-bar fit (`j`), palette, help and shortcuts (`k`), Discovery Engine (`l`), Hypothesis Arena
+with add, remove and undo (`m`), uncertainty tab and SVG figure export (`n`), registration diagnostics (`o`), vault and
+studio: tags, search, filter, rename, duplicate, compare, reopen with saved hypotheses, every studio download including
+the package's integrity (`p`), capability question and answer sections (`q`), new workspaces at tablet and phone widths
+(`r`), accessible names (`y`). Existing steps were extended: graph explanation nodes (`e`), import preview and refusal of
+a tampered record before storing (`g`).
+
+## Performance (this machine, median of 3; `docs/performance.json`)
+
+| Measurement | Server mode | Static preview |
+|---|---:|---:|
+| Page load | 0.172 s | 0.151 s |
+| First result (server: runs the analysis; preview: loads the precomputed run) | 3.611 s | 0.286 s |
+| Discovery Engine first render | 0.078 s | 0.098 s |
+| Hypothesis Arena render | 0.063 s | 0.068 s |
+| Uncertainty tab render | 0.075 s | 0.072 s |
+
+Server API, syn-var-1 / syn-hpm-1: analysis 2.603 / 2.705 s; discovery report
+0.007 / 0.007 s; evidence graph 0.006 / 0.006 s;
+package 0.034 / 0.039 s (110,666 / 113,739 bytes);
+stability check 16.246 / 15.341 s. Static preview: 122 files,
+12.9 MB.
+
+## Screenshots (v0.5)
+
+`docs/screenshots/phase5-discovery.png`, `phase5-arena.png`, `phase5-uncertainty.png`, `phase5-graph-explanations.png`,
+`phase5-studio.png`, `phase5-palette.png`, `preview-mobile-discovery.png`, `preview-tablet-discovery.png`.
+
+The sections below are the v0.4.0 and v0.3.0 reports, unchanged.
+
 # Test report — v0.4.0 (2026-10-29)
 
 ## Phase 4 additions (previewable application)

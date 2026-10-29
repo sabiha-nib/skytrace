@@ -54,3 +54,13 @@ measured observation is in the discovery index, that all status codes are known,
 recorded, that outcomes agree with the step data, and (with `--rerun`) that re-running the analysis
 reproduces the content hash. Results go to `data/runs/<target>/provenance_check.json`. The synthetic
 fixtures themselves regenerate byte-identically: `python scripts/make_synthetic_fixtures.py --check`.
+
+## Reproducibility package (v0.5)
+
+*Investigations → Report Studio → Reproducibility package* (or `GET /api/investigations/{id}/package.zip`) gives one
+deterministic zip: the record, report, discovery report, evidence graph, capability registry, bundle manifest, a README
+and SHA256SUMS. To check it: `unzip skytrace-*-package.zip && cd skytrace-* && sha256sum -c SHA256SUMS`. The record's
+content hash recomputes from `record.json` (the README shows how). To replay, place the bundle named in
+`bundle_manifest.json` under `data/bundles/` (or use the bundled synthetic fixture) and import `record.json` into the
+full application, then *Replay*.
+

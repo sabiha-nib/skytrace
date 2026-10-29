@@ -52,3 +52,13 @@ Nothing is written back to the original files. Derived products (measurements, p
 Every measurement event's provenance now carries the SHA-256 of the stored file from the manifest (earlier
 records left it empty for synthetic bundles; PROVCHECK-1 found this). `scripts/verify_provenance.py` traces a
 record back to the bytes it was computed from; see [REPRODUCIBILITY.md](REPRODUCIBILITY.md).
+
+## Derived reports and packages (v0.5)
+
+The discovery report (DISC-1), hypothesis tests (HYPO-1), uncertainty decomposition (UNC-1) and evidence graph are
+computed from the investigation record and the bundle manifest only; each carries the record's content hash and its
+method version. The evidence inventory takes every SHA-256 from the bundle manifest and leaves a field empty, and counts
+it, when the manifest or record does not state it. The reproducibility package (PKG-1) contains the record byte for
+byte, the bundle manifest, and SHA256SUMS over every member; it contains no image data. In the static preview these
+files were produced by the server at build time and are listed in `PREVIEW_MANIFEST.json` with their checksums.
+

@@ -1,0 +1,69 @@
+{
+ "machine": {
+  "python": "3.13.18",
+  "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39",
+  "cpus": 2
+ },
+ "runs_per_measurement": 3,
+ "measured_at": "2026-10-29T18:09:57Z",
+ "server_api": {
+  "syn-var-1": {
+   "analysis_s": 2.603,
+   "discovery_report_s": 0.007,
+   "evidence_graph_s": 0.006,
+   "package_zip_s": 0.034,
+   "package_zip_bytes": 110666,
+   "stability_check_s": 16.246
+  },
+  "syn-hpm-1": {
+   "analysis_s": 2.705,
+   "discovery_report_s": 0.007,
+   "evidence_graph_s": 0.006,
+   "package_zip_s": 0.039,
+   "package_zip_bytes": 113739,
+   "stability_check_s": 15.341
+  }
+ },
+ "server_page": {
+  "page_load_s": 0.172,
+  "first_result_s": 3.611,
+  "first_result_includes": "running the full analysis on the server",
+  "discovery_engine_first_render_s": 0.078,
+  "hypothesis_arena_render_s": 0.063,
+  "uncertainty_tab_render_s": 0.075
+ },
+ "static_preview": {
+  "files": 122,
+  "bytes": 12912827,
+  "largest_files": [
+   [
+    1162899,
+    "data/t/syn-hpm-1/images.json"
+   ],
+   [
+    1162543,
+    "data/t/syn-var-1/images.json"
+   ],
+   [
+    458043,
+    "data/t/syn-hpm-1/run/650ef26f3d188e8f/record.json"
+   ],
+   [
+    457982,
+    "data/t/syn-hpm-1/run/e433c07cf5da4b29/record.json"
+   ],
+   [
+    457982,
+    "data/t/syn-hpm-1/run/968b4a3d5f517c19/record.json"
+   ]
+  ]
+ },
+ "static_page": {
+  "page_load_s": 0.151,
+  "first_result_s": 0.286,
+  "first_result_includes": "loading the precomputed default run",
+  "discovery_engine_first_render_s": 0.098,
+  "hypothesis_arena_render_s": 0.068,
+  "uncertainty_tab_render_s": 0.072
+ }
+}

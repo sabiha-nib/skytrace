@@ -35,6 +35,10 @@ def main() -> int:
     dist = ROOT / "dist"
     dist.mkdir(exist_ok=True)
     out = dist / f"skytrace-{__version__}.zip"
+    if out.exists() and "--force" not in sys.argv:
+        print(f"{out.name} already exists; earlier release artifacts are never overwritten (bump the version, or pass --force "
+              "to rebuild this same version deliberately)")
+        return 1
     subprocess.run(["git", "archive", "--format=zip", f"--prefix=skytrace-{__version__}/", "-o", str(out), "HEAD"], cwd=ROOT, check=True)
     with zipfile.ZipFile(out) as z:
         names = z.namelist()
@@ -57,6 +61,24 @@ def main() -> int:
     rep = {"archive": str(out.relative_to(ROOT)), "version": __version__, "commit": commit, "sha256": digest, "bytes": out.stat().st_size,
            "n_files": len(names), "zip_integrity": bad is None, "missing_required": missing, "forbidden_files": forbidden,
            "bundle_checksum_failures": problems}
+    # the static preview, zipped, only when it was built from this exact commit
+    prev = dist / "preview"
+    pst = prev / "data" / "status.json"
+    if pst.exists():
+        built = json.loads(pst.read_text()).get("commit", "")
+        if built and commit.startswith(built):
+            pz = dist / f"skytrace-preview-{__version__}.zip"
+            with zipfile.ZipFile(pz, "w", zipfile.ZIP_DEFLATED) as z:
+                for f in sorted(p for p in prev.rglob("*") if p.is_file()):
+                    zi = zipfile.ZipInfo(f"skytrace-preview-{__version__}/{f.relative_to(prev)}", (2020, 1, 1, 0, 0, 0))
+                    zi.compress_type = zipfile.ZIP_DEFLATED
+                    z.writestr(zi, f.read_bytes())
+            pd = hashlib.sha256(pz.read_bytes()).hexdigest()
+            (dist / f"{pz.name}.sha256").write_text(f"{pd}  {pz.name}\n")
+            rep["preview"] = {"archive": str(pz.relative_to(ROOT)), "sha256": pd, "bytes": pz.stat().st_size, "built_from_commit": built}
+        else:
+            rep["preview"] = {"skipped": f"dist/preview was built from {built or 'an unknown commit'}, not {commit[:7]}; rebuild it first"}
+    (dist / f"RELEASE_MANIFEST-{__version__}.json").write_text(json.dumps(rep, indent=2))
     (dist / "RELEASE_MANIFEST.json").write_text(json.dumps(rep, indent=2))
     ok = bad is None and not missing and not forbidden and not problems
     print(json.dumps(rep, indent=2))

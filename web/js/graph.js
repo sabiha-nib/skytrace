@@ -6,9 +6,9 @@ import { api } from "./api.js";
 import { emit, state } from "./state.js";
 import { $, DET_COLORS, categoryLabel, clear, el, fmt, questionLabel, shortKey } from "./util.js";
 
-const COLS = [["source", "reference"], ["target"], ["observation"], ["measurement"], ["comparison"], ["claim"], ["method", "limitation"]];
-const COL_LABEL = ["Data sources", "Target", "Observations", "Measurements", "Comparisons", "Claims", "Methods & limitations"];
-const KIND_COLOR = { source: "#6cc6a4", reference: "#6cc6a4", target: "#5fd0e4", comparison: "#a48cf2", claim: "#dde5f3", method: "#8fb3ff", limitation: "#e48b5c" };
+const COLS = [["source", "reference"], ["target"], ["observation"], ["measurement"], ["comparison"], ["claim"], ["hypothesis", "method", "limitation"]];
+const COL_LABEL = ["Data sources", "Target", "Observations", "Measurements", "Comparisons", "Claims", "Explanations, methods, limitations"];
+const KIND_COLOR = { source: "#6cc6a4", reference: "#6cc6a4", target: "#5fd0e4", comparison: "#a48cf2", claim: "#dde5f3", method: "#8fb3ff", limitation: "#e48b5c", hypothesis: "#e6b450" };
 let data = null, selected = null, pendingFocus = null;
 
 export function focusGraph(id) { pendingFocus = id; }
@@ -24,7 +24,7 @@ export async function renderGraph() {
   const svgHost = el("div");
   const side = el("div", { class: "card", id: "graph-detail", "aria-live": "polite" }, el("h3", {}, "Select a node"),
     el("p", { class: "muted" }, "Claims are on the right of the target's data. Select one to see which observations and comparisons support it."));
-  body.append(el("p", { class: "muted" }, Object.entries(counts).filter(([, v]) => v).map(([k, v]) => `${v} ${k}${v === 1 ? "" : "s"}`).join(" · ") + ` · ${data.edges.length} relationships`),
+  body.append(el("p", { class: "muted" }, Object.entries(counts).filter(([, v]) => v).map(([k, v]) => `${v} ${v === 1 ? k : k === "hypothesis" ? "hypotheses (explanations)" : k + "s"}`).join(" · ") + ` · ${data.edges.length} relationships`),
     el("div", { class: "graph-layout" }, svgHost, side));
   draw(svgHost);
   if (pendingFocus) { select(pendingFocus); pendingFocus = null; }
@@ -42,7 +42,8 @@ function draw(host) {
     const g = gap(nodes), h = nodes.length * g;
     const y0 = top + Math.max(0, (H - top - 20 - h) / 2);
     nodes.forEach((n, j) => { pos[n.id] = [colX(i), y0 + j * g + g / 2]; });
-    svg.append(el("text", { class: "col-label", x: colX(i), y: 16, "text-anchor": "middle" }, COL_LABEL[i]));
+    const last = i === COLS.length - 1;
+    svg.append(el("text", { class: "col-label", x: last ? colX(i) - 6 : colX(i), y: 16, "text-anchor": last ? "start" : "middle" }, COL_LABEL[i]));
   });
   const edgeG = el("g");
   for (const e of data.edges) {
@@ -59,8 +60,8 @@ function draw(host) {
     c.style.fill = n.kind === "observation" || n.kind === "measurement" ? (DET_COLORS[n.detector || (n.label.match(/:D(\d)$/) || [])[1]] || "#aaa") : KIND_COLOR[n.kind] || "#aaa";
     if (n.kind === "measurement" && n.status !== "ok") c.style.fillOpacity = ".3";
     g.append(c, el("title", {}, `${n.kind}: ${n.label}`));
-    if (["claim", "method", "limitation", "target", "source", "reference"].includes(n.kind)) {
-      const right = n.kind === "method" || n.kind === "limitation";
+    if (["claim", "method", "limitation", "target", "source", "reference", "hypothesis"].includes(n.kind)) {
+      const right = ["method", "limitation", "hypothesis"].includes(n.kind);
       const short = (s, max) => (s.length > max ? s.slice(0, max - 1) + "…" : s);
       if (n.kind === "claim") {   // label above the node, clear of the comparison column, in plain words
         const [q, cat] = n.label.split(": ");
@@ -83,7 +84,8 @@ function draw(host) {
 // Expansion follows only these kind-to-kind steps, so shared nodes (methods, other claims) never pull in
 // unrelated evidence. The selected node's direct neighbours are always shown.
 const STEPS = {
-  claim: ["comparison", "measurement", "method", "limitation", "reference", "target"],
+  claim: ["comparison", "measurement", "method", "limitation", "reference", "target", "hypothesis"],
+  hypothesis: ["method"],
   comparison: ["measurement", "method"],
   measurement: ["observation", "method", "reference"],
   observation: ["source", "target"],
@@ -135,11 +137,15 @@ function select(id) {
       n.origin ? [el("dt", {}, "Origin"), el("dd", {}, n.origin)] : null,
       el("dt", {}, "Relationships"), el("dd", {}, String(rel.length)),
       n.kind === "claim" ? [el("dt", {}, "Traced observations"), el("dd", {}, String(supporting))] : null,
+      n.kind === "hypothesis" ? [el("dt", {}, "Overall (HYPO-1 rule)"), el("dd", {}, n.status),
+        el("dt", {}, "Recorded tests"), el("dd", {}, el("ul", { class: "limits" }, ...n.tests.map((t) => el("li", {}, `${t.status.replaceAll("_", " ")}: ${t.description}`))))] : null,
       ev ? [el("dt", {}, "Recorded as"), el("dd", {}, `step ${ev.step} (${ev.status}): ${ev.detail}`)] : null),
     el("details", {}, el("summary", {}, `Relationships (${rel.length})`),
       el("ul", { class: "limits" }, ...rel.slice(0, 60).map((e) => el("li", {}, `${e.source === id ? "→ " + e.rel + " " + label(e.target) : label(e.source) + " " + e.rel + " →"}`)))),
     (n.kind === "observation" || n.kind === "measurement") ? el("div", { class: "controls" },
       el("button", { class: "btn small", onclick: () => emit("goto", { ws: "explorer", key }) }, "Open in Sky Explorer")) : null,
+    n.kind === "hypothesis" ? el("div", { class: "controls" },
+      el("button", { class: "btn small", onclick: () => emit("goto", { ws: "arena" }) }, "Open in the Hypothesis Arena")) : null,
     n.kind === "claim" ? el("div", { class: "controls" },
       el("button", { class: "btn small", onclick: () => emit("ask", `Which observations support the ${n.id.split(":")[1].replace("_", " ")} outcome, and how certain is it?`) }, "Ask the copilot")) : null);
 }

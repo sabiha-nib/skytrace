@@ -188,6 +188,9 @@ def test_d_lab_controls(app):
 
 def test_e_graph_controls(app):
     app.click(".nav button[data-ws=graph]")
+    app.locator(".graph-svg .node[data-id='hyp:V-INTRINSIC']").click()
+    app.locator("#graph-detail dt", has_text="Recorded tests").wait_for()
+    app.locator("#graph-detail button", has_text="Open in the Hypothesis Arena").wait_for()
     app.locator(".graph-svg .node[data-id='claim:variability']").click()
     app.locator("#graph-detail", has_text="Traced observations").wait_for()
     obs = app.locator(".graph-svg .node[data-id^='obs:']").first
@@ -293,6 +296,9 @@ def test_i_narrow_copilot_overlay_and_escape(app):
 
 def test_j_levels(app):
     app.set_viewport_size({"width": 1440, "height": 900})
+    for sel in ["#run-btn", ".level-switch", "#palette-btn"]:     # the top bar fits a 1440 px window
+        bb = app.locator(sel).bounding_box()
+        assert bb["x"] + bb["width"] <= 1440, sel
     app.click(".level-switch button[data-level=explore]")
     assert app.locator("body").get_attribute("data-level") == "explore"
     app.click(".nav button[data-ws=lab]")
@@ -481,6 +487,32 @@ def test_r_new_workspaces_narrow(app):
             app.wait_for_timeout(400)
             app.screenshot(path=str(SHOTS / f"preview-{name}-discovery.png"))
     app.set_viewport_size({"width": 1440, "height": 900})
+
+
+def test_y_accessible_names(app):
+    """Every visible button, field and chart in every workspace has an accessible name (no axe-core offline: a direct check)."""
+    app.set_viewport_size({"width": 1440, "height": 900})
+    problems = []
+    for ws in ["discovery", "explorer", "time", "lab", "arena", "graph", "records"]:
+        app.locator(f".nav button[data-ws={ws}]").click()
+        app.wait_for_timeout(700)
+        scope = app.locator(f"#ws-{ws}, .topbar, .copilot")
+        for b in scope.locator("button:visible").all():
+            name = (b.get_attribute("aria-label") or b.inner_text() or b.get_attribute("title") or "").strip()
+            if not name:
+                problems.append((ws, "button", b.inner_html()[:80]))
+        for f in scope.locator("input:visible, select:visible, textarea:visible").all():
+            fid = f.get_attribute("id")
+            named = (f.get_attribute("aria-label") or f.locator("xpath=ancestor::label").count()
+                     or (fid and app.locator(f"label[for='{fid}']").count()))
+            if not named:
+                problems.append((ws, "field", f.get_attribute("type"), fid))
+        for svg in scope.locator("svg[role=img]:visible").all():
+            if not (svg.get_attribute("aria-label") or "").strip():
+                problems.append((ws, "svg", svg.get_attribute("class")))
+    for d in app.locator("[role=dialog]").all():
+        assert d.get_attribute("aria-modal") == "true" and d.get_attribute("aria-labelledby")
+    assert problems == [], problems
 
 
 def test_z_no_external_requests_no_errors(app):

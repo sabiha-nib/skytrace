@@ -1,5 +1,8 @@
 # Scientific methods
 
+Phase 5 methods that read finished investigations (CAPREG-1, DISC-1, HYPO-1, UNC-1, REGDIAG-1, PKG-1) are in
+[DISCOVERY_METHODS.md](DISCOVERY_METHODS.md).
+
 Every method has a version ID. Each ID is written into every result that uses it, so a result always names the exact rule that produced it. Thresholds are fixed constants, not tuned per target. All numbers below come from runs of the code at commit time (see [TEST_REPORT.md](TEST_REPORT.md)).
 
 ## Data and coordinates

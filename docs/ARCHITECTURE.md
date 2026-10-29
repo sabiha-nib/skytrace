@@ -19,11 +19,46 @@ scripts/acquire_targets.py ─┤ archive/acquire.py (selection SEL-1, resume, i
                             ▼
    report.Investigation: every step logged (ok / rejected / failed / skipped / info) with provenance; content hash
                             ▼
+   v0.5 readers of the record (deterministic, no network, no model):
+        capabilities.py (CAPREG-1) · discovery.py (DISC-1) · hypotheses.py (HYPO-1) · uncertainty.py (UNC-1)
+        view.registration_diagnostics (REGDIAG-1) · package.py (PKG-1)
+                            ▼
    view.InvestigationView + evidence_graph  ◄── ai/tools.py (12 read-only tools) ◄── ai/copilot.py ──► Meta Model API
                             │                                ai/guard.py (GUARD-3)     ai/local.py (fallback)
                             ▼
    server/app.py (Starlette): JSON API + static web/        ──►  browser (web/js: no build, no CDN, strict CSP)
+                            │
+   scripts/build_static.py: records the server's responses ──►  dist/preview/ (static backend web/js/static/, same interface)
 ```
+
+## Capability registry (CAPREG-1)
+
+`src/skytrace/capabilities.py` lists every capability with its methods, inputs, bounded parameters (the same bounds the
+server enforces: `analysis.PARAM_BOUNDS`), outputs, limitations, tests and where it executes (`local` = wherever the
+record is present, `server` = needs the running server, `network` = needs external services). `registry(availability)`
+adds whether each is available here. It is served at `GET /api/capabilities`, given to the copilot as the
+`list_capabilities` tool, used by the Discovery Engine to decide which next steps can run, and packaged with every
+reproducibility package. The static preview publishes its own view: server-only capabilities unavailable, browser ports
+named, precomputed results said to be precomputed. Generated table: [DISCOVERY_METHODS.md](DISCOVERY_METHODS.md).
+
+## Phase 5 additions (v0.5)
+
+| Piece | Server | Interface | Static preview |
+|---|---|---|---|
+| Discovery Engine (DISC-1, stages A–G) | `GET /api/investigations/{id}/discovery` | `web/js/discovery.js` | `data/t/<target>/run/<id>/discovery.json` |
+| Hypothesis Arena (HYPO-1) | inside the discovery report | `web/js/arena.js`, overall rule `web/js/rules.js` (parity-tested) | same file |
+| Uncertainty Explorer (UNC-1) | inside the discovery report | `web/js/uncertainty.js` (Lab tab) | same file |
+| Registration diagnostics (REGDIAG-1) | in the pair comparison | `web/js/timemachine.js` | browser port `web/js/static/compare.js` (parity-tested) |
+| Evidence graph: competing explanations | `view.evidence_graph` | `web/js/graph.js` | `graph.json` |
+| Reproducibility package (PKG-1) | `GET /api/investigations/{id}/package.zip` | Report Studio (`web/js/records.js`) | `package.zip` built by the server at build time |
+| Vault: rename, retag, notes, context, duplicate | `PATCH /api/records/{rid}`, `POST /api/records/{rid}/clone` | `web/js/records.js` | browser storage (`web/js/static/backend.js`) |
+| Investigation context (question, user hypotheses) | stored with a record (`context`, ≤ 50 kB) | `state.context`, sanitised on reopen (`state.sanitizeContext`) | browser storage |
+| Command palette, glossary, shortcuts, levels, loop bar | — | `web/js/palette.js`, `web/js/main.js`, CSS `body[data-level]` | same |
+| Figure export (SVG) | — | `web/js/figures.js` | same |
+
+The levels (Explore / Investigate / Research) are CSS views over the same state: nothing is computed differently.
+User hypotheses are interpretations: they can cite recorded tests by id, and their overall line uses the published
+rule; they never enter the evidence matrix, the graph or the record's content hash.
 
 ## Layers and their rules
 
@@ -46,6 +81,6 @@ scripts/acquire_targets.py ─┤ archive/acquire.py (selection SEL-1, resume, i
 ## Request flow for one copilot question
 
 1. `POST /api/investigations/{id}/ask` → `copilot.ask` builds a `ToolSession` over the stored record.
-2. With a Meta key and `OFFLINE` unset, the model receives the system rules, a compact context (target, kind, outcome categories) and 11 tool schemas. It calls tools; each call is validated by pydantic and recorded.
+2. With a Meta key and `OFFLINE` unset, the model receives the system rules, a compact context (target, kind, outcome categories) and 12 tool schemas. It calls tools; each call is validated by pydantic and recorded.
 3. The final JSON answer goes through `guard.check` against the outputs of the tools actually called. On failure, one repair round runs. A second failure withholds the draft and returns the local assistant's grounded answer instead.
 4. Without a key, offline, or on any API error, the local assistant answers through the same tools and the same guard. The response always states which mode produced it.

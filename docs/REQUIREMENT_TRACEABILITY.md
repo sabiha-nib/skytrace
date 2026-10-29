@@ -1,4 +1,4 @@
-# Requirement traceability (v0.4.0, 2026-10-29)
+# Requirement traceability (v0.5.0, 2026-10-30)
 
 `IMPLEMENTED` means the code exists and its deterministic tests pass. `VERIFIED` means it is also confirmed on real data or a live service. `BLOCKED` names the missing access. Hackathon submission requirements were retired when the project moved to Meta.
 
@@ -46,3 +46,26 @@
 | R38 | Browser computations equal the Python ones (pair comparison, record content hash) | `web/js/static/compare.js`, `hash.js` | `tests/unit/test_static_preview.py` (Node parity, mutation-checked) | IMPLEMENTED | |
 | R39 | Every visible control works or is disabled with a reason; back/forward; keyboard; overlay dismissal | `web/js/*` | `tests/e2e/test_controls.py` (both modes) | IMPLEMENTED | |
 | R40 | Record export and verified import | `/api/investigations/{id}/record.json`, `/api/records/import`, `records.js` | integration + e2e | IMPLEMENTED | |
+
+## Phase 5 (v0.5)
+
+| ID | Requirement | Location | Test | Status | Evidence / blocker |
+|---|---|---|---|---|---|
+| P5.01 | Discovery loop and persistent investigation context | `web/js/main.js`, `state.context` | e2e `test_l_discovery_engine`, `test_p_vault_and_studio` | IMPLEMENTED | question and hypotheses survive navigation and reopen |
+| P5.02 | Three levels (Explore / Investigate / Research) | CSS `body[data-level]`, `web/js/lab.js` | e2e `test_j_levels` | IMPLEMENTED | |
+| P5.03 | Command palette, keyboard shortcuts, glossary, undo, back/forward | `web/js/palette.js`, `main.js`, `arena.js` | e2e `test_k_palette_help_shortcuts`, `test_m_hypothesis_arena`, `test_f_back_forward` | IMPLEMENTED | undo covers hypothesis removal only |
+| P5.04 | Feature catalogue ≥ 250 concepts, 25 domains, 7 scores, tiers | `scripts/feature_catalogue.py` → `docs/FEATURE_CATALOGUE.md` | `test_feature_catalogue.py` | IMPLEMENTED | counts computed |
+| P5.05 | Discovery engine stages A–G | `discovery.py`, `web/js/discovery.js` | `test_discovery.py`; e2e | IMPLEMENTED | on synthetic data |
+| P5.06 | Hypothesis Arena, rule-driven, no probabilities | `hypotheses.py`, `arena.js`, `rules.js` | `test_discovery.py`, parity test, e2e | IMPLEMENTED | three explanations have no implemented test (shown as not tested) |
+| P5.07 | Uncertainty Explorer; sensitivity separate | `uncertainty.py`, `uncertainty.js` | `test_discovery.py`, e2e `test_n` | IMPLEMENTED | |
+| P5.08 | Evidence Graph improvements | `view.evidence_graph` (explanation nodes), `graph.js` | `test_discovery.py`, e2e `test_e` | IMPLEMENTED | |
+| P5.09 | Advanced Time Machine: registration diagnostics | `view.registration_diagnostics`, `compare.js`, `timemachine.js` | known-answer + parity tests, e2e `test_o` | IMPLEMENTED | |
+| P5.10 | Copilot capability registry and evidence-structured answers | `capabilities.py`, tool `list_capabilities`, `copilot.js` | `test_tool_contracts.py`, e2e `test_q` | IMPLEMENTED; Meta model **BLOCKED** | no key, no route |
+| P5.11 | Report and figure studio | `records.js` (studio), `figures.js`, `package.py` | e2e `test_n`, `test_p`; package determinism | IMPLEMENTED | PDF export deferred |
+| P5.12 | Vault: search, tags, clone, rename, compare, import preview, delete confirmation | `records.js`, `PATCH`/`clone` routes | `test_api.py`, e2e `test_g`, `test_p` | IMPLEMENTED | |
+| P5.13 | Offline first-class | OFFLINE=1, static preview with precomputed Phase 5 outputs | `test_offline_workflow.py`, e2e static mode | IMPLEMENTED | |
+| P5.14 | Live-data program | `scripts/diagnose_environment.py` | re-run 2026-10-29 | **BLOCKED** | IRSA, SIMBAD, Gaia, Meta, PyPI, npm: proxy 403 |
+| P5.15 | Performance and accessibility audit | `scripts/measure_performance.py`, `test_accessibility.py`, e2e `test_y`, `test_r` | as listed | IMPLEMENTED | no assistive-technology session |
+| P5.16 | Security: untrusted imports, no secrets in frontend, no telemetry | `state.sanitizeContext`, import preview, verify.py secret scan | e2e, verify.py | IMPLEMENTED | |
+| P5.17 | New release without overwriting 0.4.0 | `scripts/make_release.py` (refuses to overwrite) | release run | see TEST_REPORT | |
+

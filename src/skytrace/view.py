@@ -259,6 +259,20 @@ def evidence_graph(v: InvestigationView, target_id: str) -> dict:
                     edge(cnode, f"meas:{key}", "counts rejection")
         for lim in o.get("limitations", []):
             edge(cnode, node(_lid(lim), "limitation", lim), "limited by")
+    # competing explanations (HYPO-1): each is linked to the claim it would explain and carries its recorded tests
+    from . import hypotheses as hmod
+    hyp = hmod.evaluate(v.r)
+    for q in hyp["questions"]:
+        cid = f"claim:{q['question']}"
+        if cid not in nodes:
+            continue
+        hm = node("method:" + hyp["method"], "method", hyp["method"])
+        for h in q["hypotheses"]:
+            hn = node(f"hyp:{h['id']}", "hypothesis", f"{h['id']} · {h['overall']}", statement=h["statement"], status=h["overall"],
+                      tests=[{"id": t["id"], "status": t["status"], "description": t["description"], "rule": t["rule"]} for t in h["tests"]])
+            edge(cid, hn, "alternative explanation")
+            edge(hn, hm, "tested by")
     return {"nodes": list(nodes.values()), "edges": edges,
             "counts": {k: sum(1 for n in nodes.values() if n["kind"] == k) for k in
-                       ("target", "reference", "source", "observation", "measurement", "method", "comparison", "claim", "limitation")}}
+                       ("target", "reference", "source", "observation", "measurement", "method", "comparison", "claim",
+                        "limitation", "hypothesis")}}

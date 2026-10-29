@@ -12,7 +12,7 @@
   --line-soft: #1b2742;
   --text: #e2e8f4;
   --muted: #95a2c0;
-  --faint: #6c7aa0;
+  --faint: #7d8bb0;   /* 4.6:1 on the lightest panel (WCAG AA for small text) */
   --accent: #5fd0e4;
   --accent-soft: rgba(95, 208, 228, .14);
   --violet: #a48cf2;
@@ -481,3 +481,5 @@ kbd { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; borde
 }
 .topbar > .level-switch, #palette-btn, #help-btn, #run-btn { flex-shrink: 0; }
 @media (max-width: 1500px) { .wordmark small { display: none; } .topbar { gap: 12px; } }
+#target-select { max-width: 230px; }
+@media (max-width: 1500px) { .topbar #model-pill { max-width: 150px; overflow: hidden; text-overflow: ellipsis; } }

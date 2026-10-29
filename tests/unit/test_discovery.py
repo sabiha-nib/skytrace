@@ -198,3 +198,19 @@ def test_local_capabilities_answer_passes_guard():
     assert res.mode == "local" and res.ok, res.problems
     assert "list_capabilities" in [c["name"] for c in res.tool_calls]
     assert "SPHEREx / SIMBAD / Gaia acquisition" in res.answer["answer"] and "Not available here" in res.answer["answer"]
+
+
+def test_evidence_graph_links_each_tested_explanation_to_its_claim():
+    from skytrace.view import evidence_graph
+    v = view()
+    g = evidence_graph(v, "syn-var-1")
+    h = hypotheses.evaluate(v.r)
+    hyp_nodes = {n["id"]: n for n in g["nodes"] if n["kind"] == "hypothesis"}
+    expected = {f"hyp:{x['id']}": (q["question"], x) for q in h["questions"] for x in q["hypotheses"]}
+    assert set(hyp_nodes) == expected.keys() and g["counts"]["hypothesis"] == len(expected)
+    for nid, (question, x) in expected.items():
+        n = hyp_nodes[nid]
+        assert n["status"] == x["overall"] and [t["status"] for t in n["tests"]] == [t["status"] for t in x["tests"]]
+        assert {"source": f"claim:{question}", "target": nid, "rel": "alternative explanation"} in g["edges"]
+        assert {"source": nid, "target": "method:" + h["method"], "rel": "tested by"} in g["edges"]
+        assert "probab" not in json.dumps(n).lower()
