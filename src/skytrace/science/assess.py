@@ -191,7 +191,9 @@ def assess_variability(flux_pairs: list[dict], spectral_pairs: list[dict], n_pai
     sens = {}
     if frac:
         sens = {"min_detectable_fractional_change_5sigma": T["variability_z"] * median(frac),
-                "note": "median over matched pairs; a smaller brightness change would not be detected"}
+                "min_detectable_fractional_change_5sigma_best_pair": T["variability_z"] * min(frac),
+                "note": "5σ change detectable in a typical (median) matched pair and in the most sensitive pair; "
+                        "sensitivity differs by detector and wavelength"}
     spectral_big = ev["max_abs_z_unmatched_wavelength"] is not None and ev["max_abs_z_unmatched_wavelength"] >= T["variability_z"]
     if not cal_z and not raw_z:
         if spectral_big:
@@ -221,9 +223,11 @@ def assess_variability(flux_pairs: list[dict], spectral_pairs: list[dict], n_pai
                         "Matched pairs show no significant change; the large differences occur only between "
                         "unmatched wavelengths and reflect the source spectrum.", ev, crit, lim, inputs, sens)
     s = sens.get("min_detectable_fractional_change_5sigma")
+    sb = sens.get("min_detectable_fractional_change_5sigma_best_pair")
     return _outcome("variability", "no_variability_at_sensitivity",
                     "No significant flux change between wavelength-matched observations"
-                    + (f" above {s:.1%} (5σ)" if s else "") + ". This is not proof that the source is constant.",
+                    + (f" (5σ sensitivity {sb:.1%} in the most sensitive pair, {s:.1%} in a typical pair)" if s else "")
+                    + ". This is not proof that the source is constant.",
                     ev, crit, lim, inputs, sens)
 
 

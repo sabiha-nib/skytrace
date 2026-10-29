@@ -128,6 +128,24 @@ def test_05_lab_tabs_and_rerun(page):
     shot(page, "lab-outcomes")
 
 
+def test_05b_phase3_validation_views(page):
+    """Sensitivity on outcomes, reference-calibrated z and calibration check, status codes, stability check."""
+    page.locator(".outcome .sensitivity", has_text="would not be detected").first.wait_for()
+    page.locator(".tabs button", has_text="Brightness").click()
+    page.locator("th", has_text="z (calibrated)").wait_for()
+    page.locator(".card.calcheck", has_text="Calibration check").wait_for()
+    page.locator(".tabs button", has_text="Motion").click()
+    page.locator("dd", has_text="visit-averaged epochs").wait_for()
+    page.locator("dt", has_text="Parallax").wait_for()
+    page.locator(".tabs button", has_text="Measurements").click()
+    page.locator("td", has_text="phot ok · astro ok").first.wait_for()
+    page.locator(".tabs button", has_text="Re-run & compare").click()
+    page.locator("#stability-run").click()
+    page.locator("#stability-out", has_text="Motion: stable").wait_for(timeout=180000)
+    shot(page, "lab-stability")
+    page.locator(".tabs button", has_text="Outcomes").click()
+
+
 def test_06_evidence_graph_traces_claim(page):
     page.click(".nav button[data-ws=graph]")
     page.locator(".graph-svg .node[data-id='claim:variability']").click()

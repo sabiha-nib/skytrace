@@ -60,7 +60,9 @@ the measured − catalogue comparison including catalogue errors, plate residual
 
 Each matched pair contributes one significance: the PAIRDIFF-2 (reference-calibrated) z when ≥ 3
 wavelength-matched reference stars exist, otherwise the PAIRDIFF-1 z marked uncalibrated. Both are
-divided by the CALCHECK error scale (≥ 1) when it is known. Sensitivity: 5 × median(σ/f) over matched pairs.
+divided by the CALCHECK error scale (≥ 1) when it is known. Sensitivity: 5 × σ/f (σ of the pair difference,
+times the CALCHECK scale), reported for a typical (median) pair and for the most sensitive pair. A change
+can therefore be detected in the best pairs even when it is below the typical-pair sensitivity.
 
 | Order | Condition | Category |
 |---|---|---|

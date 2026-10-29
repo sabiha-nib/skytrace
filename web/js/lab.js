@@ -72,10 +72,7 @@ function outcomes(p) {
     grid.append(el("article", { class: `card outcome c-${o.category}` },
       el("h3", {}, questionLabel(o.question)), el("div", { class: "cat" }, categoryLabel(o.category)),
       el("p", {}, o.statement),
-      ...Object.entries(o.sensitivity || {}).filter(([k]) => k !== "note" && k !== "baseline_yr").map(([k, v]) =>
-        el("p", { class: "sensitivity" }, el("strong", {}, "Sensitivity: "), k.startsWith("min_detectable_fractional")
-          ? `changes smaller than ${fmt(100 * v, 1)}% (5σ) would not be detected`
-          : `motion smaller than ${fmt(v, 0)} mas/yr (5σ) would not be detected`)),
+      sensitivityLine(o.sensitivity || {}),
       el("dl", { class: "kv evidence" }, ...ev.slice(0, 8).flatMap(([k, v]) => [el("dt", {}, k.replaceAll("_", " ")), el("dd", {}, typeof v === "number" ? fmt(v, Math.abs(v) < 10 ? 2 : 0) : String(v))])),
       el("details", { class: "explanations" }, el("summary", {}, "Criteria"), el("ul", {}, ...o.criteria.map((c) => el("li", {}, c)))),
       el("details", { class: "explanations" }, el("summary", {}, "Limitations"), el("ul", {}, ...o.limitations.map((c) => el("li", {}, c)))),
@@ -90,6 +87,16 @@ function outcomes(p) {
       try { download(`skytrace-${state.targetId}-${state.inv.investigation_id}.md`, await api.report(state.inv.investigation_id)); toast("Report downloaded"); }
       catch (e) { toast(e.message); } } }, "Download report (Markdown)"),
     el("span", { class: "muted" }, `Rules ${m.outcomes[0]?.rules || ""} · analysis ${m.record.parameters.analysis_version} · content hash ${m.record.content_hash.slice(0, 12)}…`)));
+}
+
+function sensitivityLine(s) {
+  if (s.min_detectable_pm_mas_yr_5sigma != null)
+    return el("p", { class: "sensitivity" }, el("strong", {}, "Sensitivity: "), `motion smaller than ${fmt(s.min_detectable_pm_mas_yr_5sigma, 0)} mas/yr (5σ) would not be detected`);
+  if (s.min_detectable_fractional_change_5sigma != null)
+    return el("p", { class: "sensitivity" }, el("strong", {}, "Sensitivity: "),
+      `a brightness change smaller than ${fmt(100 * s.min_detectable_fractional_change_5sigma, 1)}% would not be detected (5σ) in a typical matched pair; ` +
+      `${fmt(100 * s.min_detectable_fractional_change_5sigma_best_pair, 1)}% in the most sensitive pair`);
+  return null;
 }
 
 function motion(p) {

@@ -54,6 +54,7 @@ def test_variability_outcomes():
     o = v([fp(1.0)], [], 1, {"error_scale": 1.0})
     assert o["category"] == "no_variability_at_sensitivity" and "not proof" in o["statement"]
     assert abs(o["sensitivity"]["min_detectable_fractional_change_5sigma"] - 0.05) < 1e-9
+    assert abs(o["sensitivity"]["min_detectable_fractional_change_5sigma_best_pair"] - 0.05) < 1e-9
 
 
 def test_every_outcome_documents_itself():
