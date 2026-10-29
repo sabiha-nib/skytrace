@@ -31,7 +31,7 @@ from ..ai import copilot
 from ..ai.meta_client import MetaConfig
 from ..archive.net import offline_enabled
 from ..archive.products import ProductError, astropy_available, load_product
-from ..provenance import utc_now_iso
+from ..provenance import stable_hash, utc_now_iso
 from ..report import render_markdown
 from ..science import flags as fl
 from ..science.coords import mjd_to_jyear, propagate
@@ -190,7 +190,7 @@ def _image_payload(prod, obs, b, extra=None) -> dict:
     return {"key": obs["key"], "width": nx, "height": ny, "data": _b64(np.nan_to_num(img, nan=np.nan), "<f4"),
             "reject_mask": _b64(reject.astype(np.uint8), "u1"), "percentiles": pct, "bunit": prod.headers["IMAGE"].get("BUNIT"),
             "synthetic": prod.is_synthetic() or b.kind == "synthetic", "reader": prod.reader,
-            "predicted_target_xy": [px, py], "wavelength_at_target_um": wl, "bandwidth_at_target_um": bw,
+            "predicted_target_xy": [px, py], "predicted_target_radec": [tra, tdec], "wavelength_at_target_um": wl, "bandwidth_at_target_um": bw,
             "linear_wcs": {"center_xy": [cx, cy], "center_radec": [ra0, dec0], "cd_deg": cd,
                            "note": "local linear approximation for the cursor readout; measurements use the full WCS"},
             "pixel_scale_arcsec": list(prod.pixel_scale_arcsec()), "observation": obs,
@@ -388,25 +388,63 @@ async def records_list(request: Request):
     for p in sorted(RECORDS.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
         d = json.loads(p.read_text())
         out.append({k: d.get(k) for k in ("record_id", "name", "target_id", "saved_at", "content_hash", "bundle_kind", "notes",
-                                          "last_replay")})
+                                          "last_replay", "imported")})
     return _json({"records": out})
 
 
 async def records_save(request: Request):
     body = await _body(request)
     e = _inv(str(body.get("investigation_id", "")))
-    name = str(body.get("name") or "").strip()[:120] or f"{e['record']['target']} investigation"
+    return _json(_save_record(e["target_id"], e["record"], body))
+
+
+def _save_record(target_id: str, rec: dict, body: dict, imported: bool = False) -> dict:
+    name = str(body.get("name") or "").strip()[:120] or f"{rec['target']} investigation"
     rid = uuid.uuid4().hex[:12]
-    rec = e["record"]
+    e = {"target_id": target_id}
     d = {"schema": "skytrace.saved_investigation/1", "record_id": rid, "name": name, "notes": str(body.get("notes") or "")[:2000],
          "target_id": e["target_id"], "saved_at": utc_now_iso(), "parameters": rec["parameters"],
          "bundle_kind": rec["parameters"].get("bundle_kind"), "bundle_manifest_sha256": rec["parameters"].get("bundle_manifest_sha256"),
          "analysis_version": rec["parameters"].get("analysis_version"), "software": rec.get("software"),
          "content_hash": rec["content_hash"], "investigation": rec,
-         "copilot_transcript": body.get("transcript") if isinstance(body.get("transcript"), list) else []}
+         "copilot_transcript": body.get("transcript") if isinstance(body.get("transcript"), list) else [],
+         "imported": imported}
     RECORDS.mkdir(parents=True, exist_ok=True)
     _record_path(rid).write_text(json.dumps(d, indent=1, default=_default))
-    return _json({"record_id": rid, "name": name, "saved_at": d["saved_at"]})
+    return {"record_id": rid, "name": name, "saved_at": d["saved_at"]}
+
+
+def record_hash_ok(rec: dict) -> bool:
+    """The content hash recomputes from the record body (same rule as report.Investigation.to_dict)."""
+    body = {k: v for k, v in rec.items() if k not in ("created_at", "software", "content_hash")}
+    return isinstance(rec.get("content_hash"), str) and stable_hash(body) == rec["content_hash"]
+
+
+async def investigation_export(request: Request):
+    """The investigation record exactly as the server holds it (JSON), for archiving or re-import."""
+    iid = request.path_params["iid"]
+    e = _inv(iid)
+    return Response(json.dumps(e["record"], indent=1, default=_default), media_type="application/json",
+                    headers={"Content-Disposition": f'attachment; filename="skytrace-{e["target_id"]}-{iid}.json"'})
+
+
+async def records_import(request: Request):
+    """Store an exported investigation record after checking its integrity. Nothing in it is trusted otherwise:
+    the content hash must recompute, and its bundle must exist here (replay then re-executes it)."""
+    body = await _body(request)
+    rec = body.get("record")
+    need = ("schema", "target", "parameters", "events", "content_hash")
+    if not isinstance(rec, dict) or any(k not in rec for k in need) or not isinstance(rec["events"], list):
+        raise APIError(400, "not a Skytrace investigation record (missing " +
+                       ", ".join(k for k in need if not isinstance(rec, dict) or k not in rec) + ")")
+    if not record_hash_ok(rec):
+        raise APIError(400, "content hash does not match the record: it was modified or is incomplete")
+    tid = str(rec["parameters"].get("bundle") or "")
+    if tid not in _bundle_dirs():
+        raise APIError(400, f"the data bundle {tid!r} for this record is not available on this machine")
+    out = _save_record(tid, rec, body, imported=True)
+    same = rec["parameters"].get("bundle_manifest_sha256") == bmod.sha256_file(_bundle_dirs()[tid] / "manifest.json")
+    return _json({**out, "content_hash_verified": True, "same_bundle": same})
 
 
 async def records_get(request: Request):
@@ -501,9 +539,11 @@ routes = [
     Route("/api/investigations/{iid}", investigation),
     Route("/api/investigations/{iid}/graph", graph),
     Route("/api/investigations/{iid}/report.md", report),
+    Route("/api/investigations/{iid}/record.json", investigation_export),
     Route("/api/investigations/{iid}/ask", ask, methods=["POST"]),
     Route("/api/records", records_list),
     Route("/api/records", records_save, methods=["POST"]),
+    Route("/api/records/import", records_import, methods=["POST"]),
     Route("/api/records/{rid}", records_get),
     Route("/api/records/{rid}", records_delete, methods=["DELETE"]),
     Route("/api/records/{rid}/replay", records_replay, methods=["POST"]),

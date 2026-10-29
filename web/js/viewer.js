@@ -12,7 +12,7 @@ const STRETCH = {
 
 export function decodeFrame(p) {
   if (!p) return null;
-  return { ...p, pixels: b64ToFloat32(p.data), mask: p.reject_mask ? b64ToUint8(p.reject_mask) : null };
+  return { ...p, pixels: p.pixels || b64ToFloat32(p.data), mask: p.reject_mask ? b64ToUint8(p.reject_mask) : null };
 }
 
 function percentile(arr, q) {

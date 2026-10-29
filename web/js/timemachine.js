@@ -112,9 +112,10 @@ async function loadPair() {
     viewer.set({ frames: [fa], mode: "single", markers: [mA], captions: [cap(pairData.a, "A")] });
     viewerB.set({ frames: [fb], mode: "single", markers: [mB.map((x) => ({ ...x, kind: x.kind.replace("B", "") }))], captions: [cap(pairData.b, "B (on A's grid)")] });
   } else {
+    // the difference caption must be in place before the first render (it was set afterwards and never shown)
     viewer.set({ frames: [fa, fb], mode: mode === "diff" ? "diff" : mode, index: 0, markers: [mA, mB],
-      captions: [cap(pairData.a, "A"), cap(pairData.b, "B")] });
-    if (mode === "diff") viewer.opts.captions = [["B − A (median-subtracted)", "warm: brighter in B · cool: fainter in B"]];
+      captions: mode === "diff" ? [["B − A (median-subtracted)", "warm: brighter in B · cool: fainter in B"]]
+                                : [cap(pairData.a, "A"), cap(pairData.b, "B")] });
     if (mode === "blink" && playing) start();
   }
   renderBanner();
@@ -143,9 +144,12 @@ function renderDetails() {
     el("dt", {}, "Note"), el("dd", { class: "muted" }, pairData.note))];
   kids.push(el("div", { class: "legend" }, ...[["#e6b450", "A: catalogue position"], ["#6cc6a4", "A: measured centroid"], ["#d97fb6", "B: catalogue position / centroid"]].map(([c2, t]) => {
     const i = el("i"); i.style.borderColor = c2; return el("span", {}, i, t);
-  })));
+  }), (() => { const i = el("i", { class: "swatch" }); i.style.background = "rgb(70,20,30)"; return el("span", {}, i, "no data: outside B's footprint after registration, or a missing value"); })()));
   kids.push(el("div", { class: "controls" },
-    el("button", { class: "btn small", onclick: () => emit("ask", `Compare ${state.selectedKey} and ${state.partnerKey}: are they measured at compatible wavelengths, and what changed?`) }, "Ask the copilot about this pair")));
+    api.isStatic
+      ? el("button", { class: "btn small", disabled: true, title: "Questions about named observations need the local server's assistant" }, "Ask the copilot about this pair")
+      : el("button", { class: "btn small", onclick: () => emit("ask", `Compare ${state.selectedKey} and ${state.partnerKey}: are they measured at compatible wavelengths, and what changed?`) }, "Ask the copilot about this pair"),
+    api.isStatic ? el("span", { class: "faint" }, "Not available in the static preview: questions about named observations are answered by the local server's assistant. The comparison above is computed from the record.") : null));
   box.replaceChildren(...kids);
 }
 

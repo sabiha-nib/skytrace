@@ -66,13 +66,18 @@ export function compatibilityReason(model, a, b) {
   return `|Δλ| = ${dl.toFixed(4)} µm ≤ ${tol.toFixed(4)} µm`;
 }
 
-export function writeHash() {
+// URL state. Workspace and target changes push a history entry (so browser back/forward move between them);
+// selection changes within a workspace replace the current entry.
+export function writeHash(push = false) {
   const p = new URLSearchParams();
   if (state.targetId) p.set("target", state.targetId);
   if (state.selectedKey) p.set("obs", state.selectedKey);
   if (state.partnerKey && state.ws === "time") p.set("b", state.partnerKey);
   const h = `#/${state.ws}?${p.toString()}`;
-  if (location.hash !== h) history.replaceState(null, "", h);
+  if (location.hash === h) return;
+  const prev = readHash();
+  if (push && (prev.ws !== state.ws || prev.target !== state.targetId)) history.pushState(null, "", h);
+  else history.replaceState(null, "", h);
 }
 
 export function readHash() {

@@ -112,3 +112,28 @@ def test_phase3_params_and_stability(base):
     assert d["method"] == "STAB-1" and d["synthetic"] is True and len(d["runs"]) == 5
     assert set(d["stable"]) == {"data_quality", "motion", "variability"}
     assert d["base"]["categories"]["variability"] == "variability_candidate"
+
+
+def test_record_export_and_verified_import(base):
+    s = post(base, "/api/targets/syn-hpm-1/analyze", {"params": {}}).json()
+    r = get(base, f"/api/investigations/{s['investigation_id']}/record.json")
+    assert r.status_code == 200 and "attachment" in r.headers["content-disposition"]
+    text = r.text
+    ok = requests.post(base + "/api/records/import", data=('{"name": "imp", "record": ' + text + "}").encode(),
+                       headers={"Content-Type": "application/json"}, timeout=60, proxies=NOPROXY)
+    assert ok.status_code == 200, ok.text
+    d = ok.json()
+    assert d["content_hash_verified"] is True and d["same_bundle"] is True
+    listed = {x["record_id"]: x for x in get(base, "/api/records").json()["records"]}
+    assert listed[d["record_id"]]["imported"] is True
+    rep = post(base, f"/api/records/{d['record_id']}/replay").json()
+    assert rep["reproduced"] is True
+    import json as _json
+    rec = _json.loads(text)
+    rec["events"][2]["detail"] = "tampered"
+    bad = post(base, "/api/records/import", {"record": rec})
+    assert bad.status_code == 400 and "content hash" in bad.json()["error"]
+    rec2 = _json.loads(text)
+    rec2["parameters"]["bundle"] = "barnards-star"
+    assert post(base, "/api/records/import", {"record": rec2}).status_code == 400
+    assert post(base, "/api/records/import", {"record": {"x": 1}}).status_code == 400

@@ -1,19 +1,23 @@
 /* SKYTRACE — an instrument for examining SPHEREx images across time.
-   Palette: blue-slate night ink; one warm accent ("filter gold") for interaction;
-   detector hues run along the infrared bands D1 (0.75 µm) to D6 (5.0 µm). */
+   Palette: deep midnight ink; a restrained cyan for interaction and a violet secondary for provenance/preview
+   markers; detector hues run along the infrared bands D1 (0.75 µm) to D6 (5.0 µm) and are data, not decoration.
+   The interface is dark-only by design (an observing tool used next to dark images). */
 
 :root {
-  --ink: #0f1a2b;
-  --ink-2: #13213a;
-  --panel: #172741;
-  --panel-2: #1d3050;
-  --line: #2a3e60;
-  --line-soft: #223453;
-  --text: #dde5f3;
-  --muted: #8f9ebc;
-  --faint: #62729a;
-  --accent: #e6b450;
-  --accent-ink: #2a1d05;
+  --ink: #0a0f1c;
+  --ink-2: #0d1426;
+  --panel: #111a30;
+  --panel-2: #17223d;
+  --line: #263454;
+  --line-soft: #1b2742;
+  --text: #e2e8f4;
+  --muted: #95a2c0;
+  --faint: #6c7aa0;
+  --accent: #5fd0e4;
+  --accent-soft: rgba(95, 208, 228, .14);
+  --violet: #a48cf2;
+  --violet-soft: rgba(164, 140, 242, .14);
+  --accent-ink: #032029;
   --ok: #6cc6a4;
   --warn: #e48b5c;
   --bad: #e06a6a;
@@ -301,3 +305,44 @@ pre.json { max-height: 260px; overflow: auto; background: var(--ink); border: 1p
 .outcome .sensitivity { font-size: 13px; margin: 4px 0; }
 .card.calcheck { font-size: 13px; }
 #stability-out td.changed { color: var(--accent); font-weight: 600; }
+
+/* ------------------------------------------------------------------ Phase 4: observatory refinements */
+.topbar {
+  background:
+    radial-gradient(1px 1px at 12% 30%, rgba(226, 232, 244, .35) 50%, transparent 51%),
+    radial-gradient(1px 1px at 38% 70%, rgba(226, 232, 244, .25) 50%, transparent 51%),
+    radial-gradient(1px 1px at 61% 22%, rgba(226, 232, 244, .3) 50%, transparent 51%),
+    radial-gradient(1px 1px at 83% 64%, rgba(226, 232, 244, .22) 50%, transparent 51%),
+    linear-gradient(180deg, #0f1730 0%, var(--ink-2) 100%);
+}
+.btn.primary { box-shadow: 0 0 0 1px rgba(95, 208, 228, .25), 0 4px 18px -6px rgba(95, 208, 228, .45); }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+.pill.preview { color: var(--violet); border-color: color-mix(in srgb, var(--violet) 45%, transparent); }
+.pill.preview::before { background: var(--violet); }
+.banner.preview { border-left-color: var(--violet); background: linear-gradient(90deg, var(--violet-soft), transparent 70%); }
+.banner.preview code { font-size: 12px; background: var(--panel-2); padding: 1px 5px; border-radius: 3px; }
+.graph-svg .claim-q { font-size: 10px; fill: var(--text); font-weight: 600; }
+.graph-svg .claim-c { font-size: 9px; fill: var(--muted); }
+.mono.wrap, dd.wrap { word-break: break-all; }
+.row-actions { white-space: nowrap; }
+.row-actions .btn + .btn { margin-left: 6px; }
+#import-file:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+label.btn { cursor: pointer; display: inline-flex; align-items: center; }
+.btn:disabled, .btn[aria-disabled="true"] { cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
+details.banner.preview summary { cursor: pointer; list-style: none; }
+details.banner.preview summary::-webkit-details-marker { display: none; }
+details.banner.preview .more { color: var(--violet); text-decoration: underline; text-underline-offset: 2px; margin-left: 4px; }
+details.banner.preview[open] .more { display: none; }
+details.banner.preview p { margin: 8px 0 0; }
+.legend i.swatch { border: 0; border-radius: 2px; }
+.copilot-close { display: none; float: right; }
+@media (max-width: 1180px) { .app.copilot-open-narrow .copilot-close { display: inline-flex; } }
+@media (max-width: 860px) {
+  .ruler-head { display: block; }
+  .ruler-head h2 { margin-bottom: 2px; }
+  .nav { scroll-snap-type: x proximity; }
+  .nav button { scroll-snap-align: start; }
+}

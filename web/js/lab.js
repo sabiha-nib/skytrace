@@ -73,7 +73,7 @@ function outcomes(p) {
       el("h3", {}, questionLabel(o.question)), el("div", { class: "cat" }, categoryLabel(o.category)),
       el("p", {}, o.statement),
       sensitivityLine(o.sensitivity || {}),
-      el("dl", { class: "kv evidence" }, ...ev.slice(0, 8).flatMap(([k, v]) => [el("dt", {}, k.replaceAll("_", " ")), el("dd", {}, typeof v === "number" ? fmt(v, Math.abs(v) < 10 ? 2 : 0) : String(v))])),
+      el("dl", { class: "kv evidence" }, ...ev.slice(0, 8).flatMap(([k, v]) => [el("dt", { title: k }, evLabel(k)), el("dd", {}, typeof v === "number" ? fmt(v, Math.abs(v) < 10 ? 2 : 0) : String(v))])),
       el("details", { class: "explanations" }, el("summary", {}, "Criteria"), el("ul", {}, ...o.criteria.map((c) => el("li", {}, c)))),
       el("details", { class: "explanations" }, el("summary", {}, "Limitations"), el("ul", {}, ...o.limitations.map((c) => el("li", {}, c)))),
       el("details", { class: "explanations" }, el("summary", {}, "Explanations to consider (guidance, not results)"),
@@ -88,6 +88,21 @@ function outcomes(p) {
       catch (e) { toast(e.message); } } }, "Download report (Markdown)"),
     el("span", { class: "muted" }, `Rules ${m.outcomes[0]?.rules || ""} · analysis ${m.record.parameters.analysis_version} · content hash ${m.record.content_hash.slice(0, 12)}…`)));
 }
+
+// Readable labels for outcome evidence keys (the raw key stays in the tooltip).
+const EV_LABEL = {
+  pm_measured_mas_yr: "Measured proper motion (mas/yr)", pm_sigma_mas_yr: "Its uncertainty σ (mas/yr)", detection_snr: "Detection significance (|pm|/σ)",
+  pm_catalogue_mas_yr: "Catalogue proper motion (mas/yr)", median_plate_rms_mas: "Median registration residual (mas)",
+  expected_shift_between_visits_mas: "Expected shift between visits (mas)", n_fit_points: "Points in the motion fit",
+  z_pmra: "Difference from catalogue, RA (σ)", z_pmdec: "Difference from catalogue, Dec (σ)", baseline_yr: "Baseline (yr)",
+  reduced_chi2: "Reduced χ² of the fit", n_matched_pairs: "Wavelength-matched pairs", n_calibrated_pairs: "Reference-calibrated pairs",
+  n_pairs_considered: "Pairs considered", max_abs_z_calibrated: "Largest |z|, calibrated", max_abs_z_uncalibrated: "Largest |z|, uncalibrated pairs",
+  max_abs_z_pairdiff1: "Largest |z| before calibration", n_calibrated_above_threshold: "Calibrated pairs with |z| ≥ 5",
+  n_uncalibrated_above_threshold: "Uncalibrated pairs with |z| ≥ 5", calcheck_status: "Calibration check", calcheck_scale: "Error scale from calibration check",
+  n_spectral_context_pairs: "Same-detector pairs at other wavelengths", max_abs_z_unmatched_wavelength: "Largest |z| at unmatched wavelengths",
+  n_exposures: "Exposures", n_rejected: "Unusable exposures", rejected_fraction: "Unusable fraction", n_plate_exposures: "Exposures with a plate solution",
+};
+const evLabel = (k) => EV_LABEL[k] || k.replaceAll("_", " ");
 
 function sensitivityLine(s) {
   if (s.min_detectable_pm_mas_yr_5sigma != null)
@@ -207,6 +222,21 @@ function renderStability(box) {
           el("td", { class: "num" }, fmt(row.pm_measured_mas_yr, 0)), el("td", { class: "num" }, fmt(row.max_abs_z_calibrated, 1))))))));
 }
 
+// Static preview: the analysis cannot run in the browser, so the re-run panel offers the parameter sets that the
+// Python pipeline ran when the preview was built (the defaults and the five STAB-1 perturbations).
+function presetCard(st) {
+  const sel = el("select", { "aria-label": "Precomputed parameter set", id: "preset-select" }, el("option", {}, "Loading…"));
+  const go = el("button", { class: "btn primary", id: "preset-run" }, "Show this run");
+  const cur = state.inv?.investigation_id;
+  api.presetRuns(state.targetId).then((list) => {
+    sel.replaceChildren(...list.map((r) => el("option", { value: r.iid, selected: r.iid === cur }, `${r.label}${r.iid === cur ? " (shown)" : ""}`)));
+    go.onclick = () => { const r = list.find((x) => x.iid === sel.value); if (r) emit("run", r.params); };
+  }).catch((e) => { sel.replaceChildren(el("option", {}, e.message)); go.disabled = true; });
+  return el("div", { class: "card" }, el("h3", {}, "Parameters"),
+    el("p", { class: "muted" }, "In this static preview the analysis cannot run in the browser. These parameter sets were run by the Python pipeline when the preview was built; choosing one shows that run and keeps the previous one below for comparison. Any other parameters need the full application (python run.py)."),
+    el("div", { class: "controls" }, el("label", {}, "Parameter set ", sel), go, st));
+}
+
 function rerun(p) {
   const cur = state.model.record.parameters;
   const fields = [["aperture_radius_px", "Aperture radius (px)", 1, 5, 0.25], ["fit_half_size_px", "Fit box half-size (px)", 3, 8, 1],
@@ -239,13 +269,15 @@ function rerun(p) {
   const st = el("button", { class: "btn", id: "stability-run" }, "Check stability");
   const stOut = el("div", { id: "stability-out" });
   st.addEventListener("click", async () => {
-    st.disabled = true; st.textContent = "Checking (6 runs)…";
-    try { stab = { target: state.targetId, result: await api.stability(state.targetId, collect()) }; renderStability(stOut); }
+    st.disabled = true; st.textContent = api.isStatic ? "Loading…" : "Checking (6 runs)…";
+    try { stab = { target: state.targetId, result: await api.stability(state.targetId, api.isStatic ? {} : collect()) }; renderStability(stOut); }
     catch (e) { toast(e.message); }
     finally { st.disabled = false; st.textContent = "Check stability"; }
   });
-  p.append(el("div", { class: "card" }, el("h3", {}, "Parameters"), el("p", { class: "muted" }, "Changing a parameter re-runs the deterministic analysis on the same verified files. The previous run is kept below for comparison, so you can see how sensitive each outcome is."),
-    form, toggles, dets, el("div", { class: "controls" }, go, st)),
+  const paramCard = api.isStatic ? presetCard(st)
+    : el("div", { class: "card" }, el("h3", {}, "Parameters"), el("p", { class: "muted" }, "Changing a parameter re-runs the deterministic analysis on the same verified files. The previous run is kept below for comparison, so you can see how sensitive each outcome is."),
+      form, toggles, dets, el("div", { class: "controls" }, go, st));
+  p.append(paramCard,
     el("div", { class: "card" }, el("h3", {}, "Stability check ", el("span", { class: "muted" }, "(STAB-1: aperture ±0.5 px, tolerance 0.3, clip 3σ/6σ)")),
       el("p", { class: "muted" }, "Re-runs the analysis under a fixed set of small parameter changes. An outcome that changes is fragile and should be reported with that caveat."), stOut));
   if (stab && stab.target === state.targetId) renderStability(stOut);
@@ -266,7 +298,10 @@ function rerun(p) {
     el("table", { class: "diff-table" }, el("thead", {}, el("tr", {}, el("th", {}, ""), el("th", {}, "Previous"), el("th", {}, "This run"))),
       el("tbody", {}, ...keys.map(prow), ...["data_quality", "motion", "variability"].map(orow),
         nrow("Matched pairs", (x) => String(x.accepted.length)),
-        nrow("Pairs with |z| ≥ 5", (x) => String(x.flux.filter((f) => Math.abs(f.z) >= 5).length)),
+        nrow("Pairs with |z| ≥ 5 (as assessed)", (x) => {
+          const ev = x.outcomes.find((o) => o.question === "variability")?.evidence || {};
+          return String(ev.n_calibrated_above_threshold ?? ev.n_pairs_above_threshold ?? x.flux.filter((f) => Math.abs(f.z) >= 5).length);
+        }),
         nrow("Measured pm (mas/yr)", (x) => x.astrometry ? `${fmt(x.astrometry.fit.pm_xi_mas_yr, 0)}, ${fmt(x.astrometry.fit.pm_eta_mas_yr, 0)}` : "—"),
         nrow("Content hash", (x) => x.record.content_hash.slice(0, 12))))));
 }

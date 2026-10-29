@@ -146,14 +146,15 @@ def evidence_graph(v: InvestigationView, target_id: str) -> dict:
     for o in v.observations():
         if not o.get("included"):
             continue
-        onode = node(f"obs:{o['key']}", "observation", o["key"], release=o["release"], detector=o["detector"],
-                     t_mid_iso=o.get("t_mid_iso"))
-        edge(tnode, onode, "observed in")
         fe = v.file_entry(o.get("file"))
+        onode = node(f"obs:{o['key']}", "observation", o["key"], release=o["release"], detector=o["detector"],
+                     t_mid_iso=o.get("t_mid_iso"), obs_id=o.get("obs_id"), file=o.get("file"),
+                     sha256=fe["sha256"] if fe else None, source_url=o.get("access_url") or None)
+        edge(tnode, onode, "observed in")
         if fe:
             prov = fe.get("provenance") or {}
             sname = prov.get("source", "?") + (f" {prov.get('release')}" if prov.get("release") else "")
-            snode = node(f"source:{sname}", "source", sname, origin=prov.get("origin"))
+            snode = node(f"source:{sname}", "source", sname, origin=prov.get("origin"), dataset_id=prov.get("dataset_id") or None)
             edge(onode, snode, "retrieved from", sha256=fe["sha256"])
     for key, me in v.measure_events.items():
         m = me["data"]
@@ -176,27 +177,39 @@ def evidence_graph(v: InvestigationView, target_id: str) -> dict:
         wl = node("method:" + rule, "method", rule)
         for d in v.accepted_pairs():
             fp = flux_by.get((d["a"], d["b"]))
+            zc = (fp or {}).get("differential", {})
             pnode = node(f"pair:{d['a']}|{d['b']}", "comparison", f"{d['a']} ↔ {d['b']}", z=fp["z"] if fp else None,
-                         event=v.events.index(pe))
+                         z_calibrated=zc.get("z_cal_scaled", zc.get("z_cal")) if zc.get("calibrated") else None,
+                         n_refs=zc.get("n_refs"), event=v.events.index(pe))
             edge(pnode, f"meas:{d['a']}", "compares")
             edge(pnode, f"meas:{d['b']}", "compares")
             edge(pnode, wl, "accepted by")
     ast = v.astrometry()
-    from .science.assess import T
+    from .science.assess import T, pair_significance
+    methods = v.r["parameters"].get("methods") or {}
+    var_ev = v.first("variability")
+    cal_scale = ((var_ev or {}).get("data", {}).get("calibration_check") or {}).get("error_scale")
+    per_question = {"motion": ("ephemeris", "reference_selection", "motion_primary", "motion_crosscheck"),
+                    "variability": ("wavelength_match", "variability", "calibration_check")}
     for o in v.outcomes():
         cnode = node(f"claim:{o['question']}", "claim", f"{o['question']}: {o['category']}", statement=o["statement"],
                      category=o["category"], event=v.events.index(v.first("assess")))
         edge(cnode, node("method:" + o["rules"], "method", o["rules"]), "decided by")
+        for role in per_question.get(o["question"], ()):   # method versions recorded in the record's parameters
+            ids = methods.get(role)
+            for mid in ([ids] if isinstance(ids, str) else ids or []):
+                edge(cnode, node("method:" + mid, "method", mid, role=role), "computed with")
         if o["question"] == "motion" and ast:
             for s in ast["series"]:
                 if s.get("used_in_fit", True):
                     edge(cnode, f"meas:{s['key']}", "supported by")
             edge(cnode, f"ref:{ast['catalogue']['source']}" if f"ref:{ast['catalogue']['source']}" in nodes else tnode, "compared with")
         if o["question"] == "variability":
-            for d in v.accepted_pairs():
+            for d in v.accepted_pairs():   # the same significance the assessment used (calibrated when possible)
                 fp = flux_by.get((d["a"], d["b"]))
-                if fp and fp.get("z") is not None and abs(fp["z"]) >= T["variability_z"]:
-                    edge(cnode, f"pair:{d['a']}|{d['b']}", "supported by")
+                z, calibrated = pair_significance(fp, cal_scale) if fp else (None, False)
+                if z is not None and abs(z) >= T["variability_z"]:
+                    edge(cnode, f"pair:{d['a']}|{d['b']}", "supported by" if calibrated else "raw difference (uncalibrated)")
         if o["question"] == "data_quality":
             for key, me in v.measure_events.items():
                 if me["status"] in ("rejected", "failed"):

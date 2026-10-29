@@ -19,6 +19,7 @@ export function refreshCopilot() {
   $("#ask-btn").disabled = !ready;
   const st = state.status?.meta;
   $("#copilot-status").textContent = !ready ? "Run an analysis to ask questions about its evidence."
+    : api.isStatic ? "Static preview: the answers are the local deterministic assistant's (no language model), recorded from the Skytrace server for this run when the preview was built. General questions are routed exactly as the server routes them."
     : st?.configured ? `Answers come from Meta ${st.model} through read-only tools, checked by the evidence guard.`
     : "No Meta API key is configured (or offline mode is on): a local deterministic assistant answers from the same tools, without a language model.";
   const sug = $("#suggestions");

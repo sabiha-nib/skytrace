@@ -4,11 +4,11 @@
 
 import { api } from "./api.js";
 import { emit, state } from "./state.js";
-import { $, DET_COLORS, clear, el, fmt, shortKey } from "./util.js";
+import { $, DET_COLORS, categoryLabel, clear, el, fmt, questionLabel, shortKey } from "./util.js";
 
 const COLS = [["source", "reference"], ["target"], ["observation"], ["measurement"], ["comparison"], ["claim"], ["method", "limitation"]];
 const COL_LABEL = ["Data sources", "Target", "Observations", "Measurements", "Comparisons", "Claims", "Methods & limitations"];
-const KIND_COLOR = { source: "#6cc6a4", reference: "#6cc6a4", target: "#e6b450", comparison: "#e6b450", claim: "#dde5f3", method: "#8fb3ff", limitation: "#e48b5c" };
+const KIND_COLOR = { source: "#6cc6a4", reference: "#6cc6a4", target: "#5fd0e4", comparison: "#a48cf2", claim: "#dde5f3", method: "#8fb3ff", limitation: "#e48b5c" };
 let data = null, selected = null, pendingFocus = null;
 
 export function focusGraph(id) { pendingFocus = id; }
@@ -33,14 +33,15 @@ export async function renderGraph() {
 function draw(host) {
   const byCol = COLS.map((kinds) => data.nodes.filter((n) => kinds.includes(n.kind)));
   const W = 1000, rowH = 12, top = 36;
-  const H = Math.max(260, Math.max(...byCol.map((c) => c.length)) * rowH + top + 20);
+  const gap = (nodes) => (nodes.length <= 8 ? 40 : rowH);          // few nodes (claims, sources): room for labels
+  const H = Math.max(260, Math.max(...byCol.map((c) => c.length * gap(c))) + top + 20);
   const svg = el("svg", { class: "graph-svg", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Evidence graph" });
   const colX = (i) => 150 + i * ((W - 150 - 200) / (COLS.length - 1));
   const pos = {};
   byCol.forEach((nodes, i) => {
-    const h = nodes.length * rowH;
+    const g = gap(nodes), h = nodes.length * g;
     const y0 = top + Math.max(0, (H - top - 20 - h) / 2);
-    nodes.forEach((n, j) => { pos[n.id] = [colX(i), y0 + j * rowH + rowH / 2]; });
+    nodes.forEach((n, j) => { pos[n.id] = [colX(i), y0 + j * g + g / 2]; });
     svg.append(el("text", { class: "col-label", x: colX(i), y: 16, "text-anchor": "middle" }, COL_LABEL[i]));
   });
   const edgeG = el("g");
@@ -60,8 +61,15 @@ function draw(host) {
     g.append(c, el("title", {}, `${n.kind}: ${n.label}`));
     if (["claim", "method", "limitation", "target", "source", "reference"].includes(n.kind)) {
       const right = n.kind === "method" || n.kind === "limitation";
-      const max = right ? 30 : 20;
-      g.append(el("text", { x: right ? x + 9 : x - 9, y: y + 3.5, "text-anchor": right ? "start" : "end" }, n.label.length > max ? n.label.slice(0, max - 1) + "…" : n.label));
+      const short = (s, max) => (s.length > max ? s.slice(0, max - 1) + "…" : s);
+      if (n.kind === "claim") {   // label above the node, clear of the comparison column, in plain words
+        const [q, cat] = n.label.split(": ");
+        g.append(el("text", { x, y: y - 16, "text-anchor": "middle", class: "claim-q" }, short(questionLabel(q), 22)),
+                 el("text", { x, y: y - 6, "text-anchor": "middle", class: "claim-c" }, short(categoryLabel(cat), 26)));
+      } else {
+        const max = right ? 30 : 20;
+        g.append(el("text", { x: right ? x + 9 : x - 9, y: y + 3.5, "text-anchor": right ? "start" : "end" }, short(n.label, max)));
+      }
     }
     g.addEventListener("click", () => select(n.id));
     g.addEventListener("keydown", (ev) => { if (ev.key === "Enter") select(n.id); });
@@ -114,7 +122,15 @@ function select(id) {
     el("dl", { class: "kv" },
       n.category ? [el("dt", {}, "Outcome"), el("dd", {}, n.category)] : null,
       n.quality ? [el("dt", {}, "Quality"), el("dd", {}, n.quality)] : null,
-      n.z != null ? [el("dt", {}, "z"), el("dd", {}, fmt(n.z, 2))] : null,
+      n.z != null ? [el("dt", {}, "z (raw, PAIRDIFF-1)"), el("dd", {}, fmt(n.z, 2))] : null,
+      n.kind === "comparison" ? [el("dt", {}, "z (reference-calibrated)"), el("dd", {}, n.z_calibrated != null ? `${fmt(n.z_calibrated, 2)} (${n.n_refs} reference stars)` : `not calibrated (${n.n_refs ?? 0} matched reference stars; 3 needed)`)] : null,
+      n.obs_id ? [el("dt", {}, "Archive observation"), el("dd", { class: "mono" }, n.obs_id)] : null,
+      n.release ? [el("dt", {}, "Release"), el("dd", {}, n.release)] : null,
+      n.file ? [el("dt", {}, "Stored file"), el("dd", { class: "mono wrap" }, n.file)] : null,
+      n.sha256 ? [el("dt", {}, "SHA-256 (manifest)"), el("dd", { class: "mono wrap" }, n.sha256)] : null,
+      n.source_url ? [el("dt", {}, "Source URL"), el("dd", { class: "mono wrap" }, n.source_url)] : null,
+      n.dataset_id ? [el("dt", {}, "Dataset"), el("dd", {}, n.dataset_id)] : null,
+      n.role ? [el("dt", {}, "Role"), el("dd", {}, n.role.replaceAll("_", " "))] : null,
       n.t_mid_iso ? [el("dt", {}, "Observed"), el("dd", {}, n.t_mid_iso)] : null,
       n.origin ? [el("dt", {}, "Origin"), el("dd", {}, n.origin)] : null,
       el("dt", {}, "Relationships"), el("dd", {}, String(rel.length)),

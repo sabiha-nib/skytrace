@@ -250,3 +250,26 @@ def test_client_refuses_contributor_and_offline(monkeypatch):
 def test_api_error_envelope_parsed():
     e = MetaAPIError(400, '{"error": {"message": "bad model", "type": "invalid_request_error", "param": "model", "code": null}}')
     assert e.type == "invalid_request_error" and "bad model" in str(e)
+
+
+def test_evidence_graph_names_every_recorded_method_and_uses_assessed_significance():
+    v = view("syn-var-1")
+    g = evidence_graph(v, "syn-var-1")
+    methods = {n["label"] for n in g["nodes"] if n["kind"] == "method"}
+    rec = v.r["parameters"]["methods"]
+    for role, ids in rec.items():
+        if role in ("assessment",):
+            continue
+        for mid in ([ids] if isinstance(ids, str) else ids):
+            assert mid in methods, (role, mid)
+    from skytrace.science.assess import pair_significance
+    scale = v.first("variability")["data"]["calibration_check"]["error_scale"]
+    support = {e["target"] for e in g["edges"] if e["source"] == "claim:variability" and e["rel"] == "supported by"}
+    expected = set()
+    for p in v.flux_pairs():
+        z, cal = pair_significance(p, scale)
+        if cal and z is not None and abs(z) >= 5:
+            expected.add(f"pair:{p['a']}|{p['b']}")
+    assert support == expected and support
+    obs = next(n for n in g["nodes"] if n["kind"] == "observation")
+    assert obs["sha256"] and obs["file"]

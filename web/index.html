@@ -19,9 +19,10 @@
     <span class="pill none" id="data-pill">No target</span>
     <span class="spacer"></span>
     <span class="pill offline" id="offline-pill" hidden>Offline mode</span>
+    <span class="pill preview" id="preview-pill" hidden title="Static preview: responses recorded from the Skytrace server at build time">Static preview</span>
     <span class="pill model" id="model-pill" title="">Copilot status</span>
     <button class="btn primary" id="run-btn" disabled>Run analysis</button>
-    <button class="btn copilot-toggle" id="copilot-toggle" aria-controls="copilot">Copilot</button>
+    <button class="btn copilot-toggle" id="copilot-toggle" aria-controls="copilot" aria-expanded="false">Copilot</button>
   </header>
 
   <section class="ruler" aria-labelledby="ruler-title">
@@ -42,6 +43,10 @@
   </nav>
 
   <main class="main" id="main">
+    <details class="banner preview" id="preview-note" hidden>
+      <summary><strong>Static preview</strong> · results precomputed by the Skytrace pipeline; nothing is contacted while you browse. <span class="more">What this means</span></summary>
+      <p>Every result here was produced by the Skytrace server and Python pipeline when this preview was built, from the bundled <em>synthetic</em> test targets. While you browse, no server, archive or language model is contacted. Re-runs offer the precomputed parameter sets (defaults and the five stability perturbations); pair comparisons and image registration are computed in your browser from the record; anything that needs the server says so. Run <code>python run.py</code> for the full application.</p>
+    </details>
     <div id="global-banner"></div>
 
     <section class="workspace active" id="ws-explorer" aria-labelledby="ws-explorer-title">
@@ -77,6 +82,7 @@
 
   <aside class="copilot" id="copilot" aria-labelledby="copilot-title">
     <header>
+      <button class="btn small ghost copilot-close" id="copilot-close" type="button" aria-label="Close the copilot panel">Close</button>
       <h2 id="copilot-title">Research copilot</h2>
       <p id="copilot-status">Run an analysis to ask questions about its evidence.</p>
     </header>
