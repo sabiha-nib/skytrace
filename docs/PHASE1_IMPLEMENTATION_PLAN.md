@@ -1,5 +1,7 @@
 # SKYTRACE — Phase 1 Implementation Plan
 
+> Superseded by v0.2.0: see [ARCHITECTURE.md](ARCHITECTURE.md), [TEST_REPORT.md](TEST_REPORT.md) and [REQUIREMENT_TRACEABILITY.md](REQUIREMENT_TRACEABILITY.md). `pipeline.py` and `run_pipeline.py` were replaced by `archive/acquire.py` (network) and `analysis.py` (offline).
+
 Updated 2026-10-29. Supersedes the hackathon-specific parts of `PHASE0_RECON.md`: SKYTRACE is now built for Meta, not as a Space Apps submission, so demo-length limits, submission rules and pre-event-work rules no longer apply (risks K2, K3 retired; R26/R27 reframed).
 
 ## Gate A — workspace audit (done)

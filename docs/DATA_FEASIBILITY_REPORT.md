@@ -1,5 +1,7 @@
 # SKYTRACE — Data Feasibility Report (Gate B)
 
+> **Update (v0.2.0):** acquisition is now `scripts/acquire_targets.py`, which writes verified bundles (see [DATA_PROVENANCE.md](DATA_PROVENANCE.md)). A run on 2026-10-29 was again stopped by the proxy at the first SIMBAD request. `scripts/feasibility.py --wavelengths` still produces the matrix below once network access exists. The predictions in section 3 are unchanged and still untested.
+
 Status 2026-10-29: **BLOCKED — no live archive result exists yet.** Nothing below is an observation. Section 1 is what was executed; section 2 is verified documentation; section 3 is a prediction to be tested, clearly labelled.
 
 ## 1. What was executed

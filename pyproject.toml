@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "skytrace"
-version = "0.1.0"
+version = "0.2.0"
 description = "Evidence-first investigation of repeated SPHEREx observations"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -13,13 +13,18 @@ dependencies = [
     "scipy>=1.11",
     "requests>=2.31",
     "pydantic>=2.5",
+    "starlette>=0.37",
+    "uvicorn>=0.29",
 ]
 
 [project.optional-dependencies]
-# astropy is required to read SPHEREx FITS products and evaluate their WCS.
-# It is optional only so the deterministic math can be tested without it.
+# astropy is the preferred FITS/WCS reader. Without it Skytrace uses its own NumPy
+# implementation (src/skytrace/fitsio.py, wcs.py), which tests/live compares with astropy.
 astro = ["astropy>=7.0"]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "playwright>=1.44"]
+
+[project.scripts]
+skytrace = "skytrace.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

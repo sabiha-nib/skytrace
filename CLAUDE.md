@@ -1,28 +1,28 @@
-# CLAUDE.md — SKYTRACE
+# CLAUDE.md — Skytrace
 
 Evidence-first investigation of repeated SPHEREx observations. Built for Meta (not a hackathon submission).
 
 ## Commands
-- Tests: `pytest` (deterministic, no network) · `pytest -m live` (real services)
-- Feasibility: `python scripts/feasibility.py [--wavelengths] [--target NAME]`
-- Investigation: `python scripts/run_pipeline.py "<target>"` (add `OFFLINE=1` to replay from cache)
-- Model check: `python scripts/meta_smoke_test.py` (needs `META_API_KEY`)
+- Start: `python run.py` (add `OFFLINE=1` to forbid network use) → http://127.0.0.1:8600
+- Verify everything: `python scripts/verify.py [--e2e]`
+- Tests: `pytest` (unit + API) · `pytest -m e2e tests/e2e` (browser) · `pytest -m live tests/live` (real services)
+- Real data: `python scripts/acquire_targets.py --all` → `scripts/build_observation_index.py` → `scripts/verify_data_bundle.py`
+- Analyse a bundle from the CLI: `python scripts/analyze_target.py <target_id>`
+- Synthetic fixtures: `python scripts/make_synthetic_fixtures.py`
+- Meta check: `python scripts/meta_smoke_test.py` (needs `META_API_KEY` or `MODEL_API_KEY`)
+- Release: commit, then `python scripts/make_release.py`
 
-## Data
-- SPHEREx QR3 by default (DOI 10.26131/IRSA662), QR2 fallback (10.26131/IRSA652). Never cite QR1.
-- Use only interfaces documented by IRSA (SIA2 collections, TAP spherex.*, cutout query string). Do not invent endpoints.
-- Every acquired byte gets a `Provenance`; origins are `live | cache | fixture | synthetic` and must be shown truthfully.
+## Architecture (see docs/ARCHITECTURE.md)
+- Acquisition (`archive/acquire.py`, network) writes bundles; analysis (`analysis.py`, offline) reads only verified bundles.
+- `science/` is deterministic: no network, no model calls. Every method has a version ID recorded in results.
+- `ai/`: 11 read-only tools, GUARD-2, copilot loop, local fallback. The model never measures.
+- `server/app.py` (Starlette) + `web/` (ES modules, no build, strict CSP, no external requests).
 
-## Science boundaries
-- All measurement code lives in `src/skytrace/science/`: no network, no model calls, deterministic, tested.
-- Flux comparisons only between wavelength-matched pairs (`WLMATCH-1`). Record every rejection.
-- Never fill missing values: return NaN/None with a status and log it.
-- Significance (`z`) is not probability and not classification. Candidates are not discoveries.
-- Synthetic data must use `provenance.synthetic()`; reports containing it are bannered.
-
-## AI boundaries
-- Meta Model API via `ai/meta_client.py` only, key from env, backend only. No contributor models by default.
-- Model sees only `ai/tools.py` outputs; answers must pass `ai/guard.py`. No code-execution or file tools.
-
-## Definition of done for a gate
-Executed, with evidence recorded in `docs/` or `data/`. Plausible-looking code is not evidence.
+## Rules
+- SPHEREx QR3 by default (doi:10.26131/IRSA662), QR2 fallback (10.26131/IRSA652). Never QR1.
+- Use only documented IRSA interfaces; never invent endpoints.
+- Flux comparisons only for wavelength-matched pairs (WLMATCH-1); log every rejection with a reason.
+- Never fill missing values. Never call a candidate a discovery. z is not a probability.
+- Synthetic data: `fixtures/synthetic/`, `SYNTHETIC = T`, origin `synthetic`, SYN-* names. Never in `data/bundles/`.
+- Keys only from the environment; never in code, logs, records or the browser.
+- A gate passes only when its acceptance checks were executed and recorded (docs/TEST_REPORT.md).
