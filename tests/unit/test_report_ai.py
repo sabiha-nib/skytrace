@@ -84,13 +84,15 @@ def test_evidence_graph_only_has_recorded_nodes():
 
 # ------------------------------------------------------------------ guard
 EV = {"c1": {"fit": {"pm_eta_mas_yr": 10351.7, "sig_eta": 42.0}, "t_mid_iso": "2025-06-03T00:00:00+00:00",
+             "key": "QR3:2025W21_1A_0012_1:D2",
              "wavelength_um": 1.3125, "catalogue": {"source": "Gaia DR3"}, "synthetic": False}}
 ORIG = ["live"]
 
 
 def ans(text, claims=None, limitations=("Parallax not modelled.",)):
     return json.dumps({"answer": text, "claims": claims if claims is not None else
-                       [{"text": "pm", "kind": "measurement", "value": 10351.7, "unit": "mas/yr", "evidence": ["c1"]}],
+                       [{"text": "pm", "kind": "measurement", "value": 10351.7, "unit": "mas/yr", "uncertainty": 42.0,
+                         "evidence": ["c1"]}],
                        "limitations": list(limitations)})
 
 
@@ -115,6 +117,20 @@ def test_guard_accepts_grounded_answer():
 ])
 def test_guard_blocks(text, code):
     assert code in codes(text)
+
+
+def test_guard3_identifiers_and_uncertainty():
+    # a key that came from the evidence passes; a fabricated one is blocked
+    assert codes("Observation QR3:2025W21_1A_0012_1:D2 gives 10352 ± 42 mas/yr.") == set()
+    assert "identifier" in codes("Observation QR3:2025W21_9Z_0999_1:D2 gives 10352 ± 42 mas/yr.")
+    assert "identifier" in codes("Exposure 2025W30_2B_0042_3 shows it; 10352 ± 42 mas/yr.")
+    assert "identifier" in codes("The reference star Gaia DR3 4472832130942575872 was used; 10352 ± 42 mas/yr.")
+    # measured value without its uncertainty
+    assert "uncertainty" in codes("The measured motion is 10352 mas/yr.")
+    # bounds and thresholds are not measurements of the source
+    assert "uncertainty" not in codes("No motion is detected above 42 mas/yr (5σ); the catalogue value is 10352 ± 42 mas/yr.")
+    claim = [{"text": "pm", "kind": "measurement", "value": 10351.7, "unit": "mas/yr", "evidence": ["c1"]}]
+    assert "uncertainty" in codes("Motion 10352 ± 42 mas/yr.", claims=claim)
 
 
 def test_guard_allows_discussing_discovery_and_hedged_causes():
@@ -173,7 +189,7 @@ def test_copilot_meta_mode_with_tools_and_guard():
     r = copilot.ask("What changed?", v, "syn-var-1",
                     client=FakeClient([tool_call("c1", "generate_investigation_summary", {}),
                                        tool_call("c2", "get_evidence_graph", {}), rep]))
-    # the summary output contains max_abs_z, so the claim is evidenced by c1
+    # the summary output contains max_abs_z_pairdiff1, so the claim is evidenced by c1
     assert r.mode == "meta" and r.ok, r.problems
     assert [c["name"] for c in r.tool_calls] == ["generate_investigation_summary", "get_evidence_graph"]
 

@@ -297,3 +297,7 @@ pre.json { max-height: 260px; overflow: auto; background: var(--ink); border: 1p
   .main { padding: 14px 16px 40px; }
   .ruler svg { height: 96px; }
 }
+/* Phase 3: sensitivity, calibration check, stability */
+.outcome .sensitivity { font-size: 13px; margin: 4px 0; }
+.card.calcheck { font-size: 13px; }
+#stability-out td.changed { color: var(--accent); font-weight: 600; }

@@ -71,14 +71,17 @@ class InvestigationView:
         missing = [k for k, m in ((a, ma), (b, mb)) if m is None]
         if missing:
             return {"error": f"no logged measurement for {', '.join(missing)}"}
-        sa = SourceSample(a, ma["detector"], ma["mjd"], ma.get("wavelength_um") or float("nan"),
-                          ma.get("bandwidth_um") or float("nan"), ma["quality"])
-        sb = SourceSample(b, mb["detector"], mb["mjd"], mb.get("wavelength_um") or float("nan"),
-                          mb.get("bandwidth_um") or float("nan"), mb["quality"])
-        tol = self.r["parameters"].get("wavelength_tolerance_channels", 0.5)
-        d = compare_pair(sa, sb, tol)
+        def sample(k, m):
+            q = m.get("quality_code") or ("ok" if m.get("quality") == "ok" else str(m.get("quality")))
+            return SourceSample(k, m["detector"], m["mjd"], m.get("wavelength_um") or float("nan"),
+                                m.get("bandwidth_um") or float("nan"), q, m.get("release", ""))
+        prm = self.r["parameters"]
+        tol = prm.get("wavelength_tolerance_channels", 0.5)
+        d = compare_pair(sample(a, ma), sample(b, mb), tol, margin_um=prm.get("wavelength_margin_um", 0.0),
+                         same_release=prm.get("photometry_same_release", False))
         first, second = (ma, mb) if ma["mjd"] <= mb["mjd"] else (mb, ma)
-        out = {"a": d.a, "b": d.b, "compatible_for_photometry": d.accepted, "reason": d.reason, "rule": d.rule,
+        out = {"a": d.a, "b": d.b, "compatible_for_photometry": d.accepted, "reason": d.reason, "reason_code": d.code,
+               "rule": d.rule if "wavelength_margin_um" in prm else "WLMATCH-1",
                "delta_t_days": d.delta_t_days, "delta_lambda_um": d.delta_lambda_um,
                "wavelength_a_um": first.get("wavelength_um"), "wavelength_b_um": second.get("wavelength_um"),
                "tolerance_um": tol * min(first.get("bandwidth_um") or float("nan"), second.get("bandwidth_um") or float("nan")),
@@ -89,6 +92,9 @@ class InvestigationView:
             out["flux"] = {"flux_a_ujy": pa["flux_ujy"], "flux_b_ujy": pb["flux_ujy"], "delta_ujy": pb["flux_ujy"] - pa["flux_ujy"],
                            "sigma_ujy": s, "z": (pb["flux_ujy"] - pa["flux_ujy"]) / s if s > 0 else None,
                            "method": "PAIRDIFF-1", "note": "z is a significance under the stated errors, not a probability"}
+            logged = next((p for p in self.flux_pairs() if (p["a"], p["b"]) == (d.a, d.b)), None)
+            if logged and logged.get("differential"):
+                out["flux"]["reference_calibrated"] = logged["differential"]
         else:
             out["flux"] = None
             out["flux_note"] = ("flux comparison not valid: " + d.reason) if not d.accepted else "photometry not usable in one or both"
@@ -99,7 +105,8 @@ class InvestigationView:
             sy = math.sqrt(first["target_cov_mas2"][1] + second["target_cov_mas2"][1])
             out["position"] = {"d_xi_mas": dx, "d_eta_mas": dy, "sigma_xi_mas": sx, "sigma_eta_mas": sy,
                                "separation_mas": math.hypot(dx, dy),
-                               "note": "positions from per-exposure Gaia-referenced plate solutions; chromatic effects not modelled"
+                               "note": "positions from per-exposure Gaia-referenced plate solutions, before parallax removal; "
+                                       "chromatic effects not modelled"
                                        + ("" if d.accepted else "; the two exposures are at different wavelengths")}
         else:
             out["position"] = None

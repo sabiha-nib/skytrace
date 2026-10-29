@@ -41,8 +41,8 @@ def test_expected_outcomes_on_synthetic_truth():
     hpm, var = out["syn-hpm-1"], out["syn-var-1"]
     assert hpm["motion"]["category"] == "motion_detected"                      # injected 4.67"/yr motion recovered
     assert abs(hpm["motion"]["evidence"]["z_pmra"]) < 3 and abs(hpm["motion"]["evidence"]["z_pmdec"]) < 3
-    assert hpm["variability"]["category"] in ("no_significant_change", "spectral_difference_only")  # constant star
+    assert hpm["variability"]["category"] in ("no_variability_at_sensitivity", "spectral_difference_only")  # constant star
     assert var["variability"]["category"] == "variability_candidate"           # injected 38% dimming
-    assert var["motion"]["category"] == "no_significant_change"                # negligible motion
+    assert var["motion"]["category"] == "no_motion_at_sensitivity"                # negligible motion
     assert hpm["data_quality"]["evidence"]["n_rejected"] >= 1                  # injected missing-WCS-WAVE file
     assert var["data_quality"]["evidence"]["n_rejected"] >= 1                  # injected overflow flags

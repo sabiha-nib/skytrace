@@ -15,6 +15,7 @@ export const api = {
   image: (tid, key) => req(`/api/targets/${encodeURIComponent(tid)}/observations/${encodeURIComponent(key)}/image`),
   pair: (tid, a, b, inv) => req(`/api/targets/${encodeURIComponent(tid)}/pair-image?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}&inv=${encodeURIComponent(inv || "")}`),
   analyze: (tid, params = {}) => req(`/api/targets/${encodeURIComponent(tid)}/analyze`, { method: "POST", body: JSON.stringify({ params }) }),
+  stability: (tid, params = {}) => req(`/api/targets/${encodeURIComponent(tid)}/stability`, { method: "POST", body: JSON.stringify({ params }) }),
   investigation: (iid) => req(`/api/investigations/${iid}`),
   graph: (iid) => req(`/api/investigations/${iid}/graph`),
   report: (iid) => req(`/api/investigations/${iid}/report.md`),

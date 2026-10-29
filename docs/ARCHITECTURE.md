@@ -19,7 +19,7 @@ scripts/acquire_targets.py ─┤ archive/acquire.py (selection SEL-1, resume, i
    report.Investigation: every step logged (ok / rejected / failed / skipped / info) with provenance; content hash
                             ▼
    view.InvestigationView + evidence_graph  ◄── ai/tools.py (11 read-only tools) ◄── ai/copilot.py ──► Meta Model API
-                            │                                ai/guard.py (GUARD-2)     ai/local.py (fallback)
+                            │                                ai/guard.py (GUARD-3)     ai/local.py (fallback)
                             ▼
    server/app.py (Starlette): JSON API + static web/        ──►  browser (web/js: no build, no CDN, strict CSP)
 ```

@@ -58,12 +58,13 @@ def answer(question: str, s: ToolSession) -> dict:
         else:
             fit, cat, cmp = o["fit"], o["catalogue"], o["comparison"]
             lines.append(f"The fitted motion is {_f(fit['pm_xi_mas_yr'], 0)} ± {_f(fit['sig_xi'], 0)} mas/yr east and "
-                         f"{_f(fit['pm_eta_mas_yr'], 0)} ± {_f(fit['sig_eta'], 0)} mas/yr north, from {fit['n_epochs']} exposures "
+                         f"{_f(fit['pm_eta_mas_yr'], 0)} ± {_f(fit['sig_eta'], 0)} mas/yr north, from {fit['n_epochs']} "
+                         f"{'visit-averaged epochs' if o.get('fit_kind') == 'epoch' else 'exposures'} "
                          f"over {_f(fit['baseline_yr'], 2)} yr.")
             lines.append(f"The catalogue values ({cat['source']}) are {_f(cat['pmra'], 0)} and {_f(cat['pmdec'], 0)} mas/yr; "
                          f"the differences are {_f(cmp['z_pmra'], 2)}σ and {_f(cmp['z_pmdec'], 2)}σ.")
             claims.append({"text": "fitted northward motion", "kind": "measurement", "value": fit["pm_eta_mas_yr"],
-                           "unit": "mas/yr", "evidence": [c.id]})
+                           "unit": "mas/yr", "uncertainty": fit["sig_eta"], "evidence": [c.id]})
             if intent == "alignment":
                 lines.append(f"Registration scatter: the median plate-solution residual is {_f(o['median_plate_rms_mas'], 0)} mas "
                              f"per axis; {len(o['rejected_epochs'])} exposure(s) were rejected as outliers in the motion fit.")
@@ -129,6 +130,10 @@ def answer(question: str, s: ToolSession) -> dict:
                        "Look for the same change in a second detector at a matched wavelength."]
         if cats.get("motion") in ("motion_inconsistent", "registration_limited"):
             follow.append("Inspect plate-solution residuals for the exposures with the largest position offsets.")
+        if cats.get("variability") == "calibration_limited":
+            follow.append("Check how many wavelength-matched reference stars each pair has, and the calibration check.")
+        if cats.get("motion") == "measurement_failed":
+            follow.append("Inspect the astrometry step: the fit failed, which is not evidence of no motion.")
         if cats.get("variability") == "insufficient_evidence":
             follow.append("Acquire more epochs: no wavelength-matched pair exists yet.")
         follow.append("Re-run the analysis with a different aperture radius to test sensitivity.")

@@ -15,7 +15,7 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
 ## Architecture (see docs/ARCHITECTURE.md)
 - Acquisition (`archive/acquire.py`, network) writes bundles; analysis (`analysis.py`, offline) reads only verified bundles.
 - `science/` is deterministic: no network, no model calls. Every method has a version ID recorded in results.
-- `ai/`: 11 read-only tools, GUARD-2, copilot loop, local fallback. The model never measures.
+- `ai/`: 11 read-only tools, GUARD-3, copilot loop, local fallback. The model never measures.
 - `server/app.py` (Starlette) + `web/` (ES modules, no build, strict CSP, no external requests).
 
 ## Rules

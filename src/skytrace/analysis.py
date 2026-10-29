@@ -64,7 +64,8 @@ def _prov(entry: dict | None) -> list[Provenance]:
     if not entry or not entry.get("provenance"):
         return []
     p = dict(entry["provenance"])
-    p.setdefault("content_sha256", entry.get("sha256", ""))
+    if not p.get("content_sha256"):   # tie the record to the stored bytes (manifest SHA-256)
+        p["content_sha256"] = entry.get("sha256", "")
     return [Provenance.from_dict(p)]
 
 
@@ -244,7 +245,7 @@ def run(b: bmod.Bundle, params: dict | None = None) -> Investigation:
 
     # ---------------------------------------------------------------- astrometry
     astro = [m for m in measurements if m.astro_code == "ok" and m.target_xi_eta_mas is not None]
-    motion, epochs = None, []
+    motion, epochs, fit_error = None, [], None
     pmra_err, pmdec_err = tast.get("pmra_error") or 0.0, tast.get("pmdec_error") or 0.0
     plx_info = {"applied": plx_on, "method": ephemeris.METHOD if plx_on else None, "parallax_mas": ast.parallax,
                 "systematic_bound_mas": ast.parallax * ephemeris.SYSTEMATIC_FRACTION_OF_PARALLAX if plx_on else ast.parallax}
@@ -274,6 +275,7 @@ def run(b: bmod.Bundle, params: dict | None = None) -> Investigation:
             errors["epoch_fit"] = f"{len(epochs)} visit(s) separated by more than {p['epoch_gap_days']} d; need 2"
         primary, kind = (epoch_fit, "epoch") if epoch_fit else (exp_fit, "exposure")
         if primary is None:
+            fit_error = "; ".join(f"{k}: {v}" for k, v in errors.items())
             inv.log("astrometry", "failed", "; ".join(f"{k}: {v}" for k, v in errors.items()),
                     {"code": "fit_failed", "errors": errors, "epochs": epochs})
         else:
@@ -319,11 +321,12 @@ def run(b: bmod.Bundle, params: dict | None = None) -> Investigation:
     outcomes = [
         assess.assess_quality(n_total, sum(rej_reasons.values()), rej_reasons),
         assess.assess_motion(motion, {"pmra": ast.pmra, "pmdec": ast.pmdec}, len(astro),
-                             [m.plate["rms_mas"] for m in astro], gaps),
-        assess.assess_variability(flux_d, spectral, len(decisions)),
+                             [m.plate["rms_mas"] for m in astro], gaps, fit_error),
+        assess.assess_variability(flux_d, spectral, len(decisions), cal),
     ]
     inv.log("assess", "ok", "; ".join(f"{o['question']}: {o['category']}" for o in outcomes),
-            {"outcomes": outcomes, "thresholds": assess.T, "rules": assess.RULES})
+            {"outcomes": outcomes, "thresholds": assess.T, "rules": assess.RULES,
+             "threshold_provenance": assess.THRESHOLD_PROVENANCE})
     return inv
 
 

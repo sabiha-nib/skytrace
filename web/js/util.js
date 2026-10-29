@@ -61,6 +61,8 @@ export function categoryLabel(c) {
     motion_detected: "Motion detected", motion_inconsistent: "Motion disagrees with catalogue", registration_limited: "Limited by registration",
     variability_candidate: "Variability candidate", spectral_difference_only: "Spectral differences only", instrumental: "Mostly unusable data",
     partially_usable: "Some exposures rejected", insufficient_evidence: "Insufficient evidence", no_significant_change: "No significant change",
+    no_motion_at_sensitivity: "No motion at this sensitivity", no_variability_at_sensitivity: "No change at this sensitivity",
+    measurement_failed: "Measurement failed", calibration_limited: "Limited by calibration", all_usable: "All exposures usable",
   })[c] || c;
 }
 

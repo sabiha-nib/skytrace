@@ -296,11 +296,7 @@ def _summary(iid: str, entry: dict) -> dict:
             "graph_counts": evidence_graph(v, entry["target_id"])["counts"], "synthetic": v.is_synthetic()}
 
 
-async def analyze(request: Request):
-    tid = request.path_params["tid"]
-    b = _bundle(tid)
-    body = await _body(request)
-    params = body.get("params") or {}
+def _clean_params(params: dict) -> dict:
     allowed = {"aperture_radius_px": (1.0, 5.0), "fit_half_size_px": (3, 8), "wavelength_tolerance_channels": (0.1, 1.0),
                "epoch_clip_sigma": (2.0, 10.0), "wavelength_margin_um": (0.0, 0.01), "epoch_gap_days": (0.5, 60.0)}
     booleans = {"photometry_same_release", "apply_parallax", "reference_quality_cut"}
@@ -319,12 +315,30 @@ async def analyze(request: Request):
         if k not in allowed:
             raise APIError(400, f"unknown parameter {k}")
         lo, hi = allowed[k]
-        if not isinstance(v, (int, float)) or not lo <= v <= hi:
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not lo <= v <= hi:
             raise APIError(400, f"{k} must be between {lo} and {hi}")
         clean[k] = int(v) if k == "fit_half_size_px" else float(v)
+    return clean
+
+
+async def analyze(request: Request):
+    tid = request.path_params["tid"]
+    b = _bundle(tid)
+    body = await _body(request)
+    clean = _clean_params(body.get("params") or {})
     record = (await run_in_threadpool(analysis.run, b, clean)).to_dict()
     iid = _store(tid, record)
     return _json(_summary(iid, INVESTIGATIONS[iid]))
+
+
+async def stability_check(request: Request):
+    """STAB-1: re-run the analysis under the fixed perturbation set and report outcome changes."""
+    from .. import stability
+    tid = request.path_params["tid"]
+    b = _bundle(tid)
+    body = await _body(request)
+    clean = _clean_params(body.get("params") or {})
+    return _json(await run_in_threadpool(stability.run, b, clean))
 
 
 async def investigation(request: Request):
@@ -483,6 +497,7 @@ routes = [
     Route("/api/targets/{tid}/observations/{key}/image", observation_image),
     Route("/api/targets/{tid}/pair-image", pair_image),
     Route("/api/targets/{tid}/analyze", analyze, methods=["POST"]),
+    Route("/api/targets/{tid}/stability", stability_check, methods=["POST"]),
     Route("/api/investigations/{iid}", investigation),
     Route("/api/investigations/{iid}/graph", graph),
     Route("/api/investigations/{iid}/report.md", report),

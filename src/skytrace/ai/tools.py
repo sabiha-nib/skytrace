@@ -22,8 +22,14 @@ MAX_OUTPUT_CHARS = 14000
 KEY = Field(..., min_length=3, max_length=96, pattern=r"^[A-Za-z0-9_:.\-]+$", description="Observation key, e.g. QR3:2025W21_1A_0012_1:D2")
 
 
+CONTRACT = "TOOLS-2"
+ERROR_CODES = ("unknown_tool", "invalid_arguments", "not_found", "not_compatible", "output_too_large", "budget_exhausted")
+
+
 class ToolError(ValueError):
-    pass
+    def __init__(self, message: str, code: str = "not_found"):
+        super().__init__(message)
+        self.code = code
 
 
 class _Args(BaseModel):
@@ -74,9 +80,11 @@ class ToolCall:
     id: str
     name: str
     arguments: dict
-    output: dict
+    output: dict            # the tool's result payload (or {"error": ...})
     ok: bool
     seconds: float
+    error_code: str = ""
+    envelope: dict = field(default_factory=dict)   # what the model receives (TOOLS-2 contract)
 
 
 @dataclass
@@ -96,7 +104,8 @@ def _short_meas(m: dict | None) -> dict | None:
     if not m:
         return None
     c, p = m.get("centroid") or {}, m.get("photometry") or {}
-    return {"quality": m.get("quality"), "wavelength_um": m.get("wavelength_um"), "bandwidth_um": m.get("bandwidth_um"),
+    return {"quality": m.get("quality"), "quality_code": m.get("quality_code"), "astro_code": m.get("astro_code"),
+            "release": m.get("release"), "wavelength_um": m.get("wavelength_um"), "bandwidth_um": m.get("bandwidth_um"),
             "flux_ujy": p.get("flux_ujy"), "flux_err_ujy": p.get("flux_err_ujy"), "snr": p.get("snr"),
             "photometry_status": p.get("status"), "centroid_x": c.get("x"), "centroid_y": c.get("y"),
             "centroid_sigma_px": c.get("sigma_x"), "centroid_converged": c.get("converged"),
@@ -117,7 +126,9 @@ def t_list(s: ToolSession, a: ListObsArgs) -> dict:
                      "image_wavelength_range_um": [o.get("em_min_um"), o.get("em_max_um")], "included": o.get("included"),
                      "exclusion_reason": o.get("exclusion_reason"), "measurement_status": st,
                      "wavelength_at_target_um": (m or {}).get("wavelength_um"), "quality": (m or {}).get("quality")
-                     or (me["detail"] if me else None)})
+                     or (me["detail"] if me else None),
+                     "quality_code": ((me or {}).get("data") or {}).get("quality_code"),
+                     "astro_code": ((me or {}).get("data") or {}).get("astro_code")})
     return {"n_matching": len(rows), "offset": a.offset, "rows": rows[a.offset:a.offset + a.limit],
             "synthetic": s.view.is_synthetic()}
 
@@ -144,7 +155,7 @@ def t_compat(s: ToolSession, a: CompatArgs) -> dict:
     if a.key_b:
         r = s.view.pair_comparison(a.key_a, a.key_b)
         if "error" in r:
-            raise ToolError(r["error"])
+            raise ToolError(r["error"], "not_compatible")
         return {k: r[k] for k in ("a", "b", "compatible_for_photometry", "reason", "rule", "delta_lambda_um", "tolerance_um",
                                   "wavelength_a_um", "wavelength_b_um", "delta_t_days", "t_a_iso", "t_b_iso")}
     if a.key_a not in s.view.measurements:
@@ -194,7 +205,7 @@ def t_meas(s: ToolSession, a: OptKeyArgs) -> dict:
 def t_compare(s: ToolSession, a: PairArgs) -> dict:
     r = s.view.pair_comparison(a.key_a, a.key_b)
     if "error" in r:
-        raise ToolError(r["error"])
+        raise ToolError(r["error"], "not_compatible")
     return r
 
 
@@ -209,6 +220,10 @@ def t_astro(s: ToolSession, _: NoArgs) -> dict:
     return {"available": True, "fit": ast["fit"], "catalogue": ast["catalogue"], "comparison": ast["comparison"],
             "median_plate_rms_mas": rms[len(rms) // 2] if rms else None, "n_exposures": len(ast["series"]),
             "rejected_epochs": rej, "parallax_systematic_bound_mas": ast.get("parallax_systematic_bound_mas"),
+            "fit_kind": ast.get("fit_kind", "exposure"), "n_visits": len(ast.get("epochs") or []) or None,
+            "parallax": ast.get("parallax"),
+            "exposure_fit_crosscheck": ({k: ast["exposure_fit"][k] for k in ("pm_xi_mas_yr", "pm_eta_mas_yr", "sig_xi", "sig_eta", "n_epochs")}
+                                        if ast.get("exposure_fit") and ast.get("fit_kind") == "epoch" else None),
             "outcome": out}
 
 
@@ -295,19 +310,35 @@ def call_tool(session: ToolSession, name: str, raw_args: str | dict | None, call
     t0 = time.time()
     try:
         if name not in TOOLS:
-            raise ToolError(f"unknown tool {name!r}")
+            raise ToolError(f"unknown tool {name!r}", "unknown_tool")
         model, fn, _ = TOOLS[name]
         try:
             args = model.model_validate_json(raw_args) if isinstance(raw_args, str) else model.model_validate(raw_args or {})
         except ValidationError as e:
-            raise ToolError(f"invalid arguments for {name}: {e.errors(include_url=False)}") from e
+            raise ToolError(f"invalid arguments for {name}: {e.errors(include_url=False)}", "invalid_arguments") from e
         out = fn(session, args)
         text = json.dumps(out, default=str)
         if len(text) > MAX_OUTPUT_CHARS:
-            out = {"truncated": True, "note": f"output exceeded {MAX_OUTPUT_CHARS} characters; narrow the request"}
+            raise ToolError(f"output exceeded {MAX_OUTPUT_CHARS} characters; narrow the request (limit/offset/key)",
+                            "output_too_large")
         call = ToolCall(cid, name, args.model_dump(), out, True, time.time() - t0)
     except ToolError as e:
         call = ToolCall(cid, name, raw_args if isinstance(raw_args, dict) else {"raw": str(raw_args)[:300]},
-                        {"error": str(e)}, False, time.time() - t0)
+                        {"error": str(e)}, False, time.time() - t0, e.code)
+    call.envelope = envelope(session, call)
     session.calls.append(call)
     return call
+
+
+def envelope(session: ToolSession, call: ToolCall) -> dict:
+    """Uniform result wrapper (TOOLS-2). Every field is derived from the record, never from the model."""
+    v = session.view
+    return {"contract": CONTRACT, "tool": call.name, "call_id": call.id, "ok": call.ok,
+            "result": call.output if call.ok else None,
+            "error": None if call.ok else {"code": call.error_code, "message": call.output.get("error")},
+            "evidence_id": call.id if call.ok else None,
+            "data_status": "synthetic" if v.is_synthetic() else "archive",
+            "data_origins": sorted(v.data_origins()),
+            "record": {"content_hash": v.r.get("content_hash"),
+                       "analysis_version": v.r.get("parameters", {}).get("analysis_version")},
+            "cache": "none: reads a finished, hashed investigation record; deterministic for the same record"}

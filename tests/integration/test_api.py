@@ -100,3 +100,15 @@ def test_full_api_cycle(base):
     assert opened["bundle_available"] and opened["copilot_transcript"][0]["content"] == "q"
     assert requests.delete(base + f"/api/records/{rid}", timeout=10, proxies=NOPROXY).status_code == 200
     assert get(base, f"/api/records/{rid}").status_code == 404
+
+
+def test_phase3_params_and_stability(base):
+    assert post(base, "/api/targets/syn-hpm-1/analyze", {"params": {"apply_parallax": "yes"}}).status_code == 400
+    assert post(base, "/api/targets/syn-hpm-1/analyze", {"params": {"wavelength_margin_um": 0.5}}).status_code == 400
+    assert post(base, "/api/targets/syn-hpm-1/analyze", {"params": {"epoch_gap_days": True}}).status_code == 400
+    r = post(base, "/api/targets/syn-var-1/stability", {"params": {"aperture_radius_px": 2.0}})
+    assert r.status_code == 200, r.text
+    d = r.json()
+    assert d["method"] == "STAB-1" and d["synthetic"] is True and len(d["runs"]) == 5
+    assert set(d["stable"]) == {"data_quality", "motion", "variability"}
+    assert d["base"]["categories"]["variability"] == "variability_candidate"

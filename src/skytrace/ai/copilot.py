@@ -36,6 +36,10 @@ How to work:
 - A 'z' value is the significance of a difference under the stated errors, not a probability.
 - Candidates are not discoveries. You may discuss what would be needed to establish one.
 - Flux comparisons are valid only for wavelength-matched pairs (rule WLMATCH-2: same detector, same release, wavelength within tolerance minus a 2 nm accuracy margin). Say so when relevant.
+- State every measured value with its uncertainty (±) exactly as the tools give it; a non-detection is not proof of no
+  change, and a failed measurement is not evidence of no change.
+- Quote observation keys and catalogue ids only as they appear in tool outputs.
+- Tool results arrive in an envelope {"contract","ok","result","error","evidence_id","data_status",...}; cite evidence_id.
 - If the data are synthetic, say they are synthetic test data, not observations.
 - If the evidence is insufficient, say what is missing and which data or step would supply it.
 - If the question is ambiguous, ask one short follow-up question in follow_up_questions.
@@ -44,7 +48,7 @@ How to work:
 Reply with ONLY a JSON object:
 {"answer": str,
  "claims": [{"text": str, "kind": "measurement"|"interpretation"|"speculation", "value": number|null, "unit": str,
-             "evidence": ["<tool_call_id>", ...]}],
+             "uncertainty": number|null, "evidence": ["<tool_call_id>", ...]}],
  "limitations": [str, ...],
  "follow_up_questions": [str, ...],
  "suggested_next_steps": [str, ...]}"""
@@ -117,10 +121,12 @@ def ask(question: str, view: InvestigationView, target_id: str, history: list[di
             for c in calls:
                 cid, fn = c.get("id") or f"call_{n_tool}", c.get("function", {})
                 if n_tool >= MAX_TOOL_CALLS:
-                    out = {"error": "tool-call budget exhausted; answer with the evidence you have"}
+                    out = {"contract": "TOOLS-2", "tool": fn.get("name", ""), "call_id": cid, "ok": False, "result": None,
+                           "error": {"code": "budget_exhausted",
+                                     "message": "tool-call budget exhausted; answer with the evidence you have"}}
                 else:
                     n_tool += 1
-                    out = call_tool(s, fn.get("name", ""), fn.get("arguments") or "{}", cid).output
+                    out = call_tool(s, fn.get("name", ""), fn.get("arguments") or "{}", cid).envelope
                 messages.append({"role": "tool", "tool_call_id": cid, "content": json.dumps(out, default=str)})
             continue
         content = (msg.get("content") or "").strip()

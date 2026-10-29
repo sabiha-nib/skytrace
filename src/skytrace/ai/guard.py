@@ -1,4 +1,6 @@
-"""Evidence guard (GUARD-2): blocks model output that the evidence does not support.
+"""Evidence guard (GUARD-3): blocks model output that the evidence does not support.
+
+GUARD-3 = GUARD-2 plus the `identifier` and `uncertainty` checks.
 
 Expected answer object:
   {"answer": str,
@@ -20,6 +22,8 @@ Checks (each failure is reported with a code):
   probability    significances are not presented as probabilities
   limitations    at least one limitation is stated
   synthetic      synthetic data is called synthetic and never presented as real observations
+  identifier     observation keys, archive observation ids and catalogue source ids in the answer occur in the evidence
+  uncertainty    a measured value with a physical unit (mas/yr, mas, µJy, mJy, %) is stated with its uncertainty
 """
 
 from __future__ import annotations
@@ -28,6 +32,8 @@ import json
 import math
 import re
 from dataclasses import dataclass, field
+
+RULES = "GUARD-3"
 
 _NUM = re.compile(r"(?<![A-Za-z_\-:])[-+−]?\d+(?:,\d{3})*(?:\.\d+)?(?:[eE][-+]?\d+)?")
 _ISO = re.compile(r"\b(\d{4}-\d{2}-\d{2})(?:[T ]\d{2}:\d{2}(?::\d{2})?)?")
@@ -52,6 +58,15 @@ _CERTAIN = [
 _PROB = re.compile(r"\b(\d+(?:\.\d+)?\s*%|probability|chance|odds)\b[^.]*\b(variable|varies|moving|real|genuine|discovery|"
                    r"change[sd]?)\b", re.I)
 _REAL = re.compile(r"\b(real|actual|genuine|archival|live)\s+(SPHEREx\s+)?(observations?|data|images?|measurements?)\b", re.I)
+_IDENT = re.compile(r"\b(?:(?:QR\d|SYNTHETIC):[A-Za-z0-9_]+(?::D[1-6])?|20\d{2}W\d{2}_[0-9A-Z]{2}_\d{4}_\d|SYN\d+_\d+"
+                    r"|(?:Gaia\s+DR3\s+)\d{6,20})\b")
+_MEAS_VERB = re.compile(r"\b(measured|fitted|fit gives|we find|is detected|detected at|brightened|dimmed|faded|changed by|"
+                        r"moves? at|moving at|proper motion of)\b", re.I)
+_PHYS = re.compile(r"[-+−]?\d+(?:\.\d+)?\s*(?:mas\s*/\s*yr|mas\s+per\s+year|mas\b|µJy|μJy|uJy|mJy|%)", re.I)
+_BOUND = re.compile(r"\b(above|below|smaller than|larger than|greater than|less than|at least|at most|limit|sensitivity|"
+                    r"threshold|catalog(?:ue)?|expected|predicted)\b", re.I)
+_PHYS_UNITS = {"mas/yr", "mas", "arcsec", "µjy", "μjy", "ujy", "mjy", "%", "percent", "mas per year"}
+_UNC = re.compile(r"±|\+/-|(?<![\d.])σ|\bsigma\b|uncertaint|\berror\b|\bplus or minus\b", re.I)
 _SOURCES = ["Gaia", "SIMBAD", "IRSA", "SPHEREx", "WISE", "NEOWISE", "2MASS", "JWST", "Spitzer", "Hubble", "HST", "Pan-STARRS",
             "SDSS", "Horizons", "ZTF", "TESS", "Kepler", "AAVSO", "QR2", "QR3"]
 STOP = set("the a an and or of to in on for with by at from this that these those is are was were be been it its as into than "
@@ -228,5 +243,21 @@ def check(raw: str, tool_outputs: dict[str, dict], executed_tools: set[str] | No
                 add("synthetic", f"describes synthetic data as real: \"{s[:160]}\"")
     elif origins and re.search(r"\b(synthetic|simulated)\b", text, re.I) and "synthetic" not in ev_lower:
         add("synthetic", "calls archive data synthetic")
+
+    # identifiers: every observation key / archive id / catalogue id must come from the evidence
+    for m in _IDENT.finditer(text + " " + extra_text):
+        ident = re.sub(r"^Gaia\s+DR3\s+", "", m.group(0))
+        if ident not in ev_text:
+            add("identifier", f"identifier {m.group(0)} does not occur in the evidence")
+
+    # uncertainty: measured physical values need their uncertainty in the same sentence
+    for s in sentences:
+        if _MEAS_VERB.search(s) and _PHYS.search(s) and not _UNC.search(s) and not _BOUND.search(s) and not s.endswith("?"):
+            add("uncertainty", f"measured value stated without its uncertainty: \"{s[:160]}\"")
+    for i, c in enumerate(ans.get("claims", [])):
+        if isinstance(c, dict) and c.get("kind") == "measurement" and c.get("value") is not None \
+                and str(c.get("unit", "")).strip().lower() in _PHYS_UNITS \
+                and c.get("uncertainty") is None and not _UNC.search(str(c.get("text", ""))):
+            add("uncertainty", f"claim {i} gives a measured {c.get('unit')} value without an uncertainty")
 
     return GuardResult(not probs, probs, ans if not probs else None)

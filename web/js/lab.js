@@ -6,6 +6,8 @@ import { scatter } from "./charts.js";
 import { $, DET_COLORS, categoryLabel, clear, detSwatch, download, el, fmt, fmtDate, questionLabel, shortKey, toast } from "./util.js";
 
 let tab = "outcomes";
+let stab = null;   // last stability-check result {target, result}
+const EPOCH_LABEL = "exposures within a visit averaged first, so correlated errors are not counted as independent";
 
 // Guidance on competing explanations. These are standard considerations for each outcome, not results.
 const EXPLANATIONS = {
@@ -14,10 +16,18 @@ const EXPLANATIONS = {
     ["Residual wavelength difference within tolerance", "Check |Δλ| of the significant pairs; a steep spectrum turns small Δλ into flux changes."],
     ["PSF or sensitivity variation across the detector", "Compare pairs where the target fell at similar detector positions; inspect fit χ²."],
     ["Unresolved neighbour or blend", "Look for catalogue sources within a few pixels; check whether the centroid shifts with the flux."],
-    ["Calibration drift between epochs", "Reference stars measured the same way should not show the same change."],
+    ["Calibration drift between epochs", "PAIRDIFF-2 divides by the reference-star ratio; check the number of references and the calibration check."],
   ],
+  calibration_limited: [
+    ["Calibration change between exposures", "Without ≥ 3 wavelength-matched reference stars the exposure-level calibration cannot be removed."],
+    ["Error model too optimistic", "The calibration check compares constant reference stars with their stated errors."],
+  ],
+  measurement_failed: [["The fit did not converge", "A failed measurement is not evidence of no motion; inspect the astrometry step and rejected exposures."]],
+  no_motion_at_sensitivity: [["Motion below sensitivity", "Motion smaller than the stated 5σ limit could be present; this is not proof the source is static."]],
+  no_variability_at_sensitivity: [["Change below sensitivity", "A brightness change smaller than the stated 5σ limit could be present; this is not proof of constancy."]],
+  all_usable: [["All exposures usable", "No exposure was rejected for both photometry and astrometry."]],
   motion_inconsistent: [
-    ["Parallax not modelled", "The residual pattern would follow the observer's yearly motion, bounded by the catalogue parallax."],
+    ["Parallax residual", "Parallax is removed with EPHEM-AA-LP-1; a residual pattern would follow the observer's yearly motion."],
     ["Blending with a neighbour", "Check exposures where catalogue sources fall near the target's path."],
     ["Chromatic centroid shifts", "Fit each detector separately; a wavelength-dependent offset points to chromatic effects."],
     ["Catalogue proper motion error", "Compare the catalogue uncertainty and quality indicators (e.g. RUWE)."],
@@ -62,6 +72,10 @@ function outcomes(p) {
     grid.append(el("article", { class: `card outcome c-${o.category}` },
       el("h3", {}, questionLabel(o.question)), el("div", { class: "cat" }, categoryLabel(o.category)),
       el("p", {}, o.statement),
+      ...Object.entries(o.sensitivity || {}).filter(([k]) => k !== "note" && k !== "baseline_yr").map(([k, v]) =>
+        el("p", { class: "sensitivity" }, el("strong", {}, "Sensitivity: "), k.startsWith("min_detectable_fractional")
+          ? `changes smaller than ${fmt(100 * v, 1)}% (5σ) would not be detected`
+          : `motion smaller than ${fmt(v, 0)} mas/yr (5σ) would not be detected`)),
       el("dl", { class: "kv evidence" }, ...ev.slice(0, 8).flatMap(([k, v]) => [el("dt", {}, k.replaceAll("_", " ")), el("dd", {}, typeof v === "number" ? fmt(v, Math.abs(v) < 10 ? 2 : 0) : String(v))])),
       el("details", { class: "explanations" }, el("summary", {}, "Criteria"), el("ul", {}, ...o.criteria.map((c) => el("li", {}, c)))),
       el("details", { class: "explanations" }, el("summary", {}, "Limitations"), el("ul", {}, ...o.limitations.map((c) => el("li", {}, c)))),
@@ -94,8 +108,11 @@ function motion(p) {
         el("dt", {}, "Measured"), el("dd", {}, `${fmt(f.pm_xi_mas_yr, 0)} ± ${fmt(f.sig_xi, 0)} mas/yr (east), ${fmt(f.pm_eta_mas_yr, 0)} ± ${fmt(f.sig_eta, 0)} mas/yr (north)`),
         el("dt", {}, "Catalogue"), el("dd", {}, `${fmt(a.catalogue.pmra, 0)}, ${fmt(a.catalogue.pmdec, 0)} mas/yr · ${a.catalogue.source}`),
         el("dt", {}, "Difference"), el("dd", {}, `${fmt(cmp.z_pmra, 2)}σ and ${fmt(cmp.z_pmdec, 2)}σ (significance of the difference, not a probability)`),
-        el("dt", {}, "Data"), el("dd", {}, `${f.n_epochs} exposures used over ${fmt(f.baseline_yr, 2)} yr; ${f.rejected.length} rejected as outliers; reduced χ² ${fmt(f.reduced_chi2, 2)}`),
-        el("dt", {}, "Not modelled"), el("dd", {}, `parallax (up to ${fmt(a.parallax_systematic_bound_mas, 0)} mas), chromatic PSF/distortion`))),
+        el("dt", {}, "Data"), el("dd", {}, `${f.n_epochs} ${a.fit_kind === "epoch" ? "visit-averaged epochs" : "exposures"} used over ${fmt(f.baseline_yr, 2)} yr; ${f.rejected.length} rejected as outliers; reduced χ² ${fmt(f.reduced_chi2, 2)} · method ${f.method}${a.fit_kind === "epoch" ? " (" + EPOCH_LABEL + ")" : ""}`),
+        a.exposure_fit && a.fit_kind === "epoch" ? [el("dt", {}, "Cross-check"), el("dd", {}, `per-exposure fit ${fmt(a.exposure_fit.pm_xi_mas_yr, 0)} ± ${fmt(a.exposure_fit.sig_xi, 0)}, ${fmt(a.exposure_fit.pm_eta_mas_yr, 0)} ± ${fmt(a.exposure_fit.sig_eta, 0)} mas/yr from ${a.exposure_fit.n_epochs} exposures (errors within a visit treated as independent, so its σ is optimistic)`)] : null,
+        a.parallax ? [el("dt", {}, "Parallax"), el("dd", {}, a.parallax.applied ? `removed with ${a.parallax.method} (ϖ = ${fmt(a.parallax.parallax_mas, 0)} mas; residual ≤ ${fmt(a.parallax.systematic_bound_mas, 1)} mas)` : `not modelled in this run (up to ${fmt(a.parallax.parallax_mas, 0)} mas)`)]
+                   : [el("dt", {}, "Not modelled"), el("dd", {}, `parallax (up to ${fmt(a.parallax_systematic_bound_mas, 0)} mas)`)],
+        el("dt", {}, "Not modelled"), el("dd", {}, "chromatic PSF/distortion beyond the per-exposure plate solution"))),
     el("div", { class: "card" }, el("h3", {}, "East offset from the catalogue prediction ", el("span", { class: "muted" }, "(mas; 0 = catalogue motion exactly)")),
       scatter({ xLabel: "Epoch (Julian year)", yLabel: "Δξ (mas)", series: mk((d) => d.xi_mas, (d) => d.sig_xi_mas, (d) => d.pred_xi_mas), hlines: [{ y: 0, class: "cat-line", label: "catalogue" }], xfmt: (v) => fmt(v, 2) })),
     el("div", { class: "card" }, el("h3", {}, "North offset from the catalogue prediction ", el("span", { class: "muted" }, "(mas)")),
@@ -117,16 +134,30 @@ function variability(p) {
         onClick: () => { state.selectedKey = f.a; state.partnerKey = f.b; emit("goto", { ws: "time", key: f.a, partner: f.b }); } })) }] })),
     el("div", { class: "card" }, el("h3", {}, "Pairs, most significant first"),
       el("div", { class: "table-wrap" }, el("table", {},
-        el("thead", {}, el("tr", {}, ...["Detector", "A", "B", "Δt (d)", "|Δλ| (µm)", "Flux A → B (µJy)", "z"].map((h) => el("th", { scope: "col" }, h)))),
+        el("thead", {}, el("tr", {}, ...["Detector", "A", "B", "Δt (d)", "|Δλ| (µm)", "Flux A → B (µJy)", "z (raw)", "Refs", "z (calibrated)"].map((h) => el("th", { scope: "col" }, h)))),
         el("tbody", {}, ...fp.slice(0, 80).map((f) => {
           const tr = el("tr", { tabindex: "0" }, el("td", {}, detSwatch(meas[f.a]?.detector), `D${meas[f.a]?.detector}`),
             el("td", {}, fmtDate(meas[f.a]?.t_mid_iso)), el("td", {}, fmtDate(meas[f.b]?.t_mid_iso)), el("td", { class: "num" }, fmt(f.delta_t_days, 1)),
             el("td", { class: "num" }, fmt(f.delta_lambda_um, 4)), el("td", { class: "num" }, `${fmt(f.flux_a_ujy, 0)} → ${fmt(f.flux_b_ujy, 0)}`),
-            el("td", { class: "num" }, fmt(f.z, 1)));
+            el("td", { class: "num" }, fmt(f.z, 1)),
+            el("td", { class: "num" }, f.differential ? String(f.differential.n_refs) : "—"),
+            el("td", { class: "num", title: f.differential?.note || "" }, f.differential?.calibrated ? fmt(f.differential.z_cal_scaled ?? f.differential.z_cal, 1) : "not calibrated"));
           tr.addEventListener("click", () => { state.selectedKey = f.a; state.partnerKey = f.b; emit("goto", { ws: "time", key: f.a, partner: f.b }); });
           return tr;
         }))))),
+    calcheckNote(m),
     el("p", { class: "muted" }, `Pairs not compared: ${Object.entries(m.pairRejections).map(([k, v]) => `${k} ${v}`).join(", ") || "none"}. Different-wavelength pairs are excluded because their flux differences mostly reflect the spectrum.`));
+}
+
+function calcheckNote(m) {
+  const c = m.calcheck;
+  if (!c) return el("p", { class: "muted" }, "This record predates the reference-star calibration check (PAIRDIFF-2 / CALCHECK-1).");
+  const txt = c.status === "insufficient" ? `Calibration check: ${c.note}.`
+    : `Calibration check (${c.method}): constant reference stars scatter ${fmt(c.robust_scatter, 2)}× their stated errors over ${c.n_ref_z} comparisons` +
+      (c.status === "ok" ? "; the error model describes them." : `; calibrated z values are divided by ${fmt(c.error_scale, 2)}.`);
+  const rel = m.pairRejections.different_releases;
+  return el("div", { class: "card calcheck" }, el("p", {}, txt), "z (raw) uses only per-pixel errors (PAIRDIFF-1); z (calibrated) divides by the median flux ratio of reference stars measured in the same two exposures (PAIRDIFF-2) and is the one the assessment uses.",
+    rel ? el("p", { class: "muted" }, `${rel} pair(s) span two archive releases and were not compared, because the releases' calibrations may differ.`) : null);
 }
 
 function spectrum(p) {
@@ -150,16 +181,33 @@ function measurements(p) {
         el("td", {}, fmtDate(m.t_mid_iso)), el("td", {}, detSwatch(m.detector), m.detector), el("td", { class: "num" }, fmt(m.wavelength_um, 4)),
         el("td", { class: "num" }, ph.status === "ok" ? `${fmt(ph.flux_ujy, 0)} ± ${fmt(ph.flux_err_ujy, 0)}` : "—"), el("td", { class: "num" }, ph.status === "ok" ? fmt(ph.snr, 0) : "—"),
         el("td", { class: "num" }, c.converged ? fmt(c.sigma_x, 3) : "—"), el("td", { class: "num" }, pl.n_refs ?? "—"), el("td", { class: "num" }, pl.n_refs ? fmt(pl.rms_mas, 0) : "—"),
-        el("td", { class: m.status === "ok" ? "status-ok" : "status-rejected" }, m.quality));
+        el("td", { class: m.status === "ok" ? "status-ok" : "status-rejected", title: m.quality }, m.quality_code ? `phot ${m.quality_code} · astro ${m.astro_code}` : m.quality));
       tr.addEventListener("click", () => emit("goto", { ws: "explorer", key: m.key }));
       return tr;
     })))));
 }
 
+function renderStability(box) {
+  clear(box);
+  const r = stab.result;
+  const qs = Object.keys(r.stable);
+  box.append(el("p", {}, qs.map((q) => `${questionLabel(q)}: ${r.stable[q] ? "stable" : "fragile (" + r.fragile_under[q].join(", ") + ")"}`).join(" · ")),
+    el("div", { class: "table-wrap" }, el("table", {},
+      el("thead", {}, el("tr", {}, el("th", { scope: "col" }, "Run"), ...qs.map((q) => el("th", { scope: "col" }, questionLabel(q))), el("th", { scope: "col" }, "pm (mas/yr)"), el("th", { scope: "col" }, "max |z| cal."))),
+      el("tbody", {},
+        el("tr", {}, el("td", {}, "baseline"), ...qs.map((q) => el("td", {}, categoryLabel(r.base.categories[q]))), el("td", { class: "num" }, fmt(r.base.pm_measured_mas_yr, 0)), el("td", { class: "num" }, fmt(r.base.max_abs_z_calibrated, 1))),
+        ...r.runs.map((row) => el("tr", {}, el("td", {}, row.label), ...qs.map((q) => el("td", { class: row.changed[q] ? "changed" : "" }, categoryLabel(row.categories[q]))),
+          el("td", { class: "num" }, fmt(row.pm_measured_mas_yr, 0)), el("td", { class: "num" }, fmt(row.max_abs_z_calibrated, 1))))))));
+}
+
 function rerun(p) {
   const cur = state.model.record.parameters;
   const fields = [["aperture_radius_px", "Aperture radius (px)", 1, 5, 0.25], ["fit_half_size_px", "Fit box half-size (px)", 3, 8, 1],
-                  ["wavelength_tolerance_channels", "Wavelength tolerance (× bandwidth)", 0.1, 1, 0.05], ["epoch_clip_sigma", "Epoch outlier clip (σ)", 2, 10, 0.5]];
+                  ["wavelength_tolerance_channels", "Wavelength tolerance (× bandwidth)", 0.1, 1, 0.05], ["epoch_clip_sigma", "Epoch outlier clip (σ)", 2, 10, 0.5],
+                  ["wavelength_margin_um", "Wavelength-accuracy margin (µm)", 0, 0.01, 0.001], ["epoch_gap_days", "New visit after a gap of (days)", 0.5, 60, 0.5]]
+    .filter(([k]) => cur[k] !== undefined);
+  const flags = [["photometry_same_release", "Compare brightness only within one release"], ["apply_parallax", "Remove annual parallax"], ["reference_quality_cut", "Gaia quality cut on reference stars"]]
+    .filter(([k]) => cur[k] !== undefined);
   const inputs = {};
   const dets = el("div", { class: "controls" }, el("span", {}, "Detectors"), ...[1, 2, 3, 4, 5, 6].map((d) => {
     const i = el("input", { type: "checkbox", checked: (cur.detectors || []).includes(d), value: d });
@@ -169,14 +217,31 @@ function rerun(p) {
     const i = el("input", { type: "number", min: lo, max: hi, step, value: cur[k] });
     inputs[k] = i; return el("label", {}, label, i);
   }));
-  const go = el("button", { class: "btn primary" }, "Re-run analysis");
-  go.addEventListener("click", () => {
+  const toggles = el("div", { class: "controls" }, ...flags.map(([k, label]) => {
+    const i = el("input", { type: "checkbox", checked: !!cur[k] });
+    inputs[k] = i; return el("label", {}, i, label);
+  }));
+  const collect = () => {
     const params = Object.fromEntries(fields.map(([k]) => [k, +inputs[k].value]));
+    flags.forEach(([k]) => { params[k] = inputs[k].checked; });
     params.detectors = [1, 2, 3, 4, 5, 6].filter((d) => inputs["det" + d].checked);
-    emit("run", params);
+    return params;
+  };
+  const go = el("button", { class: "btn primary" }, "Re-run analysis");
+  go.addEventListener("click", () => emit("run", collect()));
+  const st = el("button", { class: "btn", id: "stability-run" }, "Check stability");
+  const stOut = el("div", { id: "stability-out" });
+  st.addEventListener("click", async () => {
+    st.disabled = true; st.textContent = "Checking (6 runs)…";
+    try { stab = { target: state.targetId, result: await api.stability(state.targetId, collect()) }; renderStability(stOut); }
+    catch (e) { toast(e.message); }
+    finally { st.disabled = false; st.textContent = "Check stability"; }
   });
   p.append(el("div", { class: "card" }, el("h3", {}, "Parameters"), el("p", { class: "muted" }, "Changing a parameter re-runs the deterministic analysis on the same verified files. The previous run is kept below for comparison, so you can see how sensitive each outcome is."),
-    form, dets, el("div", { class: "controls" }, go)));
+    form, toggles, dets, el("div", { class: "controls" }, go, st)),
+    el("div", { class: "card" }, el("h3", {}, "Stability check ", el("span", { class: "muted" }, "(STAB-1: aperture ±0.5 px, tolerance 0.3, clip 3σ/6σ)")),
+      el("p", { class: "muted" }, "Re-runs the analysis under a fixed set of small parameter changes. An outcome that changes is fragile and should be reported with that caveat."), stOut));
+  if (stab && stab.target === state.targetId) renderStability(stOut);
   const prev = state.prevInv;
   if (!prev) { p.append(el("p", { class: "muted" }, "Re-run with different parameters to compare outcomes here.")); return; }
   const pm = prev.model, cm = state.model;
