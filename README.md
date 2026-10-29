@@ -79,7 +79,7 @@ Each target becomes a bundle in `data/bundles/<target>/`: the original files byt
 - **Discovery Lab**: deterministic outcomes for data quality, motion and brightness, each with its criteria, evidence, limitations and alternative explanations. Also: motion plots against the catalogue, matched-pair significances, the spectrum, the full measurement table, re-running with different parameters (with a side-by-side sensitivity comparison) and a Markdown report.
 - **Evidence Graph**: sources → observations → measurements → comparisons → claims → methods and limitations, built only from recorded events. Selecting a claim traces exactly what supports it.
 - **Investigations**: save an investigation (parameters, data checksum, results, copilot conversation), reopen it, and replay it to confirm the content hash matches.
-- **Research copilot**: answers questions about the evidence using 11 read-only tools. The panel shows each tool call and its output, tags claims as evidence, interpretation or speculation, links observations, and lists any drafts the guard withheld.
+- **Research copilot**: answers questions about the evidence using 12 read-only tools. The panel shows each tool call and its output, tags claims as evidence, interpretation or speculation, links observations, and lists any drafts the guard withheld.
 
 ## How the science works
 

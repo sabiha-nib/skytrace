@@ -110,7 +110,50 @@ class InvestigationView:
                                        + ("" if d.accepted else "; the two exposures are at different wavelengths")}
         else:
             out["position"] = None
+        out["registration"] = registration_diagnostics(first, second)
         return out
+
+
+# ---------------------------------------------------------------------- registration diagnostics
+REGDIAG = "REGDIAG-1"
+
+
+def registration_diagnostics(ma: dict, mb: dict) -> dict:
+    """Geometry of the two exposures' Gaia-referenced plate solutions (REGDIAG-1), in time order (a = earlier).
+
+    Each plate maps pixels to tangent-plane degrees: xi = a0 + a1 x + a2 y, eta = b0 + b1 x + b2 y.
+    Reported per plate: pixel scale along x and y (arcsec/px), orientation of the pixel x axis on the sky
+    (deg, from xi toward eta), number of references and residual RMS. Relative: the affine map R = Mb^-1 Ma taking a
+    pixel offset in A to B, its rotation (deg), area scale ratio sqrt|det R|, and where the sky position at A's
+    predicted target pixel falls in B (shift in B pixels). These describe the geometric registration only; they say
+    nothing about photometric calibration. Display uses these plates; measurements never use resampled pixels.
+    """
+    pa, pb = ma.get("plate") or {}, mb.get("plate") or {}
+    missing = [k for k, p in (("a", pa), ("b", pb)) if not p.get("coeffs_deg")]
+    if missing:
+        return {"method": REGDIAG, "available": False,
+                "reason": "no plate solution for " + " and ".join(missing) + " (too few usable reference stars or the fit failed)"}
+
+    def one(p):
+        a0, a1, a2, b0, b1, b2 = p["coeffs_deg"]
+        return {"scale_x_arcsec_px": math.hypot(a1, b1) * 3600.0, "scale_y_arcsec_px": math.hypot(a2, b2) * 3600.0,
+                "x_axis_angle_deg": math.degrees(math.atan2(b1, a1)), "n_refs": p.get("n_refs"), "rms_mas": p.get("rms_mas")}
+
+    a0, a1, a2, b0, b1, b2 = pa["coeffs_deg"]
+    c0, c1, c2, d0, d1, d2 = pb["coeffs_deg"]
+    det_b = c1 * d2 - c2 * d1
+    ib = [[d2 / det_b, -c2 / det_b], [-d1 / det_b, c1 / det_b]]
+    R = [[ib[0][0] * a1 + ib[0][1] * b1, ib[0][0] * a2 + ib[0][1] * b2],
+         [ib[1][0] * a1 + ib[1][1] * b1, ib[1][0] * a2 + ib[1][1] * b2]]
+    px, py = ma.get("predicted_xy") or [0.0, 0.0]
+    xi, eta = a0 + a1 * px + a2 * py - c0, b0 + b1 * px + b2 * py - d0
+    bx, by = ib[0][0] * xi + ib[0][1] * eta, ib[1][0] * xi + ib[1][1] * eta
+    return {"method": REGDIAG, "available": True, "a": one(pa), "b": one(pb),
+            "relative": {"rotation_deg": math.degrees(math.atan2(R[1][0], R[0][0])),
+                         "scale_ratio": math.sqrt(abs(R[0][0] * R[1][1] - R[0][1] * R[1][0])),
+                         "target_pixel_in_a": [px, py], "same_sky_point_in_b": [bx, by],
+                         "shift_px": [bx - px, by - py]},
+            "note": "geometric registration from per-exposure plate solutions; not a photometric calibration"}
 
 
 # ---------------------------------------------------------------------- evidence graph

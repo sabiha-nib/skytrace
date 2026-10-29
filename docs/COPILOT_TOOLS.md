@@ -5,7 +5,7 @@ Tests: `tests/unit/test_tool_contracts.py`, `tests/unit/test_report_ai.py`.
 
 ## Contract
 
-All 11 tools are **read-only**: they read one finished, hashed investigation record and its bundle's
+All 12 tools are **read-only**: they read one finished, hashed investigation record and its bundle's
 discovery index, manifest and inspection data. They never fetch data, write files, run code or
 reach the network (`test_tools_have_no_side_effects` checks file modification times; the envelope
 test runs with sockets disabled).
@@ -47,6 +47,7 @@ Error codes: `unknown_tool`, `invalid_arguments`, `not_found`, `not_compatible`,
 | `get_evidence_graph` | focus (≤ 200 chars) | graph counts and claims, or edges around one node |
 | `get_analysis_provenance` | — | parameters, method versions, software, content hash, data origins, sources |
 | `generate_investigation_summary` | — | the three ASSESS-2 outcomes with evidence, criteria, limitations; pair rejection codes |
+| `list_capabilities` | — | the CAPREG-1 registry: each capability's methods, outputs, limitations and whether it runs here |
 | `validate_claim_provenance` | claim* (3–600 chars); evidence_ids* (1–8) | whether a draft claim passes the guard against the cited outputs |
 
 ## Guard (GUARD-3)

@@ -92,6 +92,7 @@ class ToolSession:
     view: InvestigationView
     target_id: str
     calls: list[ToolCall] = field(default_factory=list)
+    availability: dict = field(default_factory=dict)   # {"server": bool, "network": bool | None}
 
     def outputs(self) -> dict[str, dict]:
         return {c.id: c.output for c in self.calls if c.ok}
@@ -241,6 +242,14 @@ def t_graph(s: ToolSession, a: GraphArgs) -> dict:
     return out
 
 
+def t_caps(s: ToolSession, _: NoArgs) -> dict:
+    from ..capabilities import registry
+    reg = registry(s.availability)
+    return {"version": reg["version"], "synthetic": s.view.is_synthetic(),
+            "capabilities": [{k: c[k] for k in ("id", "name", "methods", "outputs", "limitations", "execution", "available",
+                                                  "availability_note")} for c in reg["capabilities"]]}
+
+
 def t_prov(s: ToolSession, _: NoArgs) -> dict:
     seen, sources = set(), []
     for e in s.view.events:
@@ -295,6 +304,7 @@ TOOLS: dict[str, tuple[type[_Args], Callable[[ToolSession, Any], dict], str]] = 
     "get_evidence_graph": (GraphArgs, t_graph, "Evidence graph counts and claims, or the edges around one node."),
     "get_analysis_provenance": (NoArgs, t_prov, "Parameters, software versions, content hash, data origins and sources of the investigation."),
     "generate_investigation_summary": (NoArgs, t_summary, "The deterministic outcomes (motion, variability, data quality) with evidence, criteria and limitations."),
+    "list_capabilities": (NoArgs, t_caps, "What SKYTRACE can actually do: registered capabilities with methods, outputs, limitations and whether each runs here."),
     "validate_claim_provenance": (ClaimArgs, t_validate, "Check a draft claim against evidence ids from earlier tool calls in this session."),
 }
 

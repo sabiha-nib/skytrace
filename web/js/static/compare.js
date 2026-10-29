@@ -87,5 +87,30 @@ export function pairComparison(measurements, params, fluxPairs, a, b) {
                      note: "positions from per-exposure Gaia-referenced plate solutions, before parallax removal; " +
                            "chromatic effects not modelled" + (d.accepted ? "" : "; the two exposures are at different wavelengths") };
   } else out.position = null;
+  out.registration = registrationDiagnostics(first, second);
   return out;
+}
+
+// Port of view.registration_diagnostics (REGDIAG-1); parity-tested with the rest of pairComparison.
+export function registrationDiagnostics(ma, mb) {
+  const pa = ma.plate || {}, pb = mb.plate || {};
+  const missing = [["a", pa], ["b", pb]].filter(([, p]) => !p.coeffs_deg).map(([k]) => k);
+  if (missing.length) return { method: "REGDIAG-1", available: false,
+    reason: "no plate solution for " + missing.join(" and ") + " (too few usable reference stars or the fit failed)" };
+  const deg = (r) => (r * 180) / Math.PI;
+  const one = (p) => { const [, a1, a2, , b1, b2] = p.coeffs_deg;
+    return { scale_x_arcsec_px: Math.hypot(a1, b1) * 3600.0, scale_y_arcsec_px: Math.hypot(a2, b2) * 3600.0,
+             x_axis_angle_deg: deg(Math.atan2(b1, a1)), n_refs: p.n_refs ?? null, rms_mas: p.rms_mas ?? null }; };
+  const [a0, a1, a2, b0, b1, b2] = pa.coeffs_deg, [c0, c1, c2, d0, d1, d2] = pb.coeffs_deg;
+  const detB = c1 * d2 - c2 * d1;
+  const ib = [[d2 / detB, -c2 / detB], [-d1 / detB, c1 / detB]];
+  const R = [[ib[0][0] * a1 + ib[0][1] * b1, ib[0][0] * a2 + ib[0][1] * b2],
+             [ib[1][0] * a1 + ib[1][1] * b1, ib[1][0] * a2 + ib[1][1] * b2]];
+  const [px, py] = ma.predicted_xy || [0.0, 0.0];
+  const xi = a0 + a1 * px + a2 * py - c0, eta = b0 + b1 * px + b2 * py - d0;
+  const bx = ib[0][0] * xi + ib[0][1] * eta, by = ib[1][0] * xi + ib[1][1] * eta;
+  return { method: "REGDIAG-1", available: true, a: one(pa), b: one(pb),
+           relative: { rotation_deg: deg(Math.atan2(R[1][0], R[0][0])), scale_ratio: Math.sqrt(Math.abs(R[0][0] * R[1][1] - R[0][1] * R[1][0])),
+                       target_pixel_in_a: [px, py], same_sky_point_in_b: [bx, by], shift_px: [bx - px, by - py] },
+           note: "geometric registration from per-exposure plate solutions; not a photometric calibration" };
 }

@@ -85,8 +85,8 @@ def _local(question: str, s: ToolSession, problems: list[str], audit: list[dict]
 
 
 def ask(question: str, view: InvestigationView, target_id: str, history: list[dict] | None = None,
-        client: MetaClient | None = None) -> CopilotResult:
-    s = ToolSession(view, target_id)
+        client: MetaClient | None = None, availability: dict | None = None) -> CopilotResult:
+    s = ToolSession(view, target_id, availability=availability or {})
     audit: list[dict] = []
     question = question.strip()[:2000]
     try:

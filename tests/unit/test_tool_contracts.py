@@ -24,6 +24,7 @@ def valid_args(v):
         "get_astrometric_validation": {},
         "get_evidence_graph": {"focus": "claim:motion"},
         "get_analysis_provenance": {},
+        "list_capabilities": {},
         "generate_investigation_summary": {},
         "validate_claim_provenance": {"claim": "In these synthetic data the motion outcome is recorded.", "evidence_ids": ["t1"]},
     }

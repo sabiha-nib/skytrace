@@ -23,7 +23,7 @@
 | R15 | Method comparison / sensitivity | Lab › Re-run & compare; MOMENT-1 cross-check | e2e `test_05` | IMPLEMENTED | |
 | R16 | Investigation history | event log; saved records with transcript | e2e `test_08` | IMPLEMENTED | |
 | R17 | Meta Model API integration | `ai/meta_client.py`, `ai/copilot.py` | scripted client | **BLOCKED** live | no key, no route |
-| R18 | 11 read-only tools, guard, budgets, audit, local fallback | `ai/` | 40 tests | IMPLEMENTED | |
+| R18 | 12 read-only tools, guard, budgets, audit, local fallback | `ai/` | 40 tests | IMPLEMENTED | |
 | R19 | Offline mode with sockets blocked | `archive/net.py`, server design | `test_offline_workflow.py`, e2e `test_09` | IMPLEMENTED | |
 | R20 | Live/cache/fixture/synthetic labels | `provenance.py`, UI pills/banners/watermark | unit, e2e `test_02` | IMPLEMENTED | |
 | R21 | Interactive UI, responsive, keyboard, CSP | `web/` | e2e incl. mobile | IMPLEMENTED | |

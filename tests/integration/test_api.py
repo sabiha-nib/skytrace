@@ -137,3 +137,39 @@ def test_record_export_and_verified_import(base):
     rec2["parameters"]["bundle"] = "barnards-star"
     assert post(base, "/api/records/import", {"record": rec2}).status_code == 400
     assert post(base, "/api/records/import", {"record": {"x": 1}}).status_code == 400
+
+
+def test_phase5_discovery_package_capabilities_and_vault(base):
+    import hashlib
+    import io
+    import zipfile
+    s = post(base, "/api/targets/syn-var-1/analyze", {"params": {}}).json()
+    iid = s["investigation_id"]
+    caps = get(base, "/api/capabilities").json()
+    assert caps["version"] == "CAPREG-1" and any(c["id"] == "archive" and c["available"] is False for c in caps["capabilities"])
+    d = get(base, f"/api/investigations/{iid}/discovery").json()
+    assert d["method"] == "DISC-1" and d["content_hash"] == s["record"]["content_hash"]
+    assert {"inventory", "questions", "hypotheses", "uncertainty", "next_steps"} <= set(d)
+    z = get(base, f"/api/investigations/{iid}/package.zip")
+    assert z.status_code == 200 and z.headers["content-type"] == "application/zip"
+    zf = zipfile.ZipFile(io.BytesIO(z.content))
+    names = {n.split("/", 1)[1]: n for n in zf.namelist()}
+    for line in zf.read(names["SHA256SUMS"]).decode().splitlines():
+        h, f = line.split("  ")
+        assert hashlib.sha256(zf.read(names[f])).hexdigest() == h
+    assert get(base, f"/api/investigations/{iid}/package.zip").content == z.content          # deterministic
+    ctx = {"question": "Did it dim?", "hypotheses": [{"text": "intrinsic dimming", "tests": ["V-INTRINSIC/T-SIG"]}]}
+    r = post(base, "/api/records", {"investigation_id": iid, "name": "vault", "tags": ["dimming", "dimming", " syn "],
+                                    "context": ctx}).json()
+    rid = r["record_id"]
+    full = get(base, f"/api/records/{rid}").json()
+    assert full["tags"] == ["dimming", "syn"] and full["context"] == ctx and full["outcomes"][2]["category"] == "variability_candidate"
+    up = requests.patch(base + f"/api/records/{rid}", json={"name": "renamed", "tags": ["x"]}, timeout=30, proxies=NOPROXY).json()
+    assert up["name"] == "renamed" and up["tags"] == ["x"] and up["modified_at"]
+    assert requests.patch(base + f"/api/records/{rid}", json={"name": "  "}, timeout=30, proxies=NOPROXY).status_code == 400
+    big = {"notes": "x" * 60_000}
+    assert requests.patch(base + f"/api/records/{rid}", json={"context": big}, timeout=30, proxies=NOPROXY).status_code == 413
+    c = post(base, f"/api/records/{rid}/clone").json()
+    assert c["cloned_from"] == rid and c["name"] == "Copy of renamed"
+    listed = {x["record_id"]: x for x in get(base, "/api/records").json()["records"]}
+    assert listed[c["record_id"]]["content_hash"] == listed[rid]["content_hash"]

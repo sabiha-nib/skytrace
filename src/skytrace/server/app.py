@@ -297,9 +297,8 @@ def _summary(iid: str, entry: dict) -> dict:
 
 
 def _clean_params(params: dict) -> dict:
-    allowed = {"aperture_radius_px": (1.0, 5.0), "fit_half_size_px": (3, 8), "wavelength_tolerance_channels": (0.1, 1.0),
-               "epoch_clip_sigma": (2.0, 10.0), "wavelength_margin_um": (0.0, 0.01), "epoch_gap_days": (0.5, 60.0)}
-    booleans = {"photometry_same_release", "apply_parallax", "reference_quality_cut"}
+    allowed = analysis.PARAM_BOUNDS
+    booleans = set(analysis.PARAM_BOOLEANS)
     clean = {}
     for k, v in params.items():
         if k in booleans:
@@ -351,15 +350,65 @@ async def graph(request: Request):
     return _json(evidence_graph(_view(e), e["target_id"]))
 
 
-async def report(request: Request):
-    from ..report import Investigation
-    e = _inv(request.path_params["iid"])
+def _report_md(e: dict) -> str:
+    from ..report import Event, Investigation
     rec = e["record"]
     inv = Investigation(rec["target"], rec["parameters"])
-    from ..report import Event
     inv.events = [Event(**{k: ev[k] for k in ("step", "status", "detail", "data", "provenance")}) for ev in rec["events"]]
     inv.created_at = rec["created_at"]
-    md = render_markdown(inv)
+    return render_markdown(inv)
+
+
+def availability() -> dict:
+    """What this server can reach: archives from the last environment diagnosis (None = never diagnosed)."""
+    net = None
+    if offline_enabled():
+        net = False
+    else:
+        rep = ROOT / "data" / "environment_report.json"
+        if rep.exists():
+            try:
+                sv = {s["service"]: s["verdict"] for s in json.loads(rep.read_text()).get("services", [])}
+                irsa = [v for k, v in sv.items() if k.startswith("IRSA")]
+                net = bool(irsa) and all(v == "ok" or v.startswith("http_2") for v in irsa)
+            except (ValueError, KeyError):
+                net = None
+    return {"server": True, "network": net}
+
+
+def _discovery(e: dict) -> dict:
+    from .. import discovery
+    b = bmod.load(_bundle_dirs()[e["target_id"]])
+    return discovery.report(e["record"], b.discovery, b.manifest, availability())
+
+
+async def capabilities_list(request: Request):
+    from .. import capabilities
+    return _json(capabilities.registry(availability()))
+
+
+async def investigation_discovery(request: Request):
+    e = _inv(request.path_params["iid"])
+    return _json(await run_in_threadpool(_discovery, e))
+
+
+async def investigation_package(request: Request):
+    """PKG-1 reproducibility package (zip)."""
+    from .. import capabilities, package
+    iid = request.path_params["iid"]
+    e = _inv(iid)
+    b = bmod.load(_bundle_dirs()[e["target_id"]])
+    rec_text = json.dumps(e["record"], indent=1, default=_default)
+    data = await run_in_threadpool(package.build, rec_text, e["record"], _report_md(e), _discovery(e),
+                                   evidence_graph(_view(e), e["target_id"]), capabilities.registry(availability()),
+                                   b.manifest, __version__)
+    return Response(data, media_type="application/zip",
+                    headers={"Content-Disposition": f'attachment; filename="skytrace-{e["target_id"]}-{iid}-package.zip"'})
+
+
+async def report(request: Request):
+    e = _inv(request.path_params["iid"])
+    md = _report_md(e)
     return PlainTextResponse(md, media_type="text/markdown; charset=utf-8",
                              headers={"Content-Disposition": f'attachment; filename="skytrace-{e["target_id"]}-{request.path_params["iid"]}.md"'})
 
@@ -371,7 +420,7 @@ async def ask(request: Request):
     if not isinstance(q, str) or not q.strip():
         raise APIError(400, "question is required")
     hist = body.get("history") if isinstance(body.get("history"), list) else []
-    res = await run_in_threadpool(copilot.ask, q[:2000], _view(e), e["target_id"], hist)
+    res = await run_in_threadpool(lambda: copilot.ask(q[:2000], _view(e), e["target_id"], hist, availability=availability()))
     return _json(res.to_dict())
 
 
@@ -388,7 +437,7 @@ async def records_list(request: Request):
     for p in sorted(RECORDS.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
         d = json.loads(p.read_text())
         out.append({k: d.get(k) for k in ("record_id", "name", "target_id", "saved_at", "content_hash", "bundle_kind", "notes",
-                                          "last_replay", "imported")})
+                                          "last_replay", "imported", "tags", "outcomes", "modified_at", "analysis_version")})
     return _json({"records": out})
 
 
@@ -408,10 +457,67 @@ def _save_record(target_id: str, rec: dict, body: dict, imported: bool = False) 
          "analysis_version": rec["parameters"].get("analysis_version"), "software": rec.get("software"),
          "content_hash": rec["content_hash"], "investigation": rec,
          "copilot_transcript": body.get("transcript") if isinstance(body.get("transcript"), list) else [],
-         "imported": imported}
+         "imported": imported, "tags": _clean_tags(body.get("tags")), "context": _clean_context(body.get("context")),
+         "outcomes": _outcomes_summary(rec)}
     RECORDS.mkdir(parents=True, exist_ok=True)
     _record_path(rid).write_text(json.dumps(d, indent=1, default=_default))
     return {"record_id": rid, "name": name, "saved_at": d["saved_at"]}
+
+
+def _clean_tags(tags) -> list[str]:
+    if not isinstance(tags, list):
+        return []
+    return sorted({str(t).strip()[:40] for t in tags if isinstance(t, str) and str(t).strip()})[:20]
+
+
+def _clean_context(ctx) -> dict:
+    """User-written investigation context (question, own hypotheses, notes). Stored as given, size-bounded; never trusted
+    as evidence: hypotheses can only cite recorded tests by id."""
+    if not isinstance(ctx, dict):
+        return {}
+    text = json.dumps(ctx, default=str)
+    if len(text) > 50_000:
+        raise APIError(413, "investigation context is larger than 50 kB")
+    return json.loads(text)
+
+
+def _outcomes_summary(rec: dict) -> list[dict]:
+    ev = next((e for e in rec.get("events", []) if e.get("step") == "assess"), None)
+    return [{"question": o["question"], "category": o["category"]} for o in ((ev or {}).get("data") or {}).get("outcomes", [])]
+
+
+async def records_update(request: Request):
+    """Rename, retag or edit the notes/context of a saved record. The investigation itself is never changed."""
+    p = _record_path(request.path_params["rid"])
+    if not p.exists():
+        raise APIError(404, "unknown record")
+    body = await _body(request)
+    d = json.loads(p.read_text())
+    if "name" in body:
+        name = str(body["name"] or "").strip()[:120]
+        if not name:
+            raise APIError(400, "name must not be empty")
+        d["name"] = name
+    if "notes" in body:
+        d["notes"] = str(body["notes"] or "")[:2000]
+    if "tags" in body:
+        d["tags"] = _clean_tags(body["tags"])
+    if "context" in body:
+        d["context"] = _clean_context(body["context"])
+    d["modified_at"] = utc_now_iso()
+    p.write_text(json.dumps(d, indent=1, default=_default))
+    return _json({k: d.get(k) for k in ("record_id", "name", "notes", "tags", "modified_at")})
+
+
+async def records_clone(request: Request):
+    p = _record_path(request.path_params["rid"])
+    if not p.exists():
+        raise APIError(404, "unknown record")
+    d = json.loads(p.read_text())
+    body = {"name": f"Copy of {d['name']}"[:120], "notes": d.get("notes", ""), "transcript": d.get("copilot_transcript", []),
+            "tags": d.get("tags", []), "context": d.get("context", {})}
+    out = _save_record(d["target_id"], d["investigation"], body)
+    return _json({**out, "cloned_from": d["record_id"]})
 
 
 def record_hash_ok(rec: dict) -> bool:
@@ -540,11 +646,16 @@ routes = [
     Route("/api/investigations/{iid}/graph", graph),
     Route("/api/investigations/{iid}/report.md", report),
     Route("/api/investigations/{iid}/record.json", investigation_export),
+    Route("/api/investigations/{iid}/discovery", investigation_discovery),
+    Route("/api/investigations/{iid}/package.zip", investigation_package),
+    Route("/api/capabilities", capabilities_list),
     Route("/api/investigations/{iid}/ask", ask, methods=["POST"]),
     Route("/api/records", records_list),
     Route("/api/records", records_save, methods=["POST"]),
     Route("/api/records/import", records_import, methods=["POST"]),
     Route("/api/records/{rid}", records_get),
+    Route("/api/records/{rid}", records_update, methods=["PATCH"]),
+    Route("/api/records/{rid}/clone", records_clone, methods=["POST"]),
     Route("/api/records/{rid}", records_delete, methods=["DELETE"]),
     Route("/api/records/{rid}/replay", records_replay, methods=["POST"]),
     Mount("/static", StaticFiles(directory=str(WEB)), name="static"),

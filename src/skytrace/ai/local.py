@@ -25,7 +25,8 @@ def _f(x, nd=1):
 
 def _intent(q: str) -> str:
     ql = q.lower()
-    rules = [("alignment", r"align|registr|plate|astrometric frame"), ("compat", r"compatib|wavelength|match"),
+    rules = [("capabilities", r"what can you|capabilit|which tools|what questions can|able to do|what can skytrace"),
+             ("alignment", r"align|registr|plate|astrometric frame"), ("compat", r"compatib|wavelength|match"),
              ("excluded", r"exclud|reject|why was|flag"), ("gaia", r"gaia|catalog|proper motion|motion"),
              ("uncertainty", r"uncertain|error bar|limitation|largest"), ("next", r"next|should i|investigate|follow"),
              ("support", r"support|which observations|evidence for"), ("changed", r"chang|vary|variab|differ|bright|dim")]
@@ -50,7 +51,17 @@ def answer(question: str, s: ToolSession) -> dict:
     for o in outcomes.values():
         lims += o["limitations"][:1]
 
-    if intent in ("gaia", "alignment"):
+    if intent == "capabilities":
+        c = call_tool(s, "list_capabilities", {})
+        caps = c.output["capabilities"]
+        here = [x["name"] for x in caps if x["available"]]
+        not_here = [f"{x['name']} ({x['availability_note']})" for x in caps if not x["available"]]
+        lines.append(f"Registered capabilities ({c.output['version']}) that work here: " + "; ".join(here) + ".")
+        if not_here:
+            lines.append("Not available here: " + "; ".join(not_here) + ".")
+        lines.append("Each one names its method versions, outputs and limitations in the capability registry.")
+        follow.append("Which explanations remain viable?")
+    elif intent in ("gaia", "alignment"):
         c = call_tool(s, "get_astrometric_validation", {})
         o = c.output
         if not o.get("available"):

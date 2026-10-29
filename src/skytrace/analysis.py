@@ -49,6 +49,10 @@ DEFAULTS = {
     "apply_parallax": True,
     "reference_quality_cut": True,
 }
+# Parameters a user may change, with their accepted ranges (the API and the capability registry read these).
+PARAM_BOUNDS = {"aperture_radius_px": (1.0, 5.0), "fit_half_size_px": (3, 8), "wavelength_tolerance_channels": (0.1, 1.0),
+                "epoch_clip_sigma": (2.0, 10.0), "wavelength_margin_um": (0.0, 0.01), "epoch_gap_days": (0.5, 60.0)}
+PARAM_BOOLEANS = ("photometry_same_release", "apply_parallax", "reference_quality_cut")
 CALCHECK = "CALCHECK-1"
 CALCHECK_MIN_REF_Z = 10
 CALCHECK_MAX_SCATTER = 1.5   # reference-star z scatter above this -> error model underestimates
