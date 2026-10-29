@@ -35,7 +35,7 @@ function suggestions() {
   else out.push("What changed between these observations?");
   if (cats.motion === "motion_detected" || cats.motion === "motion_inconsistent") out.push("How does the result compare with the Gaia reference?");
   out.push("Could the apparent motion be caused by alignment errors?", "Why was an observation excluded?", "What should I investigate next?");
-  return out.slice(0, 4);
+  return [...out.slice(0, 4), "What can you do with this investigation?"];
 }
 
 function linkify(text) {
@@ -80,21 +80,27 @@ function renderAnswer(r) {
     box.append(el("p", { class: "withheld" }, "No answer could be shown: " + r.problems.join("; ")));
     return box;
   }
-  box.append(el("div", { class: "answer" }, linkify(r.answer.answer)));
+  // Evidence-structured layout: Answer · Evidence · Method · Limitations · Next step. Each section shows only what the
+  // answer object contains; nothing is added here.
+  const sec = (label, ...kids) => el("section", { class: "ans-sec", "aria-label": label }, el("h5", {}, label), ...kids);
+  box.append(sec("Answer", el("div", { class: "answer" }, linkify(r.answer.answer))));
   const outputs = Object.fromEntries(r.tool_calls.map((c) => [c.id, c]));
   if (r.answer.claims?.length) {
-    box.append(el("ul", { class: "claims", "aria-label": "Claims" }, ...r.answer.claims.map((c) => el("li", {},
+    box.append(sec("Evidence", el("ul", { class: "claims", "aria-label": "Claims" }, ...r.answer.claims.map((c) => el("li", {},
       el("span", { class: "kind " + (c.kind || "measurement") }, c.kind === "interpretation" ? "interpretation" : c.kind === "speculation" ? "speculation" : "evidence"),
       c.text, c.value != null ? `: ${typeof c.value === "number" ? +c.value.toPrecision(6) : c.value} ${c.unit || ""}` : "",
       ...[].concat(c.evidence || []).map((id) => {
         const b = el("button", { class: "ev-chip", type: "button", title: "Show the tool output this claim cites" }, outputs[id]?.name || id);
         b.addEventListener("click", () => { const d = box.querySelector(`[data-tool="${id}"]`); if (d) { d.open = true; d.scrollIntoView({ block: "nearest" }); } });
         return b;
-      })))));
+      }))))));
   }
-  if (r.answer.limitations?.length) box.append(el("ul", { class: "limits", "aria-label": "Limitations" }, ...r.answer.limitations.map((l) => el("li", {}, l))));
+  const toolNames = [...new Set(r.tool_calls.map((c) => c.name))];
+  box.append(sec("Method", el("p", { class: "faint" }, (toolNames.length ? `Read-only tools: ${toolNames.join(", ")}. ` : "No tool was called. ")
+    + (meta ? "Every cited number was checked against the tool outputs by the evidence guard (GUARD-3)." : "Deterministic routing over recorded results (TOOLS-2); no language model."))));
+  if (r.answer.limitations?.length) box.append(sec("Limitations", el("ul", { class: "limits", "aria-label": "Limitations" }, ...r.answer.limitations.map((l) => el("li", {}, l)))));
   const follow = [...(r.answer.follow_up_questions || []), ...(r.answer.suggested_next_steps || [])];
-  if (follow.length) box.append(el("div", { class: "chips" }, ...follow.slice(0, 4).map((q) => el("button", { class: "chip", type: "button", onclick: () => ask(q) }, q))));
+  if (follow.length) box.append(sec("Next step", el("div", { class: "chips" }, ...follow.slice(0, 4).map((q) => el("button", { class: "chip", type: "button", onclick: () => ask(q) }, q)))));
   const tools = el("details", {}, el("summary", {}, `Tool activity (${r.tool_calls.length})`),
     ...r.tool_calls.map((c) => el("details", { dataset: { tool: c.id } },
       el("summary", {}, el("span", { class: "tool-row" }, el("code", {}, c.name), el("span", { class: c.ok ? "faint" : "bad" }, c.ok ? JSON.stringify(c.arguments) : "error"))),

@@ -142,6 +142,7 @@ function renderDetails() {
     el("dt", {}, "Flux"), el("dd", {}, c?.flux ? `${fmt(c.flux.flux_a_ujy, 0)} → ${fmt(c.flux.flux_b_ujy, 0)} µJy; difference ${fmt(c.flux.delta_ujy, 0)} ± ${fmt(c.flux.sigma_ujy, 0)} (z = ${fmt(c.flux.z, 1)}, a significance, not a probability)` : (c?.flux_note || "—")),
     el("dt", {}, "Position change"), el("dd", {}, c?.position ? `Δξ ${fmt(c.position.d_xi_mas, 0)} ± ${fmt(c.position.sigma_xi_mas, 0)} mas, Δη ${fmt(c.position.d_eta_mas, 0)} ± ${fmt(c.position.sigma_eta_mas, 0)} mas` : "not available (no plate solution for one of the images)"),
     el("dt", {}, "Note"), el("dd", { class: "muted" }, pairData.note))];
+  kids.push(registrationCard(c?.registration));
   kids.push(el("div", { class: "legend" }, ...[["#e6b450", "A: catalogue position"], ["#6cc6a4", "A: measured centroid"], ["#d97fb6", "B: catalogue position / centroid"]].map(([c2, t]) => {
     const i = el("i"); i.style.borderColor = c2; return el("span", {}, i, t);
   }), (() => { const i = el("i", { class: "swatch" }); i.style.background = "rgb(70,20,30)"; return el("span", {}, i, "no data: outside B's footprint after registration, or a missing value"); })()));
@@ -164,4 +165,19 @@ export function toggleBlink() {
   if (mode !== "blink") return;
   playing = !playing; playing ? start() : stop();
   renderTime();
+}
+
+// REGDIAG-1: the geometry behind the registration, from each exposure's Gaia-referenced plate solution.
+function registrationCard(g) {
+  if (!g) return null;
+  if (!g.available) return el("div", { class: "regdiag", id: "tm-regdiag" }, el("h4", {}, "Registration diagnostics"), el("p", { class: "muted" }, `Not available: ${g.reason}.`));
+  const r = g.relative;
+  const plate = (p) => `${fmt(p.scale_x_arcsec_px, 3)} × ${fmt(p.scale_y_arcsec_px, 3)} ″/px, x-axis at ${fmt(p.x_axis_angle_deg, 2)}°, ${p.n_refs ?? "?"} reference stars, residual RMS ${fmt(p.rms_mas, 0)} mas`;
+  return el("div", { class: "regdiag", id: "tm-regdiag" }, el("h4", {}, "Registration diagnostics ", el("span", { class: "muted" }, `(${g.method})`)),
+    el("dl", { class: "kv compact" },
+      el("dt", {}, "Plate A"), el("dd", {}, plate(g.a)),
+      el("dt", {}, "Plate B"), el("dd", {}, plate(g.b)),
+      el("dt", {}, "B relative to A"), el("dd", {}, `rotation ${fmt(r.rotation_deg, 3)}°, scale ratio ${fmt(r.scale_ratio, 5)}`),
+      el("dt", {}, "Target pixel"), el("dd", {}, `(${fmt(r.target_pixel_in_a[0], 1)}, ${fmt(r.target_pixel_in_a[1], 1)}) in A ↦ (${fmt(r.same_sky_point_in_b[0], 1)}, ${fmt(r.same_sky_point_in_b[1], 1)}) in B; shift (${fmt(r.shift_px[0], 1)}, ${fmt(r.shift_px[1], 1)}) px`)),
+    el("p", { class: "faint" }, `${g.note}. A residual RMS comparable to the motion over the baseline would make a position change ambiguous; the Hypothesis Arena tests this (T-REG).`));
 }

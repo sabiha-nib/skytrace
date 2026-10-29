@@ -3,10 +3,14 @@
 import { api } from "./api.js";
 import { emit, state } from "./state.js";
 import { scatter } from "./charts.js";
+import { renderUncertainty } from "./uncertainty.js";
+import { attachFigureExports } from "./figures.js";
 import { $, DET_COLORS, categoryLabel, clear, detSwatch, download, el, fmt, fmtDate, questionLabel, shortKey, toast } from "./util.js";
 
 let tab = "outcomes";
-let stab = null;   // last stability-check result {target, result}
+let autoStability = false;
+
+export function setLabTab(t, { stability = false } = {}) { tab = t; autoStability = stability; }
 const EPOCH_LABEL = "exposures within a visit averaged first, so correlated errors are not counted as independent";
 
 // Guidance on competing explanations. These are standard considerations for each outcome, not results.
@@ -53,7 +57,10 @@ export function renderLab() {
       el("button", { class: "btn primary", onclick: () => emit("run") }, "Run analysis")));
     return;
   }
-  const tabs = [["outcomes", "Outcomes"], ["motion", "Motion"], ["variability", "Brightness"], ["spectrum", "Spectrum"], ["measurements", "Measurements"], ["rerun", "Re-run & compare"]];
+  const all = [["outcomes", "Outcomes"], ["motion", "Motion"], ["variability", "Brightness"], ["spectrum", "Spectrum"], ["uncertainty", "Uncertainty"],
+               ["measurements", "Measurements"], ["rerun", "Re-run & compare"]];
+  const tabs = state.level === "explore" ? all.filter(([id]) => ["outcomes", "motion", "variability", "spectrum"].includes(id)) : all;
+  if (!tabs.some(([id]) => id === tab)) tab = "outcomes";
   const bar = el("div", { class: "tabs", role: "tablist" }, ...tabs.map(([id, label]) => {
     const b = el("button", { role: "tab", "aria-selected": tab === id ? "true" : "false" }, label);
     b.addEventListener("click", () => { tab = id; renderLab(); });
@@ -61,7 +68,8 @@ export function renderLab() {
   }));
   const panel = el("div", { role: "tabpanel" });
   body.append(bar, panel);
-  ({ outcomes, motion, variability, spectrum, measurements, rerun })[tab](panel);
+  ({ outcomes, motion, variability, spectrum, uncertainty: renderUncertainty, measurements, rerun })[tab](panel);
+  attachFigureExports(panel);
 }
 
 function outcomes(p) {
@@ -211,7 +219,7 @@ function measurements(p) {
 
 function renderStability(box) {
   clear(box);
-  const r = stab.result;
+  const r = state.stability.result;
   const qs = Object.keys(r.stable);
   box.append(el("p", {}, qs.map((q) => `${questionLabel(q)}: ${r.stable[q] ? "stable" : "fragile (" + r.fragile_under[q].join(", ") + ")"}`).join(" · ")),
     el("div", { class: "table-wrap" }, el("table", {},
@@ -270,7 +278,7 @@ function rerun(p) {
   const stOut = el("div", { id: "stability-out" });
   st.addEventListener("click", async () => {
     st.disabled = true; st.textContent = api.isStatic ? "Loading…" : "Checking (6 runs)…";
-    try { stab = { target: state.targetId, result: await api.stability(state.targetId, api.isStatic ? {} : collect()) }; renderStability(stOut); }
+    try { state.stability = { target: state.targetId, result: await api.stability(state.targetId, api.isStatic ? {} : collect()) }; renderStability(stOut); }
     catch (e) { toast(e.message); }
     finally { st.disabled = false; st.textContent = "Check stability"; }
   });
@@ -280,7 +288,8 @@ function rerun(p) {
   p.append(paramCard,
     el("div", { class: "card" }, el("h3", {}, "Stability check ", el("span", { class: "muted" }, "(STAB-1: aperture ±0.5 px, tolerance 0.3, clip 3σ/6σ)")),
       el("p", { class: "muted" }, "Re-runs the analysis under a fixed set of small parameter changes. An outcome that changes is fragile and should be reported with that caveat."), stOut));
-  if (stab && stab.target === state.targetId) renderStability(stOut);
+  if (state.stability && state.stability.target === state.targetId) renderStability(stOut);
+  if (autoStability) { autoStability = false; setTimeout(() => st.click(), 0); }
   const prev = state.prevInv;
   if (!prev) { p.append(el("p", { class: "muted" }, "Re-run with different parameters to compare outcomes here.")); return; }
   const pm = prev.model, cm = state.model;

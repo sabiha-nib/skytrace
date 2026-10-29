@@ -70,3 +70,31 @@ def test_js_content_hash_matches_python(tid, tmp_path):
     rec["parameters"]["aperture_radius_px"] = 2.0000001
     f.write_text(json.dumps(rec, indent=1))
     assert not run(f)["ok"]
+
+
+@pytest.mark.skipif(NODE is None, reason="node not installed")
+def test_js_overall_rule_matches_python():
+    from skytrace import hypotheses
+    r = subprocess.run([NODE, str(ROOT / "tests/js/overall_parity.mjs"), str(ROOT / "web/js/rules.js")],
+                       capture_output=True, text=True, timeout=60, check=True)
+    combos = json.loads(r.stdout)
+    assert len(combos) == 6 + 36 + 216
+    for statuses, js in combos:
+        assert hypotheses.overall([{"status": s} for s in statuses]) == js, statuses
+
+
+@pytest.mark.skipif(NODE is None, reason="node not installed")
+def test_js_intent_routing_matches_python():
+    """The static preview routes a question to a recorded answer with a port of the local assistant's rules."""
+    from skytrace.ai.local import _intent
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from build_static import QUESTIONS
+    qs = list(QUESTIONS.values()) + [
+        "What can you do?", "Which tools do you have?", "Is the registration good enough?", "Which pairs match in wavelength?",
+        "Why was D3 rejected?", "How does it compare with Gaia?", "What is the largest error?", "What should I follow up?",
+        "Which observations support this?", "Did it get brighter?", "Tell me about this target", "proper motion?", "", "flagged frames"]
+    r = subprocess.run([NODE, str(ROOT / "tests/js/intent_parity.mjs"), str(ROOT / "web/js/static/backend.js"), json.dumps(qs)],
+                       capture_output=True, text=True, timeout=60, check=True)
+    assert json.loads(r.stdout) == [_intent(q) for q in qs]
+    assert set(QUESTIONS) == {_intent(q) for q in QUESTIONS.values()}

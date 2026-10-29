@@ -74,7 +74,7 @@ function measurementsOf(rec) {
 // ------------------------------------------------------------------ copilot (precomputed local-assistant answers)
 // Same routing as src/skytrace/ai/local.py::_intent; the local assistant's answer depends only on the intent and on
 // observation keys named in the question, so keyless questions get exactly the server's answer.
-const INTENTS = [["alignment", /align|registr|plate|astrometric frame/], ["compat", /compatib|wavelength|match/],
+const INTENTS = [["capabilities", /what can you|capabilit|which tools|what questions can|able to do|what can skytrace/], ["alignment", /align|registr|plate|astrometric frame/], ["compat", /compatib|wavelength|match/],
   ["excluded", /exclud|reject|why was|flag/], ["gaia", /gaia|catalog|proper motion|motion/],
   ["uncertainty", /uncertain|error bar|limitation|largest/], ["next", /next|should i|investigate|follow/],
   ["support", /support|which observations|evidence for/], ["changed", /chang|vary|variab|differ|bright|dim/]];
@@ -100,13 +100,25 @@ export function recordStorageKind() {
 }
 const rid = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => b.toString(16).padStart(2, "0")).join("");
 
-async function saveFor(iid, name, notes, transcript, imported = false) {
+function cleanTags(tags) {
+  return Array.isArray(tags) ? [...new Set(tags.filter((t) => typeof t === "string").map((t) => t.trim().slice(0, 40)).filter(Boolean))].sort().slice(0, 20) : [];
+}
+function cleanContext(ctx) {
+  if (!ctx || typeof ctx !== "object") return {};
+  const text = JSON.stringify(ctx);
+  if (text.length > 50000) throw new Error("investigation context is larger than 50 kB");
+  return JSON.parse(text);
+}
+
+async function saveFor(iid, name, notes, transcript, imported = false, extra = {}) {
   const rec = await record(iid);
   const list = load();
   const entry = { record_id: rid(), name: (name || "").trim().slice(0, 120) || `${rec.target} investigation`, notes: (notes || "").slice(0, 2000),
                   target_id: runTarget.get(iid), saved_at: new Date().toISOString(), content_hash: rec.content_hash,
-                  bundle_kind: rec.parameters.bundle_kind, investigation_id: iid, analysis_version: rec.parameters.analysis_version,
-                  copilot_transcript: transcript || [], imported, last_replay: null };
+                  bundle_kind: rec.parameters.bundle_kind, investigation_id: iid, parameters: rec.parameters, analysis_version: rec.parameters.analysis_version,
+                  copilot_transcript: transcript || [], imported, last_replay: null,
+                  tags: cleanTags(extra.tags), context: cleanContext(extra.context),
+                  outcomes: (rec.events.find((e) => e.step === "assess")?.data?.outcomes || []).map((o) => ({ question: o.question, category: o.category })) };
   list.unshift(entry);
   const where = store(list);
   return { record_id: entry.record_id, name: entry.name, saved_at: entry.saved_at, stored_in: where };
@@ -151,6 +163,31 @@ export const staticApi = {
   investigation: (iid) => summary(iid),
   graph: (iid) => getJSON(`t/${runTarget.get(iid)}/run/${iid}/graph.json`),
   report: (iid) => getText(`t/${runTarget.get(iid)}/run/${iid}/report.md`),
+  discovery: (iid) => getJSON(`t/${runTarget.get(iid)}/run/${iid}/discovery.json`),
+  capabilities: () => getJSON("capabilities.json"),
+  packageBytes: async (iid) => {
+    const r = await fetch(BASE + `t/${runTarget.get(iid)}/run/${iid}/package.zip`);
+    if (!r.ok) throw new Error(r.status === 404 ? "not included in this preview" : `${r.status} ${r.statusText}`);
+    return r.arrayBuffer();
+  },
+  async updateRecord(id, body) {
+    const list = load(), d = list.find((r) => r.record_id === id);
+    if (!d) throw new Error("unknown record");
+    if ("name" in body) { const n = String(body.name || "").trim().slice(0, 120); if (!n) throw new Error("name must not be empty"); d.name = n; }
+    if ("notes" in body) d.notes = String(body.notes || "").slice(0, 2000);
+    if ("tags" in body) d.tags = cleanTags(body.tags);
+    if ("context" in body) d.context = cleanContext(body.context);
+    d.modified_at = new Date().toISOString();
+    store(list);
+    return { record_id: id, name: d.name, notes: d.notes, tags: d.tags, modified_at: d.modified_at };
+  },
+  async cloneRecord(id) {
+    const d = load().find((r) => r.record_id === id);
+    if (!d) throw new Error("unknown record");
+    const out = await saveFor(d.investigation_id, `Copy of ${d.name}`.slice(0, 120), d.notes, d.copilot_transcript, false,
+                              { tags: d.tags, context: d.context });
+    return { ...out, cloned_from: id };
+  },
   recordExportUrl: (iid) => BASE + `t/${runTarget.get(iid)}/run/${iid}/record.json`,
   recordText: (iid) => getText(`t/${runTarget.get(iid)}/run/${iid}/record.json`),
   async ask(iid, question) {
@@ -159,7 +196,7 @@ export const staticApi = {
     return (await getJSON(`t/${runTarget.get(iid)}/run/${iid}/ask.json`))[intentOf(question)];
   },
   async records() { return { records: load(), storage: recordStorageKind() }; },
-  async saveRecord(body) { return saveFor(body.investigation_id, body.name, body.notes, body.transcript); },
+  async saveRecord(body) { return saveFor(body.investigation_id, body.name, body.notes, body.transcript, false, body); },
   async record(id) {
     const d = load().find((r) => r.record_id === id);
     if (!d) throw new Error("unknown record");

@@ -18,6 +18,13 @@
     </div>
     <span class="pill none" id="data-pill">No target</span>
     <span class="spacer"></span>
+    <div class="segmented level-switch" role="group" aria-label="Level of detail">
+      <button type="button" data-level="explore" title="Plain-language view: outcomes, images and comparisons">Explore</button>
+      <button type="button" data-level="investigate" title="Adds evidence, criteria, measurements, hypotheses and parameters">Investigate</button>
+      <button type="button" data-level="research" title="Adds identifiers, hashes, raw values and diagnostics">Research</button>
+    </div>
+    <button class="btn ghost" id="palette-btn" type="button" aria-haspopup="dialog" title="Search and commands (Ctrl+K or /)">Search <kbd>⌘K</kbd></button>
+    <button class="btn ghost" id="help-btn" type="button" aria-haspopup="dialog" title="Glossary and keyboard shortcuts (?)">?</button>
     <span class="pill offline" id="offline-pill" hidden>Offline mode</span>
     <span class="pill preview" id="preview-pill" hidden title="Static preview: responses recorded from the Skytrace server at build time">Static preview</span>
     <span class="pill model" id="model-pill" title="">Copilot status</span>
@@ -34,9 +41,11 @@
   </section>
 
   <nav class="nav" aria-label="Workspaces">
+    <button data-ws="discovery">Discovery Engine</button>
     <button data-ws="explorer" aria-current="page">Sky Explorer</button>
     <button data-ws="time">Time Machine</button>
     <button data-ws="lab">Discovery Lab</button>
+    <button data-ws="arena">Hypothesis Arena</button>
     <button data-ws="graph">Evidence Graph</button>
     <button data-ws="records">Investigations</button>
     <div class="nav-foot" id="nav-foot"></div>
@@ -48,6 +57,13 @@
       <p>Every result here was produced by the Skytrace server and Python pipeline when this preview was built, from the bundled <em>synthetic</em> test targets. While you browse, no server, archive or language model is contacted. Re-runs offer the precomputed parameter sets (defaults and the five stability perturbations); pair comparisons and image registration are computed in your browser from the record; anything that needs the server says so. Run <code>python run.py</code> for the full application.</p>
     </details>
     <div id="global-banner"></div>
+    <nav class="loop" id="loop" aria-label="Discovery loop"></nav>
+
+    <section class="workspace" id="ws-discovery" aria-labelledby="ws-discovery-title">
+      <h2 class="ws-title" id="ws-discovery-title">Discovery Engine</h2>
+      <p class="ws-sub">What this investigation can establish, what it cannot, and what to do next: evidence inventory, research questions with test plans, review, and next steps, all derived from the recorded analysis.</p>
+      <div id="discovery-body"></div>
+    </section>
 
     <section class="workspace active" id="ws-explorer" aria-labelledby="ws-explorer-title">
       <h2 class="ws-title" id="ws-explorer-title">Sky Explorer</h2>
@@ -67,6 +83,12 @@
       <div id="lab-body"></div>
     </section>
 
+    <section class="workspace" id="ws-arena" aria-labelledby="ws-arena-title">
+      <h2 class="ws-title" id="ws-arena-title">Hypothesis Arena</h2>
+      <p class="ws-sub">Competing explanations, each tested against recorded values by a stated rule. No probabilities: a test is consistent, contradicted, inconclusive, or says why it could not be run.</p>
+      <div id="arena-body"></div>
+    </section>
+
     <section class="workspace" id="ws-graph" aria-labelledby="ws-graph-title">
       <h2 class="ws-title" id="ws-graph-title">Evidence Graph</h2>
       <p class="ws-sub">Every node is a recorded fact: an observation, a measurement, a method, a comparison, a claim or a limitation. Select a claim to trace it back to its observations.</p>
@@ -75,7 +97,7 @@
 
     <section class="workspace" id="ws-records" aria-labelledby="ws-records-title">
       <h2 class="ws-title" id="ws-records-title">Investigations</h2>
-      <p class="ws-sub">Save an investigation with its parameters, data checksums, results and copilot conversation. Reopen it later, or replay it to check that it reproduces.</p>
+      <p class="ws-sub">The investigation vault and report studio: save an investigation with its parameters, data checksums, results, research question, your hypotheses and the copilot conversation; search, tag, compare, reopen or replay it; export the report, record, evidence graph or a reproducibility package.</p>
       <div id="records-body"></div>
     </section>
   </main>
@@ -98,6 +120,20 @@
   </aside>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
+<div class="overlay" id="palette" hidden>
+  <div class="dialog palette" role="dialog" aria-modal="true" aria-labelledby="palette-title">
+    <h2 class="sr-only" id="palette-title">Search and commands</h2>
+    <input id="palette-input" type="text" role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" placeholder="Search targets, observations, workspaces and actions…" autocomplete="off">
+    <ul id="palette-list" role="listbox" aria-label="Results"></ul>
+    <p class="faint">↑↓ to move · Enter to run · Esc to close</p>
+  </div>
+</div>
+<div class="overlay" id="help" hidden>
+  <div class="dialog help" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <header><h2 id="help-title">Glossary and shortcuts</h2><button class="btn small ghost" id="help-close" type="button">Close</button></header>
+    <div id="help-body"></div>
+  </div>
+</div>
 <script type="module" src="/static/js/main.js"></script>
 </body>
 </html>

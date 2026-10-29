@@ -224,6 +224,8 @@ def test_g_records_controls(app, tmp_path):
     rec = json.loads(exported.read_text())
     assert rec["content_hash"] and rec["parameters"]["bundle"] == "syn-var-1"
     app.set_input_files("#import-file", str(exported))
+    app.locator("#import-preview", has_text="recomputed in this browser: matches").wait_for(timeout=30000)
+    app.click("#import-confirm")
     app.locator("#toast", has_text="Imported").wait_for(timeout=30000)
     app.locator("#toast", has_text="content hash verified").wait_for()
     app.locator("td", has_text="imported").first.wait_for()
@@ -231,7 +233,10 @@ def test_g_records_controls(app, tmp_path):
     rec["events"][0]["detail"] = "edited"
     bad.write_text(json.dumps(rec))
     app.set_input_files("#import-file", str(bad))
-    app.locator("#toast", has_text="Import refused").wait_for(timeout=30000)
+    app.locator("#import-preview", has_text="does not match").wait_for(timeout=30000)
+    assert app.locator("#import-confirm").is_disabled()          # refused before anything is stored
+    app.click("#import-cancel")
+    app.locator("#import-preview .import-preview").wait_for(state="detached")
     check = row.locator("button", has_text="Check" if app.mode == "static" else "Replay")
     check.click()
     row.get_by_text("identical content hash" if app.mode == "server" else "matches the precomputed result").wait_for(timeout=120000)
@@ -286,7 +291,199 @@ def test_i_narrow_copilot_overlay_and_escape(app):
     app.set_viewport_size({"width": 1440, "height": 900})
 
 
-def test_j_no_external_requests_no_errors(app):
+def test_j_levels(app):
+    app.set_viewport_size({"width": 1440, "height": 900})
+    app.click(".level-switch button[data-level=explore]")
+    assert app.locator("body").get_attribute("data-level") == "explore"
+    app.click(".nav button[data-ws=lab]")
+    app.locator("#lab-body .tabs button", has_text="Outcomes").wait_for()
+    assert app.locator("#lab-body .tabs button", has_text="Measurements").count() == 0   # explore: fewer views, same results
+    app.click(".level-switch button[data-level=research]")
+    app.locator("#lab-body .tabs button", has_text="Measurements").wait_for()
+    app.click(".nav button[data-ws=discovery]")
+    app.locator(".inventory th", has_text="SHA-256").wait_for()
+    assert app.locator(".inventory th", has_text="SHA-256").is_visible()
+    app.click(".level-switch button[data-level=investigate]")
+    assert app.locator(".inventory th", has_text="SHA-256").is_hidden()
+    assert app.locator(".level-switch button[data-level=investigate]").get_attribute("aria-pressed") == "true"
+
+
+def test_k_palette_help_shortcuts(app):
+    app.locator("body").click(position={"x": 5, "y": 400})
+    app.keyboard.press("Control+k")
+    app.locator("#palette").wait_for(state="visible")
+    pw.expect(app.locator("#palette-input")).to_be_focused()
+    app.keyboard.type("hypothesis arena")
+    app.locator("#palette-list li[aria-selected=true]", has_text="Hypothesis Arena").wait_for()
+    app.keyboard.press("Enter")
+    app.locator("#palette").wait_for(state="hidden")
+    app.locator(".nav button[data-ws=arena][aria-current=page]").wait_for()
+    app.locator("#palette-btn").click()
+    app.locator("#palette").wait_for(state="visible")
+    app.keyboard.type("zzzz-no-such-command")
+    app.locator("#palette-list li", has_text="No matches").wait_for()
+    app.keyboard.press("Escape")
+    app.locator("#palette").wait_for(state="hidden")
+    pw.expect(app.locator("#palette-btn")).to_be_focused()       # focus returns to the opener
+    app.locator("body").click(position={"x": 5, "y": 400})
+    app.keyboard.press("?")
+    app.locator("#help").wait_for(state="visible")
+    app.locator("#help dt", has_text="Wavelength-matched pair").wait_for()
+    app.keyboard.press("Escape")
+    app.locator("#help").wait_for(state="hidden")
+    app.keyboard.press("Alt+1")
+    app.locator(".nav button[data-ws=discovery][aria-current=page]").wait_for()
+    app.keyboard.press("Alt+4")
+    app.locator(".nav button[data-ws=lab][aria-current=page]").wait_for()
+
+
+def test_l_discovery_engine(app):
+    app.click(".nav button[data-ws=discovery]")
+    app.locator(".engine-head", has_text="DISC-1").wait_for(timeout=30000)
+    app.locator(".syn-note", has_text="Synthetic test data").wait_for()
+    app.locator(".qitem", has_text="not answerable").first.wait_for()
+    app.locator(".qitem", has_text="Does the target move").click()
+    app.locator(".qitem[aria-checked=true]", has_text="Does the target move").wait_for()
+    app.locator(".plan", has_text="LINFIT").wait_for()
+    app.locator(".plan button", has_text="Open the motion fit").click()
+    app.locator(".nav button[data-ws=lab][aria-current=page]").wait_for()
+    app.locator("#lab-body .tabs button[aria-selected=true]", has_text="Motion").wait_for()
+    app.click(".nav button[data-ws=discovery]")
+    app.locator(".qitem[aria-checked=true]", has_text="Does the target move").wait_for()   # the question is kept
+    n = app.locator(".inventory tbody tr").count()
+    app.locator("button", has_text="Show all").click()
+    app.wait_for_timeout(200)
+    assert app.locator(".inventory tbody tr").count() > n
+    app.locator(".next li", has_text="Acquire real SPHEREx observations").wait_for()
+    app.locator(".next li", has_text="needs network access").first.wait_for()
+
+
+def test_m_hypothesis_arena(app):
+    app.click(".nav button[data-ws=arena]")
+    app.locator(".matrix tbody tr").first.wait_for(timeout=30000)
+    app.locator(".matrix th", has_text="V-INTRINSIC").wait_for()
+    app.locator(".testbtn").first.click()
+    app.locator("#arena-detail dt", has_text="Rule").wait_for()
+    assert "%" not in app.locator(".matrix").text_content()      # no probabilities anywhere in the matrix
+    app.locator("#arena-body .tabs button", has_text="Motion").click()
+    app.locator(".matrix th", has_text="M-REGISTRATION").wait_for()
+    app.fill("#hyp-text", "The motion is real and not a registration artefact")
+    app.locator(".pick", has_text="M-REGISTRATION").locator("input").check()
+    app.click("#hyp-add")
+    li = app.locator(".userhyps > li", has_text="not a registration artefact")
+    li.wait_for()
+    li.locator(".st").first.wait_for()
+    li.locator("button", has_text="Remove").click()
+    app.locator("#undo-box").wait_for(state="visible")
+    assert app.locator(".userhyps > li").count() == 0
+    app.locator("#undo-box button", has_text="Undo").click()
+    app.locator(".userhyps > li", has_text="not a registration artefact").wait_for()
+
+
+def test_n_uncertainty_and_figure_export(app):
+    app.click(".nav button[data-ws=lab]")
+    app.locator("#lab-body .tabs button", has_text="Uncertainty").click()
+    app.locator("#lab-body h3", has_text="Motion uncertainty components").wait_for(timeout=30000)
+    app.locator("#lab-body h3", has_text="Sensitivity to analysis choices").wait_for()
+    app.locator("#lab-body h3", has_text="Not quantified by any method here").wait_for()
+    app.locator("#lab-body td", has_text="matches log").first.wait_for()
+    with app.expect_download() as d:
+        app.locator("#lab-body .fig-export").first.click()
+    svg = Path(d.value.path()).read_text()
+    assert d.value.suggested_filename.endswith(".svg")
+    assert "SYNTHETIC TEST DATA" in svg and "<metadata>" in svg and "Investigation " in svg
+
+
+def test_o_registration_diagnostics(app):
+    app.click(".nav button[data-ws=time]")
+    app.locator("#tm-regdiag", has_text="REGDIAG-1").wait_for(timeout=30000)
+    txt = app.locator("#tm-regdiag").text_content()
+    assert "rotation" in txt and "reference stars" in txt and "not a photometric calibration" in txt
+
+
+def test_p_vault_and_studio(app, tmp_path):
+    app.click(".nav button[data-ws=records]")
+    app.locator("#records-body p", has_text="1 hypothesis(es) of your own").wait_for()
+    for name, tags in [(f"vault A {app.mode}", "alpha, shared"), (f"vault B {app.mode}", "beta, shared")]:
+        app.fill("#save-name", name)
+        app.fill("#save-tags", tags)
+        app.click("#save-record")
+        app.locator("#vault tr", has_text=name).wait_for()
+    app.fill("#vault-search", "vault A")
+    app.locator("#vault h3", has_text="(1 of").wait_for()
+    app.fill("#vault-search", "")
+    app.locator(".tagrow .tag", has_text="beta").click()
+    app.locator("#vault tr", has_text=f"vault B {app.mode}").wait_for()
+    assert app.locator("#vault tr", has_text=f"vault A {app.mode}").count() == 0
+    app.locator(".tagrow .tag", has_text="all").click()
+    row = app.locator("#vault tr", has_text=f"vault B {app.mode}")
+    row.locator("button", has_text="Edit").click()
+    app.locator(f"#vault input[aria-label='New name']").fill(f"vault B2 {app.mode}")
+    app.locator("#vault .rename button", has_text="Save").click()
+    app.locator("#vault tr", has_text=f"vault B2 {app.mode}").wait_for()
+    app.locator("#vault tr", has_text=f"vault A {app.mode}").locator("button", has_text="Duplicate").click()
+    app.locator("#vault tr", has_text=f"Copy of vault A {app.mode}").wait_for()
+    app.locator("#vault tr", has_text=f"vault B2 {app.mode}").locator("input[type=checkbox]").check()
+    app.locator("#vault tr", has_text=f"Copy of vault A {app.mode}").locator("input[type=checkbox]").check()
+    app.click("#vault-compare")
+    app.locator("#vault-compare-box", has_text="Identical content hash").wait_for(timeout=30000)
+    app.locator("#vault-compare-box td", has_text="The motion is real").count()
+    # studio exports
+    for bid, ext in [("#dl-report", ".md"), ("#dl-graph", ".json"), ("#dl-discovery", ".json"), ("#dl-package", ".zip")]:
+        with app.expect_download() as d:
+            app.click(bid)
+        assert d.value.suggested_filename.endswith(ext), bid
+        if ext == ".zip":
+            import zipfile
+            z = zipfile.ZipFile(d.value.path())
+            names = z.namelist()
+            assert any(n.endswith("/SHA256SUMS") for n in names) and any(n.endswith("/record.json") for n in names)
+            assert z.testzip() is None
+        if bid == "#dl-discovery":
+            disc = json.loads(Path(d.value.path()).read_text())
+            assert disc["method"].startswith("DISC-1") and disc["synthetic"] is True
+    # reopening restores the saved hypothesis; deleting keeps the two-step confirmation
+    app.locator("#vault tr", has_text=f"vault A {app.mode}").first.locator("button", has_text="Open").click()
+    app.locator(".nav button[data-ws=lab][aria-current=page]").wait_for()
+    app.click(".nav button[data-ws=arena]")
+    app.locator(".userhyps > li", has_text="not a registration artefact").wait_for(timeout=30000)
+    app.click(".nav button[data-ws=records]")
+    for name in [f"Copy of vault A {app.mode}", f"vault B2 {app.mode}", f"vault A {app.mode}"]:
+        r = app.locator("#vault tr", has_text=name).first
+        r.locator("button", has_text="Delete").click()
+        r.locator("button", has_text="Confirm delete").click()
+        app.locator("#toast", has_text="Deleted").wait_for()
+        app.wait_for_timeout(300)
+
+
+def test_q_copilot_sections_and_capabilities(app):
+    app.locator("#suggestions .chip", has_text="What can you do").click()
+    msg = app.locator(".msg.bot").last
+    msg.locator(".ans-sec h5", has_text="Answer").wait_for(timeout=60000)
+    msg.locator(".ans-sec h5", has_text="Method").wait_for()
+    msg.locator(".ans-sec h5", has_text="Limitations").wait_for()
+    assert "capabilit" in msg.locator(".answer").text_content().lower()
+
+
+def test_r_new_workspaces_narrow(app):
+    for w, h, name in [(820, 1100, "tablet"), (390, 844, "mobile")]:
+        app.set_viewport_size({"width": w, "height": h})
+        for ws in ["discovery", "arena", "records"]:
+            app.locator(f".nav button[data-ws={ws}]").click()
+            app.wait_for_timeout(400)
+            assert app.locator("#main").bounding_box()["width"] <= w
+            png = app.screenshot(full_page=True)            # its width is the document's scroll width (no eval under CSP)
+            sw = int.from_bytes(png[16:20], "big")
+            assert sw <= w + 1, (ws, name, sw)
+        if app.mode == "static":
+            SHOTS.mkdir(parents=True, exist_ok=True)
+            app.click(".nav button[data-ws=discovery]")
+            app.wait_for_timeout(400)
+            app.screenshot(path=str(SHOTS / f"preview-{name}-discovery.png"))
+    app.set_viewport_size({"width": 1440, "height": 900})
+
+
+def test_z_no_external_requests_no_errors(app):
     if app.mode == "static":
         SHOTS.mkdir(parents=True, exist_ok=True)
         app.click(".nav button[data-ws=time]")

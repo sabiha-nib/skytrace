@@ -1,17 +1,53 @@
 // Skytrace application shell: target loading, workspace switching, events, URL state.
 
 import { api, STATIC } from "./api.js";
-import { deriveModel, emit, on, readHash, state, writeHash } from "./state.js";
+import { deriveModel, emit, emptyContext, on, sanitizeContext, readHash, state, writeHash } from "./state.js";
 import { renderRuler } from "./ruler.js";
 import { loadSelected, renderExplorer, stepSelection } from "./explorer.js";
 import { renderTime, stop as stopBlink, toggleBlink } from "./timemachine.js";
-import { renderLab } from "./lab.js";
+import { renderLab, setLabTab } from "./lab.js";
 import { focusGraph, renderGraph } from "./graph.js";
 import { renderRecords } from "./records.js";
 import { ask, bindCopilot, refreshCopilot, resetCopilot } from "./copilot.js";
+import { renderDiscovery } from "./discovery.js";
+import { renderArena } from "./arena.js";
+import { bindPalette, closeHelp, closePalette, observationCommands, openHelp, openPalette } from "./palette.js";
 import { $, $$, el, fmtDate, toast } from "./util.js";
 
-const RENDER = { explorer: renderExplorer, time: renderTime, lab: renderLab, graph: renderGraph, records: renderRecords };
+const RENDER = { discovery: renderDiscovery, explorer: renderExplorer, time: renderTime, lab: renderLab, arena: renderArena,
+                 graph: renderGraph, records: renderRecords };
+const WS_ORDER = ["discovery", "explorer", "time", "lab", "arena", "graph", "records"];
+const WS_LABEL = { discovery: "Discovery Engine", explorer: "Sky Explorer", time: "Time Machine", lab: "Discovery Lab",
+                   arena: "Hypothesis Arena", graph: "Evidence Graph", records: "Investigations" };
+
+// The discovery loop. Each step names where it happens; "Explain" opens the copilot.
+const LOOP = [["Explore", "explorer"], ["Observe", "explorer"], ["Compare", "time"], ["Detect", "lab"], ["Test", "arena"],
+              ["Explain", "copilot"], ["Verify", "graph"], ["Preserve", "records"], ["Share", "records"]];
+
+function renderLoop() {
+  const nav = $("#loop");
+  nav.replaceChildren(el("span", { class: "loop-label" }, "Discovery loop"), ...LOOP.map(([label, ws], i) => {
+    const current = ws === state.ws || (ws === "copilot" && $("#app").classList.contains("copilot-open-narrow"));
+    const b = el("button", { type: "button", class: "loop-step", "aria-current": current ? "step" : null,
+                             title: ws === "copilot" ? "Ask the research copilot" : `Go to ${WS_LABEL[ws]}` },
+      el("span", { class: "n" }, String(i + 1)), label);
+    b.addEventListener("click", () => {
+      if (ws === "copilot") { setCopilotOpen(true); if (!$("#copilot").offsetParent) toast("The copilot is in the panel on the right."); return; }
+      if (label === "Observe") { setWorkspace("explorer"); setTimeout(() => $("#explorer-body table")?.scrollIntoView({ block: "start" }), 50); return; }
+      if (label === "Share") { setWorkspace("records"); setTimeout(() => $("#studio")?.scrollIntoView({ block: "start" }), 50); return; }
+      setWorkspace(ws);
+    });
+    return b;
+  }));
+}
+
+function setLevel(level, persist = true) {
+  if (!["explore", "investigate", "research"].includes(level)) level = "investigate";
+  state.level = level;
+  document.body.dataset.level = level;
+  $$(".level-switch button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.level === level)));
+  if (persist) { try { localStorage.setItem("skytrace.level", level); } catch { /* per-viewer convenience only */ } }
+}
 
 function setWorkspace(ws, { push = true } = {}) {
   if (!RENDER[ws]) ws = "explorer";
@@ -21,6 +57,7 @@ function setWorkspace(ws, { push = true } = {}) {
   $$(".workspace").forEach((s) => s.classList.toggle("active", s.id === `ws-${ws}`));
   $(`.nav button[data-ws=${ws}]`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
   RENDER[ws]();
+  renderLoop();
   writeHash(push);
 }
 
@@ -59,6 +96,8 @@ function renderHeader() {
 }
 
 async function loadTarget(tid, { keepSelection = null, push = true } = {}) {
+  if (state.targetId !== tid) state.context = emptyContext();   // the context belongs to one target's investigation
+  state.discovery = null;
   state.targetId = tid;
   state.target = null; state.inv = null; state.model = null; state.prevInv = null; state.selectedKey = null; state.partnerKey = null;
   resetCopilot();
@@ -86,7 +125,7 @@ async function runAnalysis(params, { quiet = false } = {}) {
     const prev = state.inv ? { record: state.inv.record, model: state.model } : null;
     const r = await api.analyze(state.targetId, params || {});
     state.prevInv = prev;
-    state.inv = r; state.model = deriveModel(r.record);
+    state.inv = r; state.model = deriveModel(r.record); state.discovery = null;
     const o = state.model.outcomes.map((x) => `${x.question.replace("_", " ")}: ${x.category.replaceAll("_", " ")}`).join(" · ");
     if (!quiet) toast(`Analysis complete. ${o}`, 5000);
     if (prev) $("#thread").append(el("p", { class: "faint" }, "New analysis run; later answers refer to it."));
@@ -99,6 +138,7 @@ async function runAnalysis(params, { quiet = false } = {}) {
 function setCopilotOpen(open, focus = true) {
   $("#app").classList.toggle("copilot-open-narrow", open);
   $("#copilot-toggle").setAttribute("aria-expanded", String(open));
+  renderLoop();
   if (!focus) return;
   if (open) $("#ask-input").disabled ? $("#copilot-close").focus() : $("#ask-input").focus();
   else if (getComputedStyle($("#copilot-toggle")).display !== "none") $("#copilot-toggle").focus();
@@ -128,10 +168,12 @@ function bind() {
     writeHash();
   });
   on("partner", () => { renderRuler(); renderTime(); writeHash(); });
-  on("goto", ({ ws, key, partner, focus }) => {
+  on("goto-lab", (tab) => { setLabTab(tab === "rerun-stability" ? "rerun" : tab, { stability: tab === "rerun-stability" }); setWorkspace("lab"); });
+  on("goto", ({ ws, key, partner, focus, tab }) => {
     if (key) state.selectedKey = key;
     if (partner) state.partnerKey = partner;
     if (focus) focusGraph(focus);
+    if (tab) setLabTab(tab);
     renderRuler();
     setWorkspace(ws);
   });
@@ -142,7 +184,8 @@ function bind() {
     if (state.targetId !== d.target_id) await loadTarget(d.target_id);
     try {
       const r = await api.investigation(d.investigation_id);
-      state.inv = r; state.model = deriveModel(r.record);
+      state.inv = r; state.model = deriveModel(r.record); state.discovery = null;
+      state.context = sanitizeContext(d.context);   // restored as saved (untrusted, so only known fields); nothing is filled in
       resetCopilot();
       $("#thread").append(el("p", { class: "faint" }, `Reopened “${d.name}”, saved ${d.saved_at}. Earlier conversation:`));
       for (const m of d.copilot_transcript || []) $("#thread").append(el("div", { class: m.role === "user" ? "msg user" : "msg bot" },
@@ -154,16 +197,48 @@ function bind() {
     } catch (e) { toast(e.message); }
   });
   document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("#palette").hidden ? openPalette() : closePalette(); return; }
+    if (!$("#palette").hidden || !$("#help").hidden) return;
     if (e.key === "Escape" && $("#app").classList.contains("copilot-open-narrow")) { setCopilotOpen(false); return; }
     if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+    if (e.altKey && /^[1-7]$/.test(e.key)) { e.preventDefault(); setWorkspace(WS_ORDER[+e.key - 1]); return; }
+    if (e.key === "/" ) { e.preventDefault(); openPalette(); return; }
+    if (e.key === "?") { e.preventDefault(); openHelp(); return; }
     if (state.ws === "explorer" && (e.key === "ArrowRight" || e.key === "ArrowLeft")) { e.preventDefault(); stepSelection(e.key === "ArrowRight" ? 1 : -1); }
     if (state.ws === "time" && e.key === " ") { e.preventDefault(); toggleBlink(); }
   });
   new ResizeObserver(() => renderRuler()).observe($("#ruler-svg"));
   bindCopilot();
+  $$(".level-switch button").forEach((b) => b.addEventListener("click", () => { setLevel(b.dataset.level); RENDER[state.ws](); }));
+  $("#palette-btn").addEventListener("click", openPalette);
+  $("#help-btn").addEventListener("click", openHelp);
+  bindPalette(paletteCommands);
+  on("context-changed", () => renderLoop());
+}
+
+function paletteCommands() {
+  const cmds = WS_ORDER.map((ws, i) => ({ group: "Workspace", label: WS_LABEL[ws], hint: `Alt+${i + 1}`, run: () => setWorkspace(ws) }));
+  for (const t of state.targets) cmds.push({ group: "Target", label: t.name, hint: t.kind === "synthetic" ? "synthetic" : t.kind ? "archive" : "no data yet",
+                                              run: () => loadTarget(t.target_id) });
+  cmds.push(...observationCommands((key) => { state.selectedKey = key; setWorkspace("explorer"); }));
+  const inv = !!state.inv;
+  cmds.push(
+    { group: "Action", label: state.inv ? "Re-run analysis" : "Run analysis", disabled: !state.target, run: () => runAnalysis() },
+    { group: "Action", label: "Check stability", hint: "STAB-1", disabled: !inv, run: () => emit("goto-lab", "rerun-stability") },
+    { group: "Action", label: "Uncertainty decomposition", hint: "UNC-1", disabled: !inv, run: () => emit("goto-lab", "uncertainty") },
+    { group: "Action", label: "Test hypotheses", hint: "HYPO-1", disabled: !inv, run: () => setWorkspace("arena") },
+    { group: "Action", label: "Reproducibility package and reports", disabled: !inv, run: () => { setWorkspace("records"); setTimeout(() => $("#studio")?.scrollIntoView(), 50); } },
+    { group: "Action", label: "Ask the copilot", run: () => { setCopilotOpen(true); $("#ask-input").focus(); } },
+    ...["explore", "investigate", "research"].map((l) => ({ group: "View", label: `Level: ${l[0].toUpperCase() + l.slice(1)}`,
+      run: () => { setLevel(l); RENDER[state.ws](); } })),
+    { group: "Help", label: "Glossary and keyboard shortcuts", hint: "?", run: openHelp });
+  return cmds;
 }
 
 async function init() {
+  let lvl = "investigate";
+  try { lvl = localStorage.getItem("skytrace.level") || lvl; } catch { /* storage may be unavailable */ }
+  setLevel(lvl, false);
   bind();
   try {
     [state.status, { targets: state.targets }] = await Promise.all([api.status(), api.targets()]);
@@ -184,6 +259,7 @@ async function init() {
   await loadTarget(tid, { keepSelection: h.obs, push: false });
   if (h.b) state.partnerKey = h.b;
   if (state.ws !== "explorer") RENDER[state.ws]();
+  renderLoop();
 }
 
 init();

@@ -31,6 +31,15 @@ const serverApi = {
     if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
     return r.text();
   },
+  discovery: (iid) => req(`/api/investigations/${iid}/discovery`),
+  capabilities: () => req("/api/capabilities"),
+  packageBytes: async (iid) => {
+    const r = await fetch(`/api/investigations/${iid}/package.zip`);
+    if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+    return r.arrayBuffer();
+  },
+  updateRecord: (rid, body) => req(`/api/records/${rid}`, { method: "PATCH", body: JSON.stringify(body) }),
+  cloneRecord: (rid) => req(`/api/records/${rid}/clone`, { method: "POST", body: "{}" }),
   ask: (iid, question, history) => req(`/api/investigations/${iid}/ask`, { method: "POST", body: JSON.stringify({ question, history }) }),
   records: () => req("/api/records"),
   saveRecord: (body) => req("/api/records", { method: "POST", body: JSON.stringify(body) }),

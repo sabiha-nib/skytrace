@@ -1,5 +1,7 @@
 // Application state, derived views of the investigation record, and URL syncing.
 
+import { api } from "./api.js";
+
 const listeners = new Map();
 
 export const state = {
@@ -14,7 +16,36 @@ export const state = {
   partnerKey: null,
   ws: "explorer",
   transcript: [],
+  context: emptyContext(),  // the user's investigation context: research question and own hypotheses (saved with records)
+  discovery: null,          // {iid, data}: DISC-1 report for the current investigation
+  stability: null,          // {target, result}: last STAB-1 result
+  level: "investigate",     // explore | investigate | research (views of the same state)
 };
+
+export function emptyContext() { return { question: null, question_text: "", hypotheses: [] }; }
+
+/** Context from a saved or imported record is untrusted: keep only the known fields, as plain bounded strings. */
+export function sanitizeContext(c) {
+  const out = emptyContext();
+  if (!c || typeof c !== "object") return out;
+  const str = (x, n) => (typeof x === "string" ? x.slice(0, n) : "");
+  if (typeof c.question === "string" && /^Q-[A-Z]{2,10}$/.test(c.question)) out.question = c.question;
+  out.question_text = str(c.question_text, 500);
+  if (Array.isArray(c.hypotheses)) {
+    out.hypotheses = c.hypotheses.filter((h) => h && typeof h === "object" && typeof h.statement === "string" && h.statement.trim()).slice(0, 50).map((h, i) => ({
+      id: str(h.id, 40) || `U${i}`, statement: str(h.statement, 1000), kind: "interpretation", created_at: str(h.created_at, 40),
+      tests: Array.isArray(h.tests) ? h.tests.filter((t) => typeof t === "string").map((t) => t.slice(0, 60)).slice(0, 30) : [] }));
+  }
+  return out;
+}
+
+/** DISC-1 report for the current investigation (fetched once per investigation). */
+export async function getDiscovery() {
+  if (!state.inv) return null;
+  const iid = state.inv.investigation_id;
+  if (state.discovery?.iid !== iid) state.discovery = { iid, data: await api.discovery(iid) };
+  return state.discovery.data;
+}
 
 export function on(evt, fn) { (listeners.get(evt) || listeners.set(evt, []).get(evt)).push(fn); }
 export function emit(evt, payload) { (listeners.get(evt) || []).forEach((fn) => fn(payload)); }

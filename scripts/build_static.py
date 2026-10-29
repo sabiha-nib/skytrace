@@ -37,6 +37,7 @@ from skytrace.ai.local import _intent  # noqa: E402
 OUT = ROOT / "dist" / "preview"
 NOPROXY = {"http": None, "https": None}
 QUESTIONS = {   # one canonical question per local-assistant intent; the answer depends only on the intent
+    "capabilities": "What can you do with this investigation?",
     "alignment": "Could the apparent motion be caused by alignment errors?",
     "compat": "Which observations are wavelength-compatible?",
     "excluded": "Why was an observation excluded?",
@@ -68,6 +69,30 @@ def write(rel: str, content) -> None:
         p.write_text(json.dumps(content, separators=(",", ":")))
     else:
         p.write_text(content)
+
+
+def write_bytes(rel: str, data: bytes) -> None:
+    p = OUT / "data" / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_bytes(data)
+
+
+BROWSER_PORTS = {"wavelength_match", "registration"}     # web/js/static/compare.js and register.js, parity-tested
+
+
+def preview_caps(reg: dict) -> dict:
+    """The registry as the static preview sees it: server-side capabilities only have their precomputed results here.
+    (The reproducibility package keeps the build server's registry: it describes the environment that produced it.)"""
+    out = []
+    for c in reg["capabilities"]:
+        if c["execution"] == "server":
+            c = {**c, "available": False, "availability_note": "needs the running Skytrace server; this static preview has its "
+                 "precomputed results for the default parameters and the five stability perturbations only"}
+        elif c["execution"] == "local":
+            c = {**c, "availability_note": "computed in this browser by a parity-tested JavaScript port" if c["id"] in BROWSER_PORTS
+                 else "precomputed by the Python pipeline when this preview was built (no re-execution in the browser)"}
+        out.append(c)
+    return {**reg, "capabilities": out, "preview": True}
 
 
 def copy_web() -> None:
@@ -132,6 +157,7 @@ def main() -> int:
         write("status.json", status)
         targets = ok(get("/api/targets")).json()
         write("targets.json", targets)
+        write("capabilities.json", preview_caps(ok(get("/api/capabilities")).json()))
 
         n_files = 0
         for t in targets["targets"]:
@@ -155,6 +181,10 @@ def main() -> int:
                 write(f"t/{tid}/run/{iid}/meta.json", {k: v for k, v in s.items() if k != "record"})
                 write(f"t/{tid}/run/{iid}/graph.json", ok(get(f"/api/investigations/{iid}/graph")).json())
                 write(f"t/{tid}/run/{iid}/report.md", ok(get(f"/api/investigations/{iid}/report.md")).text)
+                disc = ok(get(f"/api/investigations/{iid}/discovery")).json()
+                disc["capabilities"] = preview_caps(disc["capabilities"])
+                write(f"t/{tid}/run/{iid}/discovery.json", disc)
+                write_bytes(f"t/{tid}/run/{iid}/package.zip", ok(get(f"/api/investigations/{iid}/package.zip")).content)
                 write(f"t/{tid}/run/{iid}/ask.json", {intent: ok(post(f"/api/investigations/{iid}/ask", {"question": q})).json()
                                                       for intent, q in QUESTIONS.items()})
                 runs.append({"iid": iid, "label": label, "params": params, "default": not params,
