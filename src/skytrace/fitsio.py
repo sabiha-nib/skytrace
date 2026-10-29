@@ -21,7 +21,7 @@ import numpy as np
 
 BLOCK = 2880
 _BITPIX = {8: ">u1", 16: ">i2", 32: ">i4", 64: ">i8", -32: ">f4", -64: ">f8"}
-_TFORM = {"L": ("?", 1), "B": (">u1", 1), "I": (">i2", 2), "J": (">i4", 4), "K": (">i8", 8),
+_TFORM = {"L": ("S1", 1), "X": ("u1", 1), "B": (">u1", 1), "I": (">i2", 2), "J": (">i4", 4), "K": (">i8", 8),
           "E": (">f4", 4), "D": (">f8", 8), "A": ("S1", 1)}
 
 
@@ -127,6 +127,12 @@ def _image(h: Header, raw: bytes) -> np.ndarray | None:
     arr = np.frombuffer(raw[: int(np.prod(shape)) * abs(int(h["BITPIX"])) // 8],
                         dtype=_BITPIX[int(h["BITPIX"])]).reshape(shape)
     bscale, bzero = h.get("BSCALE", 1), h.get("BZERO", 0)
+    blank = h.get("BLANK") if int(h["BITPIX"]) > 0 else None
+    if blank is not None:   # undefined integer pixels -> NaN (requires a float result)
+        null = arr == blank
+        out = arr.astype(np.float64) * bscale + bzero
+        out[null] = np.nan
+        return out
     if bscale != 1 or bzero != 0:
         if int(h["BITPIX"]) == 16 and bscale == 1 and bzero == 32768:
             return (arr.astype(np.int32) + 32768).astype(np.uint16)
@@ -138,22 +144,33 @@ def _image(h: Header, raw: bytes) -> np.ndarray | None:
 
 def _table(h: Header, raw: bytes) -> tuple[dict, list[str]]:
     if int(h.get("PCOUNT", 0)) != 0:
-        raise FITSError("variable-length table columns are not supported by the native reader")
+        raise FITSError("variable-length table columns (heap) are not supported by the native reader; install astropy")
     nrow, width, ncol = int(h["NAXIS2"]), int(h["NAXIS1"]), int(h["TFIELDS"])
-    fields, names = [], []
+    fields, names, kinds, bits = [], [], {}, {}
     for i in range(1, ncol + 1):
-        m = re.fullmatch(r"\s*(\d*)([LBIJKEDA])\s*", str(h[f"TFORM{i}"]))
+        tform = str(h[f"TFORM{i}"])
+        m = re.fullmatch(r"\s*(\d*)([LXBIJKEDA])\s*", tform)
         if not m:
-            raise FITSError(f"unsupported TFORM{i} = {h[f'TFORM{i}']!r}")
-        rep = int(m.group(1) or 1)
-        dt, _ = _TFORM[m.group(2)]
+            kind = "variable-length" if re.fullmatch(r"\s*\d*[PQ].*", tform) else "unsupported"
+            raise FITSError(f"{kind} column format TFORM{i} = {tform!r} is not supported by the native reader; install astropy")
+        rep = int(m.group(1)) if m.group(1) else 1
+        code = m.group(2)
+        dt, _ = _TFORM[code]
         name = str(h.get(f"TTYPE{i}", f"COL{i}")).strip()
         names.append(name)
-        if m.group(2) == "A":
-            fields.append((name, f"S{rep}"))
+        kinds[name] = code
+        if code == "A":
+            fields.append((name, f"S{rep}") if rep else (name, "V0"))
+            continue
+        if code == "X":   # bit array: ceil(rep/8) bytes, unpacked to rep bits below
+            nbytes = (rep + 7) // 8
+            fields.append((name, "u1", (nbytes,)))
+            bits[name] = rep
             continue
         tdim = h.get(f"TDIM{i}")
-        shape = tuple(int(x) for x in reversed(re.findall(r"\d+", tdim))) if tdim else ((rep,) if rep > 1 else ())
+        shape = tuple(int(x) for x in reversed(re.findall(r"\d+", tdim))) if tdim else ((rep,) if rep != 1 else ())
+        if tdim and int(np.prod(shape)) != rep:
+            raise FITSError(f"TDIM{i} {tdim!r} does not match repeat count {rep}")
         fields.append((name, dt, shape) if shape else (name, dt))
     rec = np.frombuffer(raw[: nrow * width], dtype=np.dtype(fields)) if nrow else np.zeros(0, np.dtype(fields))
     if rec.dtype.itemsize != width:
@@ -161,13 +178,34 @@ def _table(h: Header, raw: bytes) -> tuple[dict, list[str]]:
     out = {}
     for n in names:
         col = rec[n]
-        if col.dtype.kind == "S":
+        if kinds[n] == "L":
+            # FITS logical: 'T' = true, 'F' = false, 0x00 = undefined (returned as False and listed in .nulls)
+            out[n] = col == b"T"
+        elif kinds[n] == "X":
+            out[n] = np.unpackbits(np.asarray(col, np.uint8), axis=-1)[..., :bits[n]]
+        elif col.dtype.kind == "V":
+            out[n] = np.zeros((nrow, 0))
+        elif col.dtype.kind == "S":
             out[n] = np.char.rstrip(col.astype(str))
         else:
             v = col.astype(col.dtype.newbyteorder("="))
-            for i in range(1, ncol + 1):
-                if str(h.get(f"TTYPE{i}", "")).strip() == n and (h.get(f"TSCAL{i}", 1) != 1 or h.get(f"TZERO{i}", 0) != 0):
-                    v = v * h.get(f"TSCAL{i}", 1) + h.get(f"TZERO{i}", 0)
+            i = names.index(n) + 1
+            tscal, tzero = h.get(f"TSCAL{i}", 1), h.get(f"TZERO{i}", 0)
+            tnull = h.get(f"TNULL{i}")
+            if tnull is not None and kinds[n] in "BIJK" and np.any(v == tnull):   # undefined integers -> NaN
+                null = v == tnull
+                v = v.astype(np.float64) * tscal + tzero
+                v[null] = np.nan
+                out[n] = v
+                continue
+            if tscal != 1 or tzero != 0:
+                unsigned = {("I", 32768): (np.int32, np.uint16), ("J", 2147483648): (np.int64, np.uint32),
+                            ("K", 9223372036854775808): (None, np.uint64)}.get((kinds[n], tzero))
+                if tscal == 1 and unsigned:  # standard unsigned-integer convention
+                    v = (v.astype(np.uint64) ^ np.uint64(1 << 63)).astype(np.uint64) if unsigned[0] is None \
+                        else (v.astype(unsigned[0]) + tzero).astype(unsigned[1])
+                else:
+                    v = v.astype(np.float64) * tscal + tzero
             out[n] = v
     return out, names
 
@@ -190,13 +228,20 @@ def read(source: bytes | str | Path) -> list[HDU]:
             buf.read(pad)
             xt = str(h.get("XTENSION", "")).strip()
             name = str(h.get("EXTNAME", "PRIMARY" if not hdus else f"HDU{len(hdus)}")).strip().upper()
-            if xt == "BINTABLE":
-                data, cols = _table(h, raw)
-                hdus.append(HDU(name, h, data, "table", cols))
-            elif xt in ("", "IMAGE"):
-                hdus.append(HDU(name, h, _image(h, raw), "image"))
-            else:
-                hdus.append(HDU(name, h, None, f"unsupported:{xt}"))
+            try:
+                if xt == "BINTABLE":
+                    data, cols = _table(h, raw)
+                    hdus.append(HDU(name, h, data, "table", cols))
+                elif xt in ("", "IMAGE"):
+                    if h.get("GROUPS") is True or (not xt and int(h.get("NAXIS", 0)) > 0 and int(h.get("NAXIS1", 1)) == 0):
+                        raise FITSError("random-groups format is not supported by the native reader; install astropy")
+                    hdus.append(HDU(name, h, _image(h, raw), "image"))
+                else:
+                    hdus.append(HDU(name, h, None, f"unsupported:{xt}"))
+            except FITSError:
+                raise
+            except Exception as e:  # malformed content must fail clearly, never silently
+                raise FITSError(f"HDU {len(hdus)} ({name}) could not be decoded: {type(e).__name__}: {e}") from e
     finally:
         if not isinstance(source, (bytes, bytearray)):
             buf.close()
@@ -290,3 +335,14 @@ def write(path: str | Path, hdus: list[HDU]) -> None:
             chunks.append(_header_bytes(cards + extra))
             chunks.append(_pad(rec.tobytes()))
     Path(path).write_bytes(b"".join(chunks))
+
+
+def parse_header(raw: bytes) -> Header:
+    """Parse a bare FITS header (80-character cards, e.g. a .hdr file) that may lack block padding."""
+    if b"END" not in raw:
+        raise FITSError("header has no END card")
+    raw = raw + b" " * ((-len(raw)) % BLOCK)
+    h = _read_header(io.BytesIO(raw))
+    if h is None:
+        raise FITSError("empty header")
+    return h

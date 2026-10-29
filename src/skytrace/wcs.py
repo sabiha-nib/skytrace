@@ -55,6 +55,9 @@ class CelestialWCS:
         if proj != "TAN" or c2[5:8] != "TAN":
             raise WCSError(f"only TAN projection supported, got {c1!r}")
         self.has_sip = c1.endswith("-SIP")
+        for kw in ("CPDIS1", "CPDIS2", "D2IMDIS1", "D2IMDIS2", "CQDIS1", "DQ1"):
+            if kw in h:
+                raise WCSError(f"distortion keyword {kw} (lookup-table / Paper IV distortion) is not supported by the native reader; install astropy")
         self.crpix = np.array([float(h[f"CRPIX1{k}"]), float(h[f"CRPIX2{k}"])])
         self.crval = (float(h[f"CRVAL1{k}"]), float(h[f"CRVAL2{k}"]))
         if f"CD1_1{k}" in h:
@@ -73,11 +76,11 @@ class CelestialWCS:
         self.ap = _sip(h, "AP")[1] if self.has_sip else {}
         self.bp = _sip(h, "BP")[1] if self.has_sip else {}
 
-    def pixel_to_world(self, x, y):
-        """0-based pixel -> (ra, dec) degrees."""
+    def pixel_to_world(self, x, y, distort: bool = True):
+        """0-based pixel -> (ra, dec) degrees. distort=False skips SIP (astropy's wcs_pix2world)."""
         u = np.asarray(x, float) + 1 - self.crpix[0]
         v = np.asarray(y, float) + 1 - self.crpix[1]
-        if self.has_sip:
+        if self.has_sip and distort:
             u, v = u + _poly(self.a, u, v), v + _poly(self.b, u, v)
         xi = self.cd[0, 0] * u + self.cd[0, 1] * v
         eta = self.cd[1, 0] * u + self.cd[1, 1] * v
@@ -113,46 +116,78 @@ class CelestialWCS:
 
 
 class TabWCS:
-    """-TAB alternate WCS with all axes sharing one coordinate array (Paper III)."""
+    """-TAB axes (Greisen et al. 2006, FITS WCS Paper III, sect. 6), possibly mixed with non-TAB axes.
+
+    Supported: one coordinate array shared by all -TAB axes (M coupled axes), optional
+    monotonic index vectors, PC or CD matrices, linear extrapolation up to half a cell
+    beyond the table (as wcslib does). Refused with WCSError rather than approximated:
+    EXTVER/EXTLEVEL other than 1, more than one coordinate array, non-monotonic index
+    vectors, a coordinate array whose shape does not match the number of -TAB axes.
+    """
 
     def __init__(self, h: dict, tables: dict[str, dict], key: str = "W"):
         k = key
-        self.naxis = int(h.get(f"WCSAXES{k}", h.get("NAXIS", 2)))
+        naxis = int(h.get(f"WCSAXES{k}") or 0) or max([i for i in range(1, 10) if f"CTYPE{i}{k}" in h] or [0])
+        if naxis == 0:
+            raise WCSError(f"no WCS axes with key {k!r}")
+        self.naxis = naxis
+        self.tab_axes = [i for i in range(1, naxis + 1) if str(h.get(f"CTYPE{i}{k}", "")).endswith("-TAB")]
+        if not self.tab_axes:
+            raise WCSError(f"no -TAB axes with key {k!r}")
+        cd = any(f"CD{i}_{j}{k}" in h for i in range(1, naxis + 1) for j in range(1, naxis + 1))
+        self.crpix = np.array([float(h.get(f"CRPIX{i}{k}", 0.0)) for i in range(1, naxis + 1)])
+        self.crval = np.array([float(h.get(f"CRVAL{i}{k}", 0.0)) for i in range(1, naxis + 1)])
+        cdelt = np.array([1.0 if cd else float(h.get(f"CDELT{i}{k}", 1.0)) for i in range(1, naxis + 1)])
+        M = np.zeros((naxis, naxis))
+        for i in range(1, naxis + 1):
+            for j in range(1, naxis + 1):
+                if cd:
+                    M[i - 1, j - 1] = float(h.get(f"CD{i}_{j}{k}", 0.0))
+                else:
+                    M[i - 1, j - 1] = float(h.get(f"PC{i}_{j}{k}", 1.0 if i == j else 0.0))
+        self.matrix = M if cd else cdelt[:, None] * M
         self.axes = []
         arr_name = None
-        for i in range(1, self.naxis + 1):
-            ctype = str(h.get(f"CTYPE{i}{k}", ""))
-            if not ctype.endswith("-TAB"):
-                raise WCSError(f"axis {i}{k} is {ctype!r}, not -TAB")
+        for i in self.tab_axes:
             ext = str(h.get(f"PS{i}_0{k}", "")).strip().upper()
             col = str(h.get(f"PS{i}_1{k}", "")).strip()
             idx = str(h.get(f"PS{i}_2{k}", "")).strip()
-            m = int(h.get(f"PV{i}_3{k}", i))
+            for pv, what in ((1, "EXTVER"), (2, "EXTLEVEL")):
+                v = h.get(f"PV{i}_{pv}{k}")
+                if v not in (None, 1, 1.0):
+                    raise WCSError(f"-TAB {what} = {v} is not supported by the native reader; install astropy")
             if ext not in tables:
                 raise WCSError(f"axis {i}{k} references missing table {ext!r}")
-            arr_name = arr_name or (ext, col)
-            if (ext, col) != arr_name:
-                raise WCSError("axes reference different coordinate arrays (unsupported)")
-            self.axes.append({"ctype": ctype, "cunit": str(h.get(f"CUNIT{i}{k}", "")).strip(),
-                              "crpix": float(h.get(f"CRPIX{i}{k}", 0.0)), "crval": float(h.get(f"CRVAL{i}{k}", 0.0)),
-                              "cdelt": float(h.get(f"CDELT{i}{k}", 1.0)), "m": m,
-                              "index": np.asarray(tables[ext][idx], float).ravel() if idx else None})
+            if col not in tables[ext]:
+                raise WCSError(f"coordinate array column {col!r} not in {ext}")
             if idx and idx not in tables[ext]:
                 raise WCSError(f"index vector {idx!r} not in {ext}")
-        self.pc = np.eye(self.naxis)
-        for i in range(self.naxis):
-            for j in range(self.naxis):
-                v = h.get(f"PC{i + 1}_{j + 1}{k}")
-                if v is not None:
-                    self.pc[i, j] = float(v)
+            arr_name = arr_name or (ext, col)
+            if (ext, col) != arr_name:
+                raise WCSError("-TAB axes reference different coordinate arrays: not supported by the native reader; install astropy")
+            index = np.asarray(tables[ext][idx], float).ravel() if idx else None
+            if index is not None and index.size > 1:
+                d = np.diff(index)
+                if not (np.all(d >= 0) or np.all(d <= 0)):
+                    raise WCSError(f"index vector {idx!r} is not monotonic")
+                if not np.all(np.isfinite(index)):
+                    raise WCSError(f"index vector {idx!r} contains non-finite values")
+            self.axes.append({"axis": i, "ctype": str(h.get(f"CTYPE{i}{k}")), "cunit": str(h.get(f"CUNIT{i}{k}", "")).strip(),
+                              "m": int(h.get(f"PV{i}_3{k}", 1)), "index": index})
         ext, col = arr_name
         coords = np.asarray(tables[ext][col], float)
-        if coords.ndim == self.naxis + 2 and coords.shape[0] == 1:  # one table row
+        nt = len(self.tab_axes)
+        if coords.ndim == nt + 2 and coords.shape[0] == 1:   # one table row
             coords = coords[0]
         # FITS order (M, K1, ..., KM) is reversed in NumPy: shape (KM, ..., K1, M)
-        if coords.ndim != self.naxis + 1 or coords.shape[-1] != self.naxis:
-            raise WCSError(f"coordinate array shape {coords.shape} incompatible with {self.naxis} axes")
+        if coords.ndim != nt + 1 or coords.shape[-1] != nt:
+            raise WCSError(f"coordinate array shape {coords.shape} incompatible with {nt} -TAB axes")
+        if sorted(a["m"] for a in self.axes) != list(range(1, nt + 1)):
+            raise WCSError("PVi_3 values must enumerate the coordinate-array axes 1..M")
         self.coords = coords
+        # kept for backwards compatibility with callers that read per-axis crpix
+        for a in self.axes:
+            a["crpix"], a["crval"] = self.crpix[a["axis"] - 1], self.crval[a["axis"] - 1]
 
     @staticmethod
     def _upsilon(psi: float, index: np.ndarray | None) -> float:
@@ -160,36 +195,41 @@ class TabWCS:
         if index is None:
             return psi
         n = index.size
+        if n == 1:
+            return 1.0 if psi == index[0] else float("nan")
         inc = index[-1] >= index[0]
         idx = index if inc else index[::-1]
-        if psi < idx[0] or psi > idx[-1]:
-            # linear extrapolation by half a cell is allowed by Paper III; beyond that, undefined
-            if n < 2:
-                return float("nan")
-            lo, hi = idx[0] - 0.5 * (idx[1] - idx[0]), idx[-1] + 0.5 * (idx[-1] - idx[-2])
-            if not (lo <= psi <= hi):
-                return float("nan")
+        lo, hi = idx[0] - 0.5 * (idx[1] - idx[0]), idx[-1] + 0.5 * (idx[-1] - idx[-2])
+        if not (lo <= psi <= hi):   # beyond half a cell: undefined
+            return float("nan")
         j = int(np.clip(np.searchsorted(idx, psi) - 1, 0, n - 2))
+        while j > 0 and idx[j + 1] == idx[j]:     # degenerate (repeated) entries: use the segment to the left
+            j -= 1
+        if idx[j + 1] == idx[j]:
+            j = min(j + 1, n - 2)
         u = (j + 1) + (psi - idx[j]) / (idx[j + 1] - idx[j])
         return u if inc else (n + 1 - u)
 
-    def pixel_to_world(self, x: float, y: float) -> tuple[float, ...]:
-        p = np.array([x + 1.0, y + 1.0][: self.naxis])  # FITS 1-based pixel
-        q = self.pc @ (p - np.array([a["crpix"] for a in self.axes]))
-        ups = np.zeros(self.naxis)
-        for i, a in enumerate(self.axes):
-            psi = a["cdelt"] * q[i] + a["crval"]
+    def pixel_to_world(self, *pix: float) -> tuple[float, ...]:
+        """0-based pixel coordinates for all naxis axes -> world values of the -TAB axes (in axis order)."""
+        if len(pix) != self.naxis:
+            raise WCSError(f"expected {self.naxis} pixel coordinates, got {len(pix)}")
+        p = np.asarray(pix, float) + 1.0       # FITS 1-based
+        x = self.matrix @ (p - self.crpix)
+        nt = len(self.axes)
+        ups = np.zeros(nt)
+        for a in self.axes:
+            psi = x[a["axis"] - 1] + self.crval[a["axis"] - 1]
             ups[a["m"] - 1] = self._upsilon(psi, a["index"])
-        if not np.all(np.isfinite(ups)):
-            return tuple(float("nan") for _ in range(self.naxis))
-        # multilinear interpolation in the coordinate array at 1-based positions ups (FITS axis order)
         K = self.coords.shape[:-1][::-1]  # FITS order lengths K1..KM
+        if not np.all(np.isfinite(ups)) or any(not (0.5 <= u <= k + 0.5) for u, k in zip(ups, K)):
+            return tuple(float("nan") for _ in self.axes)
         lo = [int(np.clip(math.floor(u) - 1, 0, k - 2)) if k > 1 else 0 for u, k in zip(ups, K)]
         fr = [(u - 1 - l) if k > 1 else 0.0 for u, l, k in zip(ups, lo, K)]
-        out = np.zeros(self.naxis)
-        for corner in range(2 ** self.naxis):
+        out = np.zeros(nt)
+        for corner in range(2 ** nt):
             w, ind = 1.0, []
-            for d in range(self.naxis):
+            for d in range(nt):
                 bit = (corner >> d) & 1
                 w *= fr[d] if bit else (1 - fr[d])
                 ind.append(min(lo[d] + bit, K[d] - 1))

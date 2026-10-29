@@ -1,0 +1,228 @@
+{
+  "run_at": "2026-10-29T10:47:56+00:00",
+  "python": "3.13.18",
+  "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39",
+  "proxy_configured": true,
+  "offline_flag": "0",
+  "services": [
+    {
+      "service": "IRSA SIA (SPHEREx)",
+      "host": "irsa.ipac.caltech.edu",
+      "url": "https://irsa.ipac.caltech.edu/SIA?COLLECTION=spherex_qr3&POS=CIRCLE+127.69444+-39.1776+0.001&RESPONSEFORMAT=votable&MAXREC=1",
+      "verdict": "proxy_refused",
+      "dns_direct": {
+        "ok": false,
+        "error": "gaierror: [Errno -2] Name or service not known",
+        "seconds": 0.0
+      },
+      "proxy_connect": {
+        "stage": "proxy_connect",
+        "ok": false,
+        "proxy_status": "HTTP/1.1 403 Forbidden",
+        "seconds": 0.26
+      },
+      "http": {
+        "error": "ProxyError",
+        "detail": "27.69444+-39.1776+0.001&RESPONSEFORMAT=votable&MAXREC=1 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+        "seconds": 0.23
+      }
+    },
+    {
+      "service": "IRSA TAP",
+      "host": "irsa.ipac.caltech.edu",
+      "url": "https://irsa.ipac.caltech.edu/TAP/sync?REQUEST=doQuery&LANG=ADQL&FORMAT=csv&QUERY=SELECT+TOP+1+planeid+FROM+spherex.plane",
+      "verdict": "proxy_refused",
+      "dns_direct": {
+        "ok": false,
+        "error": "gaierror: [Errno -2] Name or service not known",
+        "seconds": 0.0
+      },
+      "proxy_connect": {
+        "stage": "proxy_connect",
+        "ok": false,
+        "proxy_status": "HTTP/1.1 403 Forbidden",
+        "seconds": 0.23
+      },
+      "http": {
+        "error": "ProxyError",
+        "detail": "ORMAT=csv&QUERY=SELECT+TOP+1+planeid+FROM+spherex.plane (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+        "seconds": 0.21
+      }
+    },
+    {
+      "service": "SIMBAD TAP",
+      "host": "simbad.cds.unistra.fr",
+      "url": "https://simbad.cds.unistra.fr/simbad/sim-tap/sync?REQUEST=doQuery&LANG=ADQL&FORMAT=csv&QUERY=SELECT+TOP+1+main_id+FROM+basic",
+      "verdict": "proxy_refused",
+      "dns_direct": {
+        "ok": false,
+        "error": "gaierror: [Errno -2] Name or service not known",
+        "seconds": 0.0
+      },
+      "proxy_connect": {
+        "stage": "proxy_connect",
+        "ok": false,
+        "proxy_status": "HTTP/1.1 403 Forbidden",
+        "seconds": 0.22
+      },
+      "http": {
+        "error": "ProxyError",
+        "detail": "G=ADQL&FORMAT=csv&QUERY=SELECT+TOP+1+main_id+FROM+basic (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+        "seconds": 0.23
+      }
+    },
+    {
+      "service": "Gaia archive TAP",
+      "host": "gea.esac.esa.int",
+      "url": "https://gea.esac.esa.int/tap-server/tap/sync?REQUEST=doQuery&LANG=ADQL&FORMAT=csv&QUERY=SELECT+TOP+1+source_id+FROM+gaiadr3.gaia_source",
+      "verdict": "proxy_refused",
+      "dns_direct": {
+        "ok": false,
+        "error": "gaierror: [Errno -2] Name or service not known",
+        "seconds": 0.0
+      },
+      "proxy_connect": {
+        "stage": "proxy_connect",
+        "ok": false,
+        "proxy_status": "HTTP/1.1 403 Forbidden",
+        "seconds": 0.23
+      },
+      "http": {
+        "error": "ProxyError",
+        "detail": "v&QUERY=SELECT+TOP+1+source_id+FROM+gaiadr3.gaia_source (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+        "seconds": 0.22
+      }
+    },
+    {
+      "service": "Meta Model API",
+      "host": "api.meta.ai",
+      "url": "https://api.meta.ai/v1/models",
+      "verdict": "proxy_refused",
+      "dns_direct": {
+        "ok": false,
+        "error": "gaierror: [Errno -2] Name or service not known",
+        "seconds": 0.0
+      },
+      "proxy_connect": {
+        "stage": "proxy_connect",
+        "ok": false,
+        "proxy_status": "HTTP/1.1 403 Forbidden",
+        "seconds": 0.22
+      },
+      "http": {
+        "error": "ProxyError",
+        "detail": "', port=443): Max retries exceeded with url: /v1/models (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+        "seconds": 0.27
+      }
+    },
+    {
+      "service": "PyPI (astropy)",
+      "host": "pypi.org",
+      "url": "https://pypi.org/simple/astropy/",
+      "verdict": "proxy_refused",
+      "dns_direct": {
+        "ok": false,
+        "error": "gaierror: [Errno -2] Name or service not known",
+        "seconds": 0.0
+      },
+      "proxy_connect": {
+        "stage": "proxy_connect",
+        "ok": false,
+        "proxy_status": "HTTP/1.1 403 Forbidden",
+        "seconds": 0.22
+      },
+      "http": {
+        "error": "ConnectionError",
+        "detail": "mple/astropy/ (Caused by NameResolutionError(\"HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -2] Name or service not known)\"))"
+      }
+    },
+    {
+      "service": "PyPI files",
+      "host": "files.pythonhosted.org",
+      "url": "https://files.pythonhosted.org/",
+      "verdict": "proxy_refused",
+      "dns_direct": {
+        "ok": false,
+        "error": "gaierror: [Errno -2] Name or service not known",
+        "seconds": 0.0
+      },
+      "proxy_connect": {
+        "stage": "proxy_connect",
+        "ok": false,
+        "proxy_status": "HTTP/1.1 403 Forbidden",
+        "seconds": 0.57
+      },
+      "http": {
+        "error": "ConnectionError",
+        "detail": "eResolutionError(\"HTTPSConnection(host='files.pythonhosted.org', port=443): Failed to resolve 'files.pythonhosted.org' ([Errno -2] Name or service not known)\"))"
+      }
+    },
+    {
+      "service": "npm registry",
+      "host": "registry.npmjs.org",
+      "url": "https://registry.npmjs.org/",
+      "verdict": "proxy_refused",
+      "dns_direct": {
+        "ok": false,
+        "error": "gaierror: [Errno -2] Name or service not known",
+        "seconds": 0.0
+      },
+      "proxy_connect": {
+        "stage": "proxy_connect",
+        "ok": false,
+        "proxy_status": "HTTP/1.1 403 Forbidden",
+        "seconds": 0.22
+      },
+      "http": {
+        "error": "ConnectionError",
+        "detail": "d by NameResolutionError(\"HTTPSConnection(host='registry.npmjs.org', port=443): Failed to resolve 'registry.npmjs.org' ([Errno -2] Name or service not known)\"))"
+      }
+    },
+    {
+      "service": "GitHub",
+      "host": "github.com",
+      "url": "https://github.com/",
+      "verdict": "http_400",
+      "dns_direct": {
+        "ok": false,
+        "error": "gaierror: [Errno -2] Name or service not known",
+        "seconds": 0.0
+      },
+      "proxy_connect": {
+        "stage": "proxy_connect",
+        "ok": true,
+        "proxy_status": "HTTP/1.1 200 Connection Established",
+        "seconds": 0.14,
+        "tls": {
+          "ok": true,
+          "version": "TLSv1.3"
+        }
+      },
+      "http": {
+        "status": 400,
+        "content_type": "application/json; charset=utf-8",
+        "bytes_sampled": 138,
+        "head": "{\"message\":\"Request path could not be canonicalized.\",\"documentation_url\":\"https://docs.anthropic.com/en/docs/claude-cod",
+        "seconds": 0.25
+      }
+    }
+  ],
+  "packages": {
+    "astropy": null,
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "starlette": "1.7.0",
+    "uvicorn": "0.54.0",
+    "playwright": "installed",
+    "requests": "2.34.2",
+    "pydantic": "2.13.5"
+  },
+  "meta_key_configured": false,
+  "pip_download_astropy": {
+    "returncode": 1,
+    "tail": [
+      "ERROR: Could not find a version that satisfies the requirement astropy==7.0.1 (from versions: none)",
+      "ERROR: No matching distribution found for astropy==7.0.1"
+    ]
+  }
+}
