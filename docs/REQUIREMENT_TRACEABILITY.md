@@ -1,4 +1,4 @@
-# Requirement traceability (v0.2.0, 2026-10-29)
+# Requirement traceability (v0.3.0, 2026-10-29)
 
 `IMPLEMENTED` means the code exists and its deterministic tests pass. `VERIFIED` means it is also confirmed on real data or a live service. `BLOCKED` names the missing access. Hackathon submission requirements were retired when the project moved to Meta.
 
@@ -32,3 +32,13 @@
 | R24 | Documentation | `README.md`, `docs/` | — | IMPLEMENTED | |
 | R25 | AI disclosure | `docs/AI_USE.md` | — | IMPLEMENTED | |
 | R26 | Single start command, verification command, release archive | `run.py`, `scripts/verify.py`, `scripts/make_release.py` | run | IMPLEMENTED | Dockerfile not built |
+| R27 | Environment diagnosis distinguishing DNS / proxy / TLS / HTTP / package failures | `scripts/diagnose_environment.py`, `archive/net.py` | `test_proxy_policy_denial_not_retried` | IMPLEMENTED | `ENVIRONMENT_REPORT.md` |
+| R28 | Independent FITS/WCS validation with tolerances | `fitsio.py`, `wcs.py` | `test_fits_wcs_external.py` (22) | IMPLEMENTED, real-file check **BLOCKED** | `FITS_WCS_VALIDATION.md` |
+| R29 | Calibration and uncertainty audit with classification | `science/ephemeris.py`, `refsel.py`, `variability.py`, `astrometry.py`, `wavelength.py` | `test_ephemeris.py`, `test_calibration_v2.py`, robustness | IMPLEMENTED | `CALIBRATION_AUDIT.md` |
+| R30 | Defensible outcomes: sensitivity, non-detection ≠ static, failure ≠ no motion | `science/assess.py` (ASSESS-2) | `test_assess2.py` | IMPLEMENTED | `ASSESSMENT_ENGINE.md` |
+| R31 | Structured reason codes; no free-text parsing for status | `measure.py`, `wavelength.py`, `analysis.py` | `test_pair_codes_structured`, PROVCHECK `status_codes` | IMPLEMENTED | |
+| R32 | Provenance verification command | `provenance_check.py`, `scripts/verify_provenance.py` | `test_provenance_check.py`, verify.py | IMPLEMENTED | |
+| R33 | Tool contracts (schemas, bounds, envelope, errors, evidence fields, cache) | `ai/tools.py` (TOOLS-2) | `test_tool_contracts.py` | IMPLEMENTED | `COPILOT_TOOLS.md` |
+| R34 | Guard: identifiers and uncertainty in addition to claims, numbers, citations, limitations, synthetic status | `ai/guard.py` (GUARD-3) | `test_guard3_identifiers_and_uncertainty` | IMPLEMENTED | |
+| R35 | Live Meta test | `scripts/meta_smoke_test.py` | — | **BLOCKED** | api.meta.ai refused; no key |
+| R36 | Robustness and perturbation stability (synthetic, labelled) | `synthetic.py`, `stability.py`, `/api/targets/{id}/stability` | `tests/robustness` (12), e2e `test_05b` | IMPLEMENTED | `TEST_REPORT.md` |

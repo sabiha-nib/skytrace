@@ -46,3 +46,9 @@ Every retrieved byte gets a `Provenance` record (`src/skytrace/provenance.py`):
 ## Processing performed
 
 Nothing is written back to the original files. Derived products (measurements, pairs, fits, outcomes) live only in investigation records, which carry the bundle manifest's SHA-256, all parameters, method IDs, software versions and a content hash.
+
+## Record-level verification (v0.3)
+
+Every measurement event's provenance now carries the SHA-256 of the stored file from the manifest (earlier
+records left it empty for synthetic bundles; PROVCHECK-1 found this). `scripts/verify_provenance.py` traces a
+record back to the bytes it was computed from; see [REPRODUCIBILITY.md](REPRODUCIBILITY.md).

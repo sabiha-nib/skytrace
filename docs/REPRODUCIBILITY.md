@@ -41,3 +41,16 @@ python scripts/verify.py
 - The FITS reader matters: astropy and the native reader should give identical pixels and agree on WCS to < 10 mas (checked by `tests/live`). The reader used is recorded in every inspection step.
 - SciPy's least-squares results can differ in the last bits across versions and platforms. A content-hash mismatch with an identical manifest hash and different software versions is expected; compare the outcomes and numbers, not only the hash.
 - Archive releases change. QR3 may be reprocessed, and IRSA corrected QR2 headers in April 2026. A re-acquired bundle is a new bundle with a new manifest hash; the old record still names the files it used.
+
+## Verifying a record (v0.3)
+
+```bash
+python scripts/verify_provenance.py <target_id> --rerun     # or --all
+```
+
+PROVCHECK-1 checks that the record was made from the current manifest, that its content hash recomputes,
+that every provenance hash matches a manifest file, that data origins match the bundle kind, that every
+measured observation is in the discovery index, that all status codes are known, that method versions are
+recorded, that outcomes agree with the step data, and (with `--rerun`) that re-running the analysis
+reproduces the content hash. Results go to `data/runs/<target>/provenance_check.json`. The synthetic
+fixtures themselves regenerate byte-identically: `python scripts/make_synthetic_fixtures.py --check`.

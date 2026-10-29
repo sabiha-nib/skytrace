@@ -87,6 +87,22 @@ def main() -> int:
         check(f"bundle {r['target_id']} ({r['kind']})", r["ok"],
               f"{r.get('n_files')} files, {r.get('total_bytes', 0) / 1e6:.1f} MB" + ("" if r["ok"] else "; " + "; ".join(r["problems"][:3])))
     n_archive = sum(r["kind"] == "archive" and r["ok"] for r in results)
+
+    # synthetic fixtures regenerate byte-identically from the package generator
+    r = subprocess.run([sys.executable, str(ROOT / "scripts" / "make_synthetic_fixtures.py"), "--check"], cwd=ROOT,
+                       capture_output=True, text=True)
+    check("synthetic fixtures reproducible", r.returncode == 0, " ".join(r.stdout.split()))
+
+    # every bundle: analysis record traces to unchanged files and re-runs to the same hash (PROVCHECK-1)
+    from skytrace import analysis
+    from skytrace.provenance_check import verify_record
+    for d in bmod.find_bundles():
+        try:
+            pc = verify_record(analysis.run(bmod.load(d)).to_dict(), d, rerun=True)
+            failed = [c["id"] for c in pc["checks"] if not c["ok"]]
+            check(f"provenance {d.name}", pc["ok"], f"{len(pc['checks'])} checks" + (f"; failed {failed}" if failed else ""))
+        except Exception as e:  # noqa: BLE001
+            check(f"provenance {d.name}", False, f"{type(e).__name__}: {e}")
     if not n_archive:
         warn("no verified archive (real SPHEREx) bundles present: run `python scripts/acquire_targets.py --all` on a networked machine")
     from skytrace.archive.products import astropy_available
@@ -98,10 +114,11 @@ def main() -> int:
         warn("Meta API smoke test has never been run (python scripts/meta_smoke_test.py)")
 
     if not a.no_tests:
-        r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/unit", "tests/integration"],
+        r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/unit", "tests/integration",
+                            "tests/robustness"],
                            cwd=ROOT, capture_output=True, text=True)
         last = (r.stdout.strip().splitlines() or ["no output"])[-1]
-        check("unit + integration tests", r.returncode == 0, last)
+        check("unit + integration + robustness tests", r.returncode == 0, last)
         if a.e2e:
             r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "-m", "e2e", "tests/e2e"],
                                cwd=ROOT, capture_output=True, text=True)

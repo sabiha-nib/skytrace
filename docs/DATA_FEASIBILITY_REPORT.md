@@ -1,5 +1,21 @@
 # SKYTRACE — Data Feasibility Report (Gate B)
 
+> **Update (Phase 3, v0.3.0, 2026-10-29): still BLOCKED.** `scripts/diagnose_environment.py` shows every
+> science host (IRSA, SIMBAD, Gaia) refused by the egress proxy with `403 Forbidden` at CONNECT; details and
+> the exact hosts to allowlist are in [ENVIRONMENT_REPORT.md](ENVIRONMENT_REPORT.md). No SPHEREx file has been
+> downloaded or processed, and no observation identifier, epoch count or wavelength coverage below is a result.
+>
+> **Model-mediated SIA pre-check (unverified, not used as data).** Earlier in Phase 3 the read-only web tool
+> (which returns a language-model summary of a page, not the page bytes) was pointed at the documented IRSA SIA
+> endpoint for the five targets. Its summaries indicated: (a) the QR3 collection currently returns only recent
+> (from about August 2026) images for Barnard's Star and RW Aur and none for ε Ind B, WISE 0855−0714 or R Dra;
+> (b) the QR2 collection returns 2025–2026 images for all five; (c) SIA rows carry the detector in
+> `obs_publisher_did` and the file name rather than in `obs_id`, and `energy_bandpassname` may be a generic
+> value. Because these are model summaries, they are treated only as **design input**: (b) is why WLMATCH-2
+> refuses brightness comparisons across releases by default (multi-epoch work will likely mix QR2 `l2b-v24` and
+> QR3 `l2b-v27` products), and (c) is why the SIA parser now falls back to `obs_publisher_did`. Neither is a
+> verified archive fact until `scripts/acquire_targets.py` records the actual VOTable bytes with provenance.
+
 > **Update (v0.2.0):** acquisition is now `scripts/acquire_targets.py`, which writes verified bundles (see [DATA_PROVENANCE.md](DATA_PROVENANCE.md)). A run on 2026-10-29 was again stopped by the proxy at the first SIMBAD request. `scripts/feasibility.py --wavelengths` still produces the matrix below once network access exists. The predictions in section 3 are unchanged and still untested.
 
 Status 2026-10-29: **BLOCKED — no live archive result exists yet.** Nothing below is an observation. Section 1 is what was executed; section 2 is verified documentation; section 3 is a prediction to be tested, clearly labelled.

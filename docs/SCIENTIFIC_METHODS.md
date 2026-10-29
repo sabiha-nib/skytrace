@@ -25,7 +25,24 @@ Bit numbers come only from the file's `FLAGS` header (keywords `MP_*` or `BITnn 
 
 Circular aperture of 2 px radius, with 10 × 10 sub-pixel sampling at the edge. Local sky is the 3σ-clipped median of an unflagged 4–7 px annulus, which also removes zodiacal light. Flux density = Σ w(I − sky) · Ω_pix. Variance = Σ w² VARIANCE + (Σw)² (π/2) σ_sky² / N_sky. Any rejected or invalid pixel inside the aperture gives NaN with status `flagged`; nothing is measured around the damage. The result is an aperture flux with no aperture correction. Pull test over 100 realisations: mean |μ| < 0.3, σ in 0.75–1.3.
 
-## Wavelength matching — WLMATCH-1
+## Phase 3 methods (v0.3) — summary
+
+v0.3 (`skytrace-analysis/2`) keeps the methods below and adds or supersedes, each recorded in every result's
+`parameters.methods` (details and tests in [CALIBRATION_AUDIT.md](CALIBRATION_AUDIT.md) and
+[ASSESSMENT_ENGINE.md](ASSESSMENT_ENGINE.md)):
+
+| ID | Replaces | What it does |
+|---|---|---|
+| EPHEM-AA-LP-1 | — | Earth/SPHEREx position from the Astronomical Almanac low-precision Sun; annual parallax applied to target and references; target parallax removed before the motion fit (residual ≤ 0.01ϖ) |
+| REFSEL-2 | adds to REFSEL-1 | catalogue cut: RUWE ≤ 1.4, not `duplicated_source`, 5/6-parameter solution; rejected stars are still masked as neighbours |
+| WLMATCH-2 | WLMATCH-1 | adds a 2 nm wavelength-accuracy margin (`wavelength_ambiguous`) and same-release photometry by default (`different_releases`); structured reason codes |
+| PAIRDIFF-2 | complements PAIRDIFF-1 | divides by the median flux ratio of ≥ 3 wavelength-matched reference stars measured in the same two exposures |
+| CALCHECK-1 | — | robust scatter of the reference stars' normalised differences; errors scaled when > 1.5 |
+| LINFIT-EPOCH-1 | primary instead of LINFIT-LOO-1 | visit-averaged positions with an empirical error floor, so correlated errors within a visit are not counted as independent; the per-exposure fit is kept as a cross-check |
+| ASSESS-2 | ASSESS-1 | adds sensitivity to every outcome, separates non-detection, failure and calibration-limited cases |
+| STAB-1, PROVCHECK-1 | — | perturbation stability; provenance verification of a record against its bundle |
+
+## Wavelength matching — WLMATCH-1 (superseded by WLMATCH-2)
 
 Two exposures can be compared for brightness only if they come from the same detector, |λ₁ − λ₂| ≤ 0.5 × min(bandwidth₁, bandwidth₂), and both measurements are usable. Every pair is evaluated, and every rejection keeps a categorised reason (different detectors, wavelength mismatch, unusable measurement…).
 
@@ -41,7 +58,7 @@ For an accepted pair: Δ = f₂ − f₁, σ = √(σ₁² + σ₂²), z = Δ/σ
 4. **LINFIT-LOO-1:** weighted linear fit of position against time per axis, with leave-one-out epoch rejection at 4σ. Errors are scaled up by √χ²ν when it exceeds 1.
 5. The result is compared with the catalogue proper motion per axis. The tangent-plane axes approximate (μα*, μδ) near the tangent point.
 
-## Assessment — ASSESS-1
+## Assessment — ASSESS-1 (superseded by ASSESS-2, see ASSESSMENT_ENGINE.md)
 
 | Question | Outcome categories and criteria |
 |---|---|
@@ -52,6 +69,12 @@ For an accepted pair: Δ = f₂ − f₁, σ = √(σ₁² + σ₂²), z = Δ/σ
 Outcomes carry their evidence numbers, criteria and limitations. The interface adds a fixed list of alternative explanations to consider for each category. That list is guidance, not computed results.
 
 ## Validation on synthetic data with known truth
+
+> v0.3 results (analysis/2) on the same fixtures: SYN-HPM-1 (3325 ± 344, −3469 ± 307) mas/yr from 4 visit-averaged
+> epochs, `motion_detected`; SYN-VAR-1 `no_motion_at_sensitivity` (5σ ≈ 492 mas/yr) and `variability_candidate`
+> with reference-calibrated max |z| 8.86 after the CALCHECK scale of 1.56. The table below is the v0.2 run, kept for
+> comparison; the per-exposure errors in it were optimistic because correlated errors within a visit were treated as
+> independent. Further variants are in TEST_REPORT.md ("Robustness results").
 
 These are software tests, not astronomical results. The generator ([scripts/make_synthetic_fixtures.py](../scripts/make_synthetic_fixtures.py)) writes SPHEREx-layout files: TAN-SIP celestial WCS, `-TAB` spectral WCS with an illustrative LVF gradient, PSF widening with wavelength, hot pixels, one reference star deliberately offset by 4″ in RA (≈ 3.5″ on the sky), one file without `WCS-WAVE`, one overflow-flagged core. Four passes of two visits each, six detectors: 48 files per target.
 
@@ -68,4 +91,4 @@ These are software tests, not astronomical results. The generator ([scripts/make
 
 **What this shows:** the chain from FITS file to outcome works, and it recovers injected motion and dimming without false variability between unchanged epochs. **What it does not show:** that it works on real SPHEREx data. The synthetic PSF, noise, LVF and flag layout are illustrative choices, and the native reader agrees with the generator by construction. Real-data validation requires running `pytest -m live` and analysing a real bundle.
 
-**Known weakness:** a reference star with a 0.5 px catalogue error is not always rejected in low-S/N, long-wavelength exposures. Its effect on the motion here is within the stated errors, but on real data, Gaia quality cuts (e.g. RUWE) should be added to REFSEL.
+**Known weakness:** a reference star with a 0.5 px catalogue error is not always rejected in low-S/N, long-wavelength exposures. Its effect on the motion here is within the stated errors. v0.3 adds the Gaia RUWE cut (REFSEL-2), which removes such stars when the catalogue flags them; a catalogue error without a quality flag is still caught only by the per-exposure leave-one-out test.

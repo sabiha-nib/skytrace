@@ -1,4 +1,8 @@
-# Test report — v0.2.0 (2026-10-29)
+# Test report — v0.3.0 (2026-10-29)
+
+Phase 3 (validation and scientific completion). Everything below was executed in the cloud build
+container on 2026-10-29. **All data processed are synthetic**; no real SPHEREx file was available (see
+`docs/ENVIRONMENT_REPORT.md`).
 
 ## Environment
 
@@ -8,58 +12,84 @@
 | Python | 3.13.18 |
 | Packages | numpy 2.5.3, scipy 1.18.1, pydantic 2.13.5, starlette 1.7.0, uvicorn 0.54.0, requests 2.34.2, playwright 1.63.0 |
 | Browser | Chromium 153.0.8010.12 (Playwright) |
-| Node.js | v22.23.4 (not used: the interface has no build step) |
-| astropy | **not installed**: no package index reachable; a source build from GitHub was refused by the environment's safety policy |
-| Network | IRSA, SIMBAD, Gaia archive, api.meta.ai, PyPI and npm unreachable (proxy `403` / `connect_rejected`) |
+| astropy | **not installed**: PyPI unreachable by either route (direct DNS fails; proxy 403) |
+| Network | IRSA, SIMBAD, Gaia, api.meta.ai, PyPI, npm refused by the egress proxy (`403` at CONNECT) |
 
 ## Commands and results
 
 | Command | Result |
 |---|---|
-| `python -m pytest` (unit + integration) | **121 passed, 2 skipped** in 29 s. The skips are the two astropy cross-checks |
-| `python -m pytest -m e2e tests/e2e` | **10 passed** in 14 s |
-| `python -m pytest -m live tests/live` | **2 failed, 2 errors**: every request refused by the proxy (`FetchError: data unavailable … ProxyError … 403`). Expected here; must be run on a networked machine |
-| `python scripts/verify.py --e2e` | **VERIFIED, 14/14 checks**, with 4 warnings: astropy missing, no archive bundles, no Meta key, smoke test never run |
-| `python scripts/acquire_targets.py --target barnards-star` | stopped at the SIMBAD request (proxy 403) and reported `BLOCKED: target resolution failed`; no bundle written |
-| `python scripts/meta_smoke_test.py` | not run: no key, no route |
-| `pip install --no-build-isolation --no-deps -e .` in a fresh venv | installs; the `skytrace` command works |
+| `python scripts/verify.py --e2e` | **VERIFIED, 17/17 checks**, 4 warnings (astropy missing, no archive bundles, no Meta key, smoke test never run) |
+| `python -m pytest tests/unit tests/integration tests/robustness` | **193 passed, 2 skipped** (the two astropy cross-checks) |
+| `python -m pytest -m e2e tests/e2e` | **11 passed** |
+| `python -m pytest -m live tests/live` | **2 failed, 2 errors**: every request refused by the proxy (expected here) |
+| `python scripts/verify_provenance.py --all --rerun` | **PASS** for syn-hpm-1 and syn-var-1 (10/10 checks each, including re-run determinism) |
+| `python scripts/make_synthetic_fixtures.py --check` | fixtures regenerate **byte-identically** from the package generator |
+| `python scripts/acquire_targets.py --target barnards-star` | `BLOCKED: target resolution failed` — `live#1: proxy_refused`; no bundle written, nothing substituted |
+| `python scripts/meta_smoke_test.py` | not run: no API key and no route |
+| `python scripts/diagnose_environment.py` | written to `data/environment_report.json` |
 
 ## Test suites
 
 | File | Tests | Covers |
 |---|---|---|
-| `tests/unit/test_coords.py` | 24 | parsing (decimal, sexagesimal, Unicode minus, WISE 0855 string), bounds, separations, gnomonic, epochs, space motion, parallax term |
-| `tests/unit/test_wavelength_flags.py` | 7 | WLMATCH-1 accept/reject reasons, order independence, flag-bit resolution from header/documentation |
-| `tests/unit/test_measurement.py` | 12 | centroid accuracy and **error calibration** (pull tests), masking, failure reporting, photometry pulls, flagged/no-sky/off-image, plate solution with outlier, motion fit, end-to-end high-proper-motion recovery, **blend detection** |
-| `tests/unit/test_fits_wcs.py` | 10 (1 skipped) | hand-built standard FITS (BZERO unsigned, quoted strings, D exponents), round trip incl. TDIM tables, truncation, TAN, SIP inverse, -TAB with cutout offset, astropy cross-check (skipped) |
-| `tests/unit/test_archive.py` | 15 | live→cache→fixture labels, release separation, **OFFLINE with sockets blocked**, fixture provenance required, retries, validation, size cap, corrupted cache, SPHEREx metadata parsing, VOTable/CSV |
-| `tests/unit/test_acquire.py` | 4 | acquisition against a **mocked archive**: bundle written and verified, Gaia preferred over SIMBAD, resume without re-download, failed downloads reported not substituted, tamper detection, synthetic data cannot pass as archive |
-| `tests/unit/test_report_ai.py` | 40 | report determinism, analysis reproducibility, 11 tools (validation, path injection, unknown tools), incompatible-pair flux refusal, graph integrity, **guard (11 block cases, allowed hedged discussion)**, copilot loop with scripted Meta client, withholding + fallback, budgets, 429 handling, local answers pass the guard for 8 questions × 2 targets |
-| `tests/unit/test_offline_workflow.py` | 3 | full workflow with sockets blocked; **outcomes match the synthetic truth** |
-| `tests/integration/test_api.py` | 8 | real server process: status, CSP headers, real targets without data, path traversal, parameter bounds, full API cycle incl. records save/replay/open/delete |
-| `tests/e2e/test_app.py` | 10 | browser journey under `OFFLINE=1` (below) |
-| `tests/live/test_live_archive.py` | 4 | real SIA/TAP/SIMBAD/Gaia, real cutout structure, **native vs astropy** pixels/WCS/wavelength. Not runnable here |
+| `unit/test_coords.py` | 24 | coordinate parsing, geometry, epochs, space motion, parallax term |
+| `unit/test_ephemeris.py` | 5 | **new**: Earth position vs 2026 perihelion/aphelion (2×10⁻⁴ AU) and equinox (0.02°); parallax ellipse radius and obliquity split |
+| `unit/test_wavelength_flags.py` | 7 | WLMATCH accept/reject, flag-bit resolution |
+| `unit/test_calibration_v2.py` | 8 | **new**: REFSEL-2 cuts and counts, epoch grouping and error floor, correlated-error protection, structured pair codes incl. margin and release, PAIRDIFF-2 removes a 5 % gain change, ≥ 3-reference requirement, robust scatter, SIA detector from `obs_publisher_did` |
+| `unit/test_measurement.py` | 12 | centroid/photometry error calibration (pulls), masking, plate solution, motion fit, blends |
+| `unit/test_fits_wcs.py` | 10 (1 skipped) | standard FITS, round trip, TAN, SIP, -TAB, astropy cross-check (skipped) |
+| `unit/test_fits_wcs_external.py` | 22 | **new (Gate C)**: independent astropy/wcslib files, see `FITS_WCS_VALIDATION.md` |
+| `unit/test_archive.py` | 16 | live→cache→fixture labels, offline, retries; **new**: proxy policy denial is not retried |
+| `unit/test_acquire.py` | 4 | acquisition against a mocked archive |
+| `unit/test_assess2.py` | 3 | **new**: every ASSESS-2 category reachable; non-detection and failure statements; sensitivity; self-documentation fields |
+| `unit/test_provenance_check.py` | 5 | **new**: clean record passes incl. determinism; edited number, foreign bundle, modified file, unknown code and wrong origin all detected |
+| `unit/test_tool_contracts.py` | 14 | **new**: TOOLS-2 envelope for all 11 tools with sockets disabled, size bound, typed error codes, failed calls not citable, no side effects |
+| `unit/test_report_ai.py` | 41 | report, tools, graph, guard (incl. **new GUARD-3 identifier and uncertainty checks**), copilot loop with a **scripted stand-in client** (not a model), fallback |
+| `unit/test_offline_workflow.py` | 3 | full workflow with sockets blocked; outcomes match synthetic truth |
+| `integration/test_api.py` | 9 | real server process; **new**: Phase 3 parameter validation and the stability endpoint |
+| `robustness/test_robustness.py` | 12 | **new**, synthetic variants with known truth (below) |
+| `e2e/test_app.py` | 11 | browser journey offline; **new** step 05b: sensitivity, calibrated z, calibration check, parallax/visit display, status codes, stability check |
+| `live/test_live_archive.py` | 4 | real services; not runnable here |
+
+## Robustness results (synthetic, labelled)
+
+| Scenario | Truth | Result |
+|---|---|---|
+| Parallax 800 mas on a 4.67″/yr star | pm (3200, −3400) | corrected: (3329 ± 326, −3463 ± 302) mas/yr, `motion_detected`, z = 0.40/−0.21; **uncorrected: 4063 ± 652 mas/yr in RA** (bias 860 mas/yr) |
+| 25 % gain change in one pass, constant star | no variability | PAIRDIFF-1 max \|z\| = 6.2 (would be a false candidate); PAIRDIFF-2 max \|z\| = 1.8 → **not a candidate**; gain measured by reference ratio |
+| Same gain change + real 38 % dimming | variable | still `variability_candidate` |
+| Passes split across two releases | dimming only testable across releases | refused by default (`different_releases`), **no candidate claimed**; with mixing allowed → candidate |
+| 4 offset reference stars with RUWE > 1.4 | pm unchanged | REFSEL-2 removes all 4; `motion_detected` |
+| 2 offset reference stars without RUWE | pm unchanged | removed per exposure by leave-one-out plate rejection |
+| Unmodelled distortion (SIP +3×10⁻⁴) | pm unchanged | median plate RMS rises 301 → 421 mas (visible); `motion_detected` |
+| Target 33× fainter | — | no candidate; motion `insufficient_evidence`; sensitivity reported |
+| Single visit (2.5 d) | — | per-exposure fit, labelled "single visit" |
+| Two passes 6 months apart | — | 2-epoch visit fit |
+| Stability (STAB-1) on both fixtures | — | all 3 outcomes stable under all 5 perturbations |
+| Determinism | — | identical image bytes for identical options |
 
 ## Required acceptance tests
 
 | # | Requirement | Result | Evidence |
 |---|---|---|---|
-| 1 | Application starts | **Pass** | e2e `test_01`, integration fixture start `run.py` |
-| 2 | Frontend loads and talks to the backend | **Pass** | e2e `test_01`–`test_08` |
-| 3 | At least one **real** SPHEREx investigation completes end to end | **Not met (blocked)** | no network route to IRSA. The same chain completes end to end on SPHEREx-format synthetic bundles (e2e `test_03`, `test_offline_workflow`) and on mocked archive responses (`test_acquire`) |
-| 4 | Real archive products read successfully | **Not met (blocked)** | as above; `tests/live::test_cutout_structure_and_native_reader_matches_astropy` is the check to run |
-| 5 | Metadata and provenance preserved | **Pass** (synthetic + mocked archive) | `test_acquire`, `test_archive`, provenance shown in Explorer and reports |
-| 6 | Wavelength rules applied and explained | **Pass** | e2e `test_04` (matched banner, incompatible banner, difference disabled), `test_compare_refuses_flux_for_incompatible_pair` |
-| 7 | Measurements and uncertainties displayed | **Pass** | e2e `test_03` (aperture flux ± error), `test_05` (charts with error bars, tables) |
-| 8 | Copilot invokes approved read-only tools | **Pass** (local mode, scripted Meta client) | e2e `test_07`, `test_copilot_meta_mode_with_tools_and_guard`. **Live Meta: not tested** |
-| 9 | Guard blocks unsupported claims | **Pass** | `test_guard_blocks` (9 cases), synthetic rules, withholding test |
-| 10 | Trace a result to its observations | **Pass** | e2e `test_06` (claim → highlighted comparisons/measurements/observations) |
-| 11 | Works offline with the bundled dataset | **Pass** | e2e under `OFFLINE=1` with zero non-local requests (`test_09`); socket-blocked workflow test. The bundled dataset is synthetic |
-| 12 | Fixtures cannot be mistaken for real observations | **Pass** | e2e `test_02` (pill, banner), watermark on every synthetic image, verifier rejects mixed bundles, guard requires "synthetic" in answers |
-| 13 | Saved investigations reopen and reproduce | **Pass** | e2e `test_08` ("reproduced: identical content hash", reopen), integration replay |
-| 14 | Major UI actions work | **Pass** for those exercised: target switch, run/re-run, row selection, compare modes, partner choice, tabs, parameter re-run, graph selection, suggestion chips, free-text ask, save/replay/open. Not exercised: blink speed slider, fade slider, stretch sliders, report download (API endpoint tested), delete (API tested) |
-| 15 | Installable and launchable from the instructions | **Pass** (editable install without dependency download; `python run.py`) | dependency download from PyPI not exercised (no access) |
+| 1 | Application starts | **Pass** | e2e `test_01`, integration fixture |
+| 2 | Frontend talks to the backend | **Pass** | e2e `test_01`–`test_08` |
+| 3 | A **real** SPHEREx investigation completes end to end | **Not met (blocked)** | no route to IRSA; the chain completes on SPHEREx-format synthetic bundles and mocked archive responses |
+| 4 | Real archive products read successfully | **Not met (blocked)** | native reader validated on independent files instead (Gate C) |
+| 5 | Metadata and provenance preserved | **Pass** (synthetic + mocked) | `test_acquire`, PROVCHECK-1 |
+| 6 | Wavelength rules applied and explained | **Pass** | e2e `test_04`, pair codes |
+| 7 | Measurements and uncertainties displayed | **Pass** | e2e `test_03`, `test_05`, `test_05b` |
+| 8 | Copilot invokes approved read-only tools | **Pass** (local mode; scripted client) | **Live Meta: not tested (blocked)** |
+| 9 | Guard blocks unsupported claims | **Pass** | `test_guard_blocks`, `test_guard3_identifiers_and_uncertainty` |
+| 10 | Trace a result to its observations | **Pass** | e2e `test_06`; PROVCHECK-1 file-level trace |
+| 11 | Works offline | **Pass** | e2e `test_09` (zero non-local requests) |
+| 12 | Fixtures cannot be mistaken for real observations | **Pass** | e2e `test_02`; PROVCHECK `data_origin`; tool envelope `data_status` |
+| 13 | Saved investigations reopen and reproduce | **Pass** | e2e `test_08`; PROVCHECK `determinism` |
+| 14 | Major UI actions work | **Pass** for those exercised (now incl. stability check and Phase 3 toggles) |
+| 15 | Installable and launchable | **Pass** (editable install; `python run.py`) | PyPI download not exercised |
 
 ## Screenshots
 
-Captured by the browser test in `docs/screenshots/`: `real-target-no-data`, `explorer`, `time-machine-matched`, `time-machine-incompatible`, `lab-outcomes`, `lab-rerun`, `evidence-graph`, `copilot`, `records`, `mobile`.
+`docs/screenshots/`: `real-target-no-data`, `explorer`, `time-machine-matched`, `time-machine-incompatible`,
+`lab-outcomes`, `lab-rerun`, `lab-stability` (new), `evidence-graph`, `copilot`, `records`, `mobile`.

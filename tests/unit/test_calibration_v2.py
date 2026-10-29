@@ -108,6 +108,7 @@ def test_robust_scatter():
 
 
 def test_sia_detector_from_publisher_did():
+    # Identifiers below are format examples built from the documented file-name pattern, not real observations.
     rows = [{"access_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/cutout?x=1", "t_min": 60800.0,
              "t_max": 60800.01, "energy_bandpassname": "Infrared", "obs_id": "2025W20_1A_0123_4",
              "obs_publisher_did": "ivo://irsa.ipac/spherex_qr2?level2_2025W20_1A_0123_4D3_spx_l2b-v24-2025-200",

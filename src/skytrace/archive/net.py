@@ -29,6 +29,12 @@ class OfflineError(RuntimeError):
     """OFFLINE=1 and no cached copy or fixture exists for the request."""
 
 
+def _proxy_refused(e: Exception) -> bool:
+    """True if a requests ProxyError carries the proxy's 403/407 answer to CONNECT."""
+    text = repr(e)
+    return "ProxyError" in type(e).__name__ + text and ("403" in text or "407" in text)
+
+
 class FetchError(RuntimeError):
     def __init__(self, url: str, reason: str, attempts: list[str]):
         self.url, self.reason, self.attempts = url, reason, attempts
@@ -136,6 +142,9 @@ class Fetcher:
                     attempts.append(f"live#{i + 1}: invalid response ({e})")
                     break
                 except Exception as e:  # connection errors, timeouts
+                    if _proxy_refused(e):   # policy denial by the egress proxy: never retried or routed around
+                        attempts.append(f"live#{i + 1}: proxy_refused (proxy answered 403 to CONNECT; host not allowed)")
+                        break
                     attempts.append(f"live#{i + 1}: {type(e).__name__}: {_short(e)}")
                 if i + 1 < self.retries:
                     self._sleep(self.backoff_s * (2 ** i))

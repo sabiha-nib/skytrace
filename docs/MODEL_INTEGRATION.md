@@ -16,7 +16,7 @@
 
 - **Adapter** (`src/skytrace/ai/meta_client.py`): configuration from the environment, 60 s timeout, up to 3 attempts for connection errors and 429/5xx (honouring `Retry-After`, capped at 20 s), parsing of the error envelope, `finish_reason` recorded. `OFFLINE=1` or a missing key raise `MetaUnavailable` before any request.
 - **Loop** (`src/skytrace/ai/copilot.py`): system rules + a compact context (target, synthetic flag, data origins, outcome categories) + 11 tool schemas. At most 8 tool calls, 10 model rounds and 150 s. Each tool call is validated, executed and recorded.
-- **What the model sees:** only tool outputs, which are summaries of logged measurements, never FITS files or pixel arrays. Outputs are capped at 14,000 characters each.
+- **What the model sees:** only tool outputs, wrapped in the TOOLS-2 envelope (`ok`, `result`, typed `error`, `evidence_id`, `data_status`, record hash; see [COPILOT_TOOLS.md](COPILOT_TOOLS.md)), which are summaries of logged measurements, never FITS files or pixel arrays. Outputs are capped at 14,000 characters each.
 - **Guard** (`src/skytrace/ai/guard.py`, GUARD-3): see [ARCHITECTURE.md](ARCHITECTURE.md). Failing answers get one repair round. After a second failure the draft is withheld (kept in the audit record) and the local assistant's grounded answer is shown with the reasons.
 - **Honest labelling:** the response's `mode` is `meta` only if a Meta model produced the shown answer. The interface shows "Meta muse-spark-1.3 · checked by the evidence guard" or "Local assistant · no language model".
 - **Secrets:** the key is read from the environment on the server. It is not sent to the browser, not logged, not stored in records, and `scripts/verify.py` scans tracked files for keys.
@@ -33,6 +33,7 @@ The test runs: list models → plain completion → JSON-object response → one
 | Date | Result | Notes |
 |---|---|---|
 | 2026-10-29 | not run | no route from the build environment to api.meta.ai (proxy `connect_rejected`) and no key configured |
+| 2026-10-29 (Phase 3) | **blocked** | re-checked by `scripts/diagnose_environment.py`: CONNECT api.meta.ai → `403 Forbidden`; still no key. Tool envelope (TOOLS-2) and GUARD-3 tested with the scripted client only |
 
 ## What is verified without the API
 

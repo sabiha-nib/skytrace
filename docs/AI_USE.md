@@ -2,9 +2,11 @@
 
 ## Development
 
-The code, tests, synthetic-data generator, interface and documentation in this repository were written by **Claude Code (Anthropic, configured model `claude-opus-5-5`)** from project briefs supplied by the project owner (Phase 0, Phase 1 and Phase 2 prompts). The owner set the goals, the scientific requirements (wavelength matching, Gaia validation, provenance, offline operation, honest labelling) and the acceptance criteria. The coding agent chose the methods, wrote the implementation, and ran and recorded the tests. Commits are co-authored accordingly.
+The code, tests, synthetic-data generator, interface and documentation in this repository were written by **Claude Code (Anthropic, configured model `claude-opus-5-5`)** from project briefs supplied by the project owner (Phase 0–3 prompts). The owner set the goals, the scientific requirements (wavelength matching, Gaia validation, provenance, offline operation, honest labelling) and the acceptance criteria. The coding agent chose the methods, wrote the implementation, and ran and recorded the tests. Commits are co-authored accordingly.
 
 Methods were not tuned to produce desired answers. Several defects were found by testing against synthetic data with known truth, then fixed in the method and documented in [SCIENTIFIC_METHODS.md](SCIENTIFIC_METHODS.md): neighbour contamination, a bad reference star hiding itself from median clipping, a target fit wandering to a neighbour, and a blended target in a unit test that had passed by luck.
+
+In Phase 3, independent test files (astropy/wcslib) found six reader defects that self-written fixtures had hidden, the provenance verifier found that records did not carry file hashes for synthetic bundles, and the calibration check found that synthetic reference stars scatter 1.56× their stated errors. All are documented with their fixes. The IRSA pre-check obtained through a web tool that returns language-model summaries was used only as design input and is labelled unverified.
 
 ## In the application
 
@@ -19,4 +21,4 @@ The model cannot fetch data, run code, read files, change observations or alter 
 
 ## Status
 
-No Meta model call has been made yet (see [MODEL_INTEGRATION.md](MODEL_INTEGRATION.md)). Every copilot answer produced during development and testing came from the local deterministic assistant or from a scripted test client.
+No Meta model call has been made yet (see [MODEL_INTEGRATION.md](MODEL_INTEGRATION.md)); the live test is **blocked** (api.meta.ai refused by the egress proxy, no key). Every copilot answer produced during development and testing came from the local deterministic assistant or from a scripted test client, and none is reported as a model response.

@@ -89,6 +89,18 @@ def test_transient_errors_retried_permanent_not(tmp_path):
     assert "HTTP 404" in str(e.value) and len(f._session.calls) == 1
 
 
+def test_proxy_policy_denial_not_retried(tmp_path):
+    import requests
+    err = requests.exceptions.ProxyError("Unable to connect to proxy: Tunnel connection failed: 403 Forbidden")
+    f = fetcher(tmp_path, [err, err, err])
+    with pytest.raises(FetchError, match="proxy_refused") as e:
+        f.get("https://x.test/blocked", source="IRSA")
+    assert len(f._session.calls) == 1 and "live#2" not in str(e.value)
+    # an ordinary connection error is still retried
+    f = fetcher(tmp_path, [ConnectionError("reset"), FakeResp(200, b"ok")])
+    assert f.get("https://x.test/flaky", source="IRSA").content == b"ok"
+
+
 def test_validation_failure_is_not_cached(tmp_path):
     f = fetcher(tmp_path, [FakeResp(200, b"<html>error</html>")])
     with pytest.raises(FetchError, match="invalid response"):

@@ -13,8 +13,9 @@ scripts/acquire_targets.py ─┤ archive/acquire.py (selection SEL-1, resume, i
                             │  bundle.verify(): checksums, completeness, kind markers
                             ▼
    analysis.run(bundle, params) ── science/ (deterministic, no network, no model)
-        coords · wavelength (WLMATCH-1) · flags (FLAGPOL-1) · centroid (CENTROID-G2D-1, NBMASK-1, TGT-1)
-        photometry (APPHOT-1) · astrometry (REFSEL-1, PLATE-LOO-1, LINFIT-LOO-1) · variability (PAIRDIFF-1) · assess (ASSESS-1)
+        coords · ephemeris (EPHEM-AA-LP-1) · wavelength (WLMATCH-2) · flags (FLAGPOL-1) · centroid (CENTROID-G2D-1, NBMASK-1, TGT-1)
+        photometry (APPHOT-1) · astrometry (REFSEL-1/2, PLATE-LOO-1, LINFIT-EPOCH-1, LINFIT-LOO-1) · variability (PAIRDIFF-1/2, CALCHECK-1) · assess (ASSESS-2)
+        + stability.py (STAB-1) · provenance_check.py (PROVCHECK-1) · synthetic.py (generator)
                             ▼
    report.Investigation: every step logged (ok / rejected / failed / skipped / info) with provenance; content hash
                             ▼
