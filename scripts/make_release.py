@@ -41,7 +41,9 @@ def main() -> int:
         bad = z.testzip()
         prefix = f"skytrace-{__version__}/"
         missing = [r for r in REQUIRED if prefix + r not in names]
-        forbidden = [n for n in names if n.endswith("/.env") or "/.git/" in n or "/cache/" in n and not n.endswith(".gitkeep")]
+        files = [n for n in names if not n.endswith("/")]
+        forbidden = [n for n in files if n.endswith("/.env") or "/.git/" in n or ("/cache/" in n and not n.endswith(".gitkeep"))
+                     or "/data/records/" in n]
         # bundle checksums inside the archive
         problems = []
         for mf in [n for n in names if n.endswith("manifest.json") and "/fixtures/" in n or "/data/bundles/" in n and n.endswith("manifest.json")]:
