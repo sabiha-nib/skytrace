@@ -129,26 +129,29 @@ def test_motion_fit_and_catalogue_comparison():
     assert not bad["consistent_within_3sigma"] and bad["z_pmdec"] < -3
 
 
-def test_end_to_end_synthetic_high_pm_star():
-    """SYNTHETIC: a fast-moving star among Gaia-like reference stars over four epochs.
-
-    The pipeline must recover the injected proper motion within its own error bars,
-    and reject wavelength-mismatched flux comparisons.
-    """
+def _hpm_scenario(blend: bool):
+    """SYNTHETIC: a fast-moving star among Gaia-like reference stars over four epochs."""
     star = Astrometry(200.0, 10.0, 2016.0, pmra=-800.0, pmdec=10360.0)
     rng = np.random.default_rng(3)
-    refs = [Astrometry(200.0 + dx, 10.0 + dy, 2016.0, pmra=float(rng.normal(0, 5)), pmdec=float(rng.normal(0, 5)))
-            for dx, dy in rng.uniform(-0.07, 0.07, (14, 2))]
+    path = [propagate(star, 2025.3 + 0.1 * k) for k in range(20)]
+    refs = []
+    for dx, dy in rng.uniform(-0.05, 0.05, (40, 2)):
+        r = Astrometry(200.0 + dx, 10.0 + dy, 2016.0, pmra=float(rng.normal(0, 5)), pmdec=float(rng.normal(0, 5)))
+        near = min(math.hypot((r.ra - a) * math.cos(math.radians(10)), r.dec - d) for a, d in path) * 3600 / 6.2
+        if near > 6:  # keep the target's path clear (blending is tested separately)
+            refs.append(r)
+    if blend:  # put a reference star right on the target's path at the third epoch
+        ra3, dec3 = propagate(star, float(mjd_to_jyear(61170.0)))
+        refs.append(Astrometry(ra3 + 0.6 / 3600, dec3, 2016.0))
     tangent = propagate(star, 2026.0)
-    epochs = [60800.0, 60990.0, 61170.0, 61350.0]
     ms = []
-    for k, mjd in enumerate(epochs):
+    for k, mjd in enumerate([60800.0, 60990.0, 61170.0, 61350.0]):
         ep = float(mjd_to_jyear(mjd))
         tra, tdec = propagate(star, ep)
         # pointing differs per epoch by up to ~1 pixel; the plate solution must absorb it
         prod = SyntheticProduct(shape=(70, 70), crval=(tra + rng.normal(0, 0.0015), tdec + rng.normal(0, 0.0015)),
                                 crpix=(34.5, 34.5), rotation_deg=float(rng.normal(0, 0.3)),
-                                wl0_um=1.30 + 0.02 * (k % 2), seed=k)
+                                wl0_um=1.30 + 0.06 * (k % 2), seed=k)
         prod.add_star(tra, tdec, 30.0)
         refs_ep = []
         for i, r in enumerate(refs):
@@ -157,6 +160,12 @@ def test_end_to_end_synthetic_high_pm_star():
             refs_ep.append({"ra": ra_r, "dec": dec_r, "source_id": i})
         prod.finalize()
         ms.append(measure_exposure(prod, f"obs{k}", 2, mjd, (tra, tdec), tangent, refs_ep))
+    return star, ms
+
+
+def test_end_to_end_synthetic_high_pm_star():
+    """The injected proper motion is recovered within its own error bars; matched pairs follow WLMATCH-1."""
+    star, ms = _hpm_scenario(blend=False)
     assert all(m.quality == "ok" and m.target_xi_eta_mas is not None for m in ms), [m.notes for m in ms]
     t = [float(mjd_to_jyear(m.mjd)) for m in ms]
     fit = fit_linear_motion(t, [m.target_xi_eta_mas[0] for m in ms], [m.target_xi_eta_mas[1] for m in ms],
@@ -164,7 +173,16 @@ def test_end_to_end_synthetic_high_pm_star():
     cmp = compare_to_catalogue(fit, star.pmra, star.pmdec)
     assert cmp["consistent_within_3sigma"], (fit, cmp)
     assert fit.sig_eta < 500  # the 10"/yr motion is detected at > 20 sigma in this synthetic setup
-    # wavelength: epochs alternate 1.30/1.32 µm at x=0 -> only same-parity epochs may be paired
     samples = [SourceSample(m.obs_id, m.detector, m.mjd, m.wavelength_um, m.bandwidth_um, m.quality) for m in ms]
     acc = [(d.a, d.b) for d in match_pairs(samples) if d.accepted]
     assert sorted(acc) == [("obs0", "obs2"), ("obs1", "obs3")]
+
+
+def test_blended_target_is_flagged_not_measured():
+    _, ms = _hpm_scenario(blend=True)
+    m = ms[2]
+    assert m.quality.startswith("blended") and m.target_xi_eta_mas is None
+    assert any("target blended" in n for n in m.notes)
+    # the target moves only ~0.8 px between epochs, so every epoch lies within 3 px of the
+    # injected star: all must be flagged and none may contribute a position
+    assert all(x.quality.startswith("blended") and x.target_xi_eta_mas is None for x in ms)

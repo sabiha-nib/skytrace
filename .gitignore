@@ -9,3 +9,6 @@ __pycache__/
 cache/*
 !cache/.gitkeep
 data/runs/
+data/acquisition_report.json
+data/bundle_verification.json
+data/records/

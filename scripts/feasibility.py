@@ -31,8 +31,8 @@ sys.path.insert(0, str(ROOT / "src"))
 from skytrace.archive import spherex  # noqa: E402
 from skytrace.archive.net import Fetcher, offline_enabled  # noqa: E402
 from skytrace.archive.products import ProductError, load_product  # noqa: E402
-from skytrace.pipeline import ACQ_ERRORS, resolve_target  # noqa: E402
-from skytrace.report import Investigation  # noqa: E402
+from skytrace.archive.acquire import ACQ_ERRORS, AcquisitionLog, resolve  # noqa: E402
+from skytrace.science.coords import Astrometry  # noqa: E402
 from skytrace.science import flags as fl  # noqa: E402
 from skytrace.science.coords import mjd_to_jyear, propagate  # noqa: E402
 from skytrace.science.wavelength import SourceSample, match_pairs  # noqa: E402
@@ -53,13 +53,15 @@ def survey_passes(mjds: list[float], gap_days: float = 30.0) -> list[tuple[float
 
 
 def run_target(fetcher: Fetcher, cfg: dict, wavelengths: bool) -> tuple[list[dict], dict]:
-    inv = Investigation(cfg["name"], {"purpose": "feasibility"})
-    ast = resolve_target(fetcher, cfg, inv)
+    log = AcquisitionLog()
+    res = resolve(fetcher, cfg, log)
     base = {"target": cfg["name"], "scientific_use": cfg.get("role", "")}
-    if ast is None:
-        err = inv.events[-1].detail
+    if res is None:
+        err = log.lines[-1]["detail"]
         return [{**base, "release": "", "retrieval_status": f"BLOCKED: target resolution failed: {err}"}], \
-               {"target": cfg["name"], "resolved": False, "events": [e.__dict__ for e in inv.events]}
+               {"target": cfg["name"], "resolved": False, "events": log.lines}
+    a = res[0]["astrometry"]
+    ast = Astrometry(a["ra"], a["dec"], a["ref_epoch"], a["pmra"], a["pmdec"], a.get("parallax") or 0.0, source=a["source"])
     rows, obs_all = [], []
     ra, dec = propagate(ast, 2026.0)
     radius = (math.hypot(ast.pmra, ast.pmdec) / 1000 * 1.5 + 2.0) / 3600
@@ -121,7 +123,7 @@ def run_target(fetcher: Fetcher, cfg: dict, wavelengths: bool) -> tuple[list[dic
         summary["pairs_considered"] = len(dec_)
     for r in rows:
         r.pop("_wl", None), r.pop("_bw", None)
-    summary["events"] = [e.__dict__ for e in inv.events]
+    summary["events"] = log.lines
     return rows, summary
 
 

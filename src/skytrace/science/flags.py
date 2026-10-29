@@ -45,9 +45,16 @@ def resolve_bits(header: Mapping | None = None) -> FlagMap:
     """Read MP_* bit definitions from a FLAGS header if present, else use documented bits."""
     bits: dict[str, int] = {}
     if header is not None:
+        import re
         for k, v in dict(header).items():
-            if str(k).upper().startswith("MP_") and isinstance(v, (int, np.integer)) and 0 <= int(v) < 64:
-                bits[str(k).upper()] = int(v)
+            ku = str(k).upper()
+            # style 1:  MP_OVERFLOW = 5
+            if ku.startswith("MP_") and isinstance(v, (int, np.integer)) and not isinstance(v, bool) and 0 <= int(v) < 64:
+                bits[ku] = int(v)
+            # style 2:  BIT05 = 'MP_OVERFLOW'  (or FLAG05)
+            m = re.fullmatch(r"(?:BIT|FLAG)_?(\d{1,2})", ku)
+            if m and isinstance(v, str) and v.strip().upper().startswith("MP_"):
+                bits[v.strip().upper()] = int(m.group(1))
     origin = "header" if bits else "documented"
     if not bits:
         bits = dict(DOCUMENTED_BITS)

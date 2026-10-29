@@ -65,21 +65,24 @@ class AstrometryError(RuntimeError):
 
 
 def solve_plate(ref_ra, ref_dec, ref_x, ref_y, ref_sig_px, tangent: tuple[float, float],
-                min_refs: int = 4, clip_sigma: float = 4.0, max_iter: int = 3) -> PlateSolution:
-    """Weighted affine fit with iterative outlier rejection.
+                min_refs: int = 6, clip_sigma: float = 4.0, max_iter: int = 10) -> PlateSolution:
+    """Weighted affine fit with leave-one-out outlier rejection (PLATE-LOO-1).
 
     ref_sig_px: per-star centroid sigma in pixels (isotropic approximation).
+    At each iteration the star with the largest normalised residual is refitted
+    out of the solution; it is rejected if its residual against the solution
+    that excludes it exceeds clip_sigma times its combined uncertainty (scaled
+    by that solution's reduced chi-square when > 1). Leave-one-out testing
+    prevents a single bad star from hiding itself by dragging the fit.
+    min_refs = 6 gives at least 6 degrees of freedom for the 6 affine parameters.
     """
     ref_ra, ref_dec, x, y, s = map(lambda a: np.asarray(a, float), (ref_ra, ref_dec, ref_x, ref_y, ref_sig_px))
     xi, eta = gnomonic(ref_ra, ref_dec, *tangent)
     keep = np.isfinite(x) & np.isfinite(y) & np.isfinite(s) & (s > 0)
     rejected: list[int] = []
-    for _ in range(max_iter + 1):
-        idx = np.nonzero(keep)[0]
-        if idx.size < min_refs:
-            raise AstrometryError(f"{idx.size} usable reference stars; need at least {min_refs}")
+
+    def fit(idx):
         A = np.column_stack([np.ones(idx.size), x[idx], y[idx]])
-        # weights: centroid sigma converted to degrees using a provisional scale
         scale = _provisional_scale(A, xi[idx], eta[idx])
         w = 1.0 / (s[idx] * scale)
         Aw = A * w[:, None]
@@ -87,20 +90,35 @@ def solve_plate(ref_ra, ref_dec, ref_x, ref_y, ref_sig_px, tangent: tuple[float,
         cb, *_ = np.linalg.lstsq(Aw, eta[idx] * w, rcond=None)
         rx, ry = xi[idx] - A @ ca, eta[idx] - A @ cb
         chi = np.hypot(rx, ry) * w
-        dof = max(1, 2 * idx.size - 6)
-        rchi2 = float(np.sum(chi ** 2) / dof)
-        worst = int(np.argmax(chi))
-        robust = max(1.0, 1.4826 * float(np.median(chi)))  # robust: one outlier cannot inflate its own threshold
-        if chi[worst] > clip_sigma * robust and idx.size > min_refs:
-            keep[idx[worst]] = False
-            rejected.append(int(idx[worst]))
-            continue
-        N = np.linalg.inv(Aw.T @ Aw) * max(1.0, rchi2)
+        rchi2 = float(np.sum(chi ** 2) / max(1, 2 * idx.size - 6))
+        N = np.linalg.inv(Aw.T @ Aw)
+        return ca, cb, rx, ry, chi, rchi2, N, scale
+
+    for _ in range(max_iter + 1):
+        idx = np.nonzero(keep)[0]
+        if idx.size < min_refs:
+            raise AstrometryError(f"{idx.size} usable reference stars; need at least {min_refs}")
+        ca, cb, rx, ry, chi, rchi2, N, scale = fit(idx)
+        if idx.size > min_refs:
+            worst = idx[int(np.argmax(chi))]
+            rest = idx[idx != worst]
+            ca2, cb2, _, _, _, rchi2_2, N2, scale2 = fit(rest)
+            a = np.array([1.0, x[worst], y[worst]])
+            pred_var = float(a @ N2 @ a)                 # deg^2: uncertainty of the leave-one-out prediction
+            dx = xi[worst] - a @ ca2
+            dy = eta[worst] - a @ cb2
+            sig = s[worst] * scale2                      # deg: this star's centroid error
+            z = float(np.hypot(dx, dy) / np.sqrt((sig ** 2 + pred_var) * max(1.0, rchi2_2)))
+            if z > clip_sigma:
+                keep[worst] = False
+                rejected.append(int(worst))
+                continue
         cov = np.zeros((6, 6))
-        cov[:3, :3] = N
-        cov[3:, 3:] = N
+        cov[:3, :3] = N * max(1.0, rchi2)
+        cov[3:, 3:] = N * max(1.0, rchi2)
         rms = float(np.sqrt(np.mean(np.concatenate([rx, ry]) ** 2)) * DEG_TO_MAS)
-        return PlateSolution(np.concatenate([ca, cb]), cov, int(idx.size), rms, tangent, tuple(rejected))
+        return PlateSolution(np.concatenate([ca, cb]), cov, int(idx.size), rms, tangent, tuple(rejected),
+                             method="DIFFAST-1/PLATE-LOO-1")
     raise AstrometryError("outlier rejection did not converge")
 
 
@@ -120,30 +138,63 @@ class MotionFit:
     baseline_yr: float
     n_epochs: int
     reduced_chi2: float
+    rejected: tuple[int, ...] = ()
     method: str = "LINFIT-1"
 
 
-def fit_linear_motion(t_yr, xi_mas, eta_mas, sig_xi_mas, sig_eta_mas) -> MotionFit:
+def fit_linear_motion(t_yr, xi_mas, eta_mas, sig_xi_mas, sig_eta_mas, clip_sigma: float | None = None,
+                      min_epochs: int = 2) -> MotionFit:
+    """Weighted linear fit of position vs time (LINFIT-1).
+
+    With clip_sigma set, epochs are rejected one at a time by leave-one-out testing
+    (LINFIT-LOO-1): the worst epoch is compared with the fit that excludes it and is
+    dropped if it deviates by more than clip_sigma combined sigma. Rejected indices are
+    returned in MotionFit.rejected.
+    """
     t, x, e, sx, se = map(lambda a: np.asarray(a, float), (t_yr, xi_mas, eta_mas, sig_xi_mas, sig_eta_mas))
-    if t.size < 2:
-        raise AstrometryError("need at least two epochs")
-    t0 = float(np.average(t, weights=1 / sx ** 2))
+    if t.size < min_epochs:
+        raise AstrometryError(f"need at least {min_epochs} epochs")
+    keep = np.ones(t.size, bool)
+    rejected: list[int] = []
 
-    def wfit(v, s):
-        A = np.column_stack([np.ones_like(t), t - t0])
-        W = 1 / s
-        coef, *_ = np.linalg.lstsq(A * W[:, None], v * W, rcond=None)
+    def wfit(idx, v, s):
+        tt = t[idx]
+        t0 = float(np.average(tt, weights=1 / s[idx] ** 2))
+        A = np.column_stack([np.ones_like(tt), tt - t0])
+        W = 1 / s[idx]
+        coef, *_ = np.linalg.lstsq(A * W[:, None], v[idx] * W, rcond=None)
         cov = np.linalg.inv((A * W[:, None]).T @ (A * W[:, None]))
-        chi2 = float(np.sum(((v - A @ coef) * W) ** 2))
-        return coef, cov, chi2
+        chi2 = float(np.sum(((v[idx] - A @ coef) * W) ** 2))
+        return coef, cov, chi2, t0
 
-    cx, Cx, chx = wfit(x, sx)
-    ce, Ce, che = wfit(e, se)
-    dof = max(1, 2 * t.size - 4)
-    rchi2 = (chx + che) / dof
+    while True:
+        idx = np.nonzero(keep)[0]
+        if idx.size < min_epochs or np.ptp(t[idx]) <= 0:
+            raise AstrometryError(f"fewer than {min_epochs} usable epochs at distinct times after rejection")
+        cx, Cx, chx, t0 = wfit(idx, x, sx)
+        ce, Ce, che, _ = wfit(idx, e, se)
+        dof = max(1, 2 * idx.size - 4)
+        rchi2 = (chx + che) / dof
+        if clip_sigma is None or idx.size <= max(min_epochs, 3):
+            break
+        res = np.hypot((x[idx] - cx[0] - cx[1] * (t[idx] - t0)) / sx[idx], (e[idx] - ce[0] - ce[1] * (t[idx] - t0)) / se[idx])
+        worst = idx[int(np.argmax(res))]
+        rest = idx[idx != worst]
+        cx2, Cx2, chx2, t02 = wfit(rest, x, sx)
+        ce2, Ce2, che2, _ = wfit(rest, e, se)
+        r2 = max(1.0, (chx2 + che2) / max(1, 2 * rest.size - 4))
+        a = np.array([1.0, t[worst] - t02])
+        zx = (x[worst] - a @ cx2) / np.sqrt((sx[worst] ** 2 + a @ Cx2 @ a) * r2)
+        ze = (e[worst] - a @ ce2) / np.sqrt((se[worst] ** 2 + a @ Ce2 @ a) * r2)
+        if np.hypot(zx, ze) > clip_sigma:
+            keep[worst] = False
+            rejected.append(int(worst))
+            continue
+        break
     inflate = np.sqrt(max(1.0, rchi2))
     return MotionFit(float(cx[1]), float(ce[1]), float(np.sqrt(Cx[1, 1]) * inflate),
-                     float(np.sqrt(Ce[1, 1]) * inflate), t0, float(t.max() - t.min()), int(t.size), float(rchi2))
+                     float(np.sqrt(Ce[1, 1]) * inflate), t0, float(np.ptp(t[idx])), int(idx.size), float(rchi2),
+                     tuple(rejected), "LINFIT-LOO-1" if clip_sigma is not None else "LINFIT-1")
 
 
 def compare_to_catalogue(fit: MotionFit, pmra: float, pmdec: float,

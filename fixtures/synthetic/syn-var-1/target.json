@@ -1,0 +1,20 @@
+{
+  "target_id": "syn-var-1",
+  "name": "SYN-VAR-1",
+  "kind": "synthetic",
+  "role": "synthetic variable star (tests wavelength-matched variability)",
+  "identity": {
+    "catalogue": "synthetic (generated)",
+    "description": "Generated star that dims to 62% of its brightness in the third pass; negligible motion."
+  },
+  "astrometry": {
+    "ra": 77.0,
+    "dec": 30.4,
+    "ref_epoch": 2016.0,
+    "pmra": 3.0,
+    "pmdec": -27.0,
+    "parallax": 0.0,
+    "radial_velocity": 0.0,
+    "source": "synthetic catalogue (generator input)"
+  }
+}

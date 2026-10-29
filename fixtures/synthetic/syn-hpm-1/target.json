@@ -1,0 +1,20 @@
+{
+  "target_id": "syn-hpm-1",
+  "name": "SYN-HPM-1",
+  "kind": "synthetic",
+  "role": "synthetic high-proper-motion star (tests motion recovery)",
+  "identity": {
+    "catalogue": "synthetic (generated)",
+    "description": "Generated star moving 4.67\"/yr among 18 reference stars; constant brightness."
+  },
+  "astrometry": {
+    "ra": 210.25,
+    "dec": -32.6,
+    "ref_epoch": 2016.0,
+    "pmra": 3200.0,
+    "pmdec": -3400.0,
+    "parallax": 0.0,
+    "radial_velocity": 0.0,
+    "source": "synthetic catalogue (generator input)"
+  }
+}

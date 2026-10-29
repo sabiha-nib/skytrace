@@ -48,8 +48,13 @@ def _model(p, xx, yy):
 
 def fit_centroid(image: np.ndarray, variance: np.ndarray, x0: float, y0: float,
                  half_size: int = 4, bad: np.ndarray | None = None,
-                 min_good_pixels: int = 12) -> Centroid:
-    """Fit near (x0, y0) (0-based pixel coordinates, x = column)."""
+                 min_good_pixels: int = 12, max_shift_px: float | None = None) -> Centroid:
+    """Fit near (x0, y0) (0-based pixel coordinates, x = column).
+
+    max_shift_px confines the fitted position to a box of that half-width around
+    (x0, y0); a solution on that boundary is reported as not converged (the fit
+    was being pulled toward something else, e.g. a brighter neighbour).
+    """
     ny, nx = image.shape
     xc, yc = int(round(x0)), int(round(y0))
     x_lo, x_hi = max(0, xc - half_size), min(nx, xc + half_size + 1)
@@ -77,6 +82,9 @@ def fit_centroid(image: np.ndarray, variance: np.ndarray, x0: float, y0: float,
     p0 = [amp0, float(x0), float(y0), 1.0, 1.0, bg0]
     lo = [0, x_lo - 0.5, y_lo - 0.5, 0.3, 0.3, -np.inf]
     hi = [np.inf, x_hi - 0.5, y_hi - 0.5, 3.0 * half_size, 3.0 * half_size, np.inf]
+    if max_shift_px is not None:
+        lo[1], hi[1] = max(lo[1], x0 - max_shift_px), min(hi[1], x0 + max_shift_px)
+        lo[2], hi[2] = max(lo[2], y0 - max_shift_px), min(hi[2], y0 + max_shift_px)
     res = least_squares(lambda p: (_model(p, X, Y) - d) * w, p0, bounds=(lo, hi), x_scale="jac")
     dof = max(1, d.size - 6)
     rchi2 = float(np.sum(res.fun ** 2) / dof)
@@ -85,7 +93,8 @@ def fit_centroid(image: np.ndarray, variance: np.ndarray, x0: float, y0: float,
     except np.linalg.LinAlgError:
         return fail("singular covariance")
     amp, xf, yf, sx, sy, bg = res.x
-    at_bound = np.any(np.isclose(res.x[1:3], [lo[1], lo[2]]) | np.isclose(res.x[1:3], [hi[1], hi[2]]))
+    at_bound = bool(np.any(np.abs(res.x[1:3] - np.array([lo[1], lo[2]])) < 1e-3) or
+                    np.any(np.abs(res.x[1:3] - np.array([hi[1], hi[2]])) < 1e-3))
     ok = bool(res.success) and not at_bound and np.all(np.isfinite(np.diag(cov)))
     return Centroid(float(xf), float(yf), float(np.sqrt(cov[1, 1])), float(np.sqrt(cov[2, 2])),
                     float(cov[1, 2]), float(amp), float(bg), float(2.3548 * sx), float(2.3548 * sy),

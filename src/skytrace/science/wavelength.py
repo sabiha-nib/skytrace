@@ -77,6 +77,16 @@ def compare_pair(s1: SourceSample, s2: SourceSample, tolerance: float = 0.5,
     return decide(True, f"|dλ|={dl:.4f} µm <= {limit:.4f} µm, same detector")
 
 
+def reason_category(reason: str) -> str:
+    """Stable category for a rejection reason (observation keys may contain ':')."""
+    for cat in ("same observation", "different detectors", "wavelength mismatch", "no valid bandwidth", "time baseline"):
+        if reason.startswith(cat) or f" {cat}" in reason:
+            return cat
+    if " unusable: " in reason:
+        return "unusable measurement"
+    return "other"
+
+
 def match_pairs(samples: list[SourceSample], tolerance: float = 0.5,
                 min_dt_days: float = 0.0) -> list[PairDecision]:
     """Evaluate all pairs. Returns every decision (accepted and rejected), sorted."""
