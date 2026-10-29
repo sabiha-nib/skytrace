@@ -14,6 +14,7 @@ this script itself, and nothing that needs the server is imitated in the preview
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -69,12 +70,6 @@ def write(rel: str, content) -> None:
         p.write_text(json.dumps(content, separators=(",", ":")))
     else:
         p.write_text(content)
-
-
-def write_bytes(rel: str, data: bytes) -> None:
-    p = OUT / "data" / rel
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_bytes(data)
 
 
 BROWSER_PORTS = {"wavelength_match", "registration"}     # web/js/static/compare.js and register.js, parity-tested
@@ -184,7 +179,9 @@ def main() -> int:
                 disc = ok(get(f"/api/investigations/{iid}/discovery")).json()
                 disc["capabilities"] = preview_caps(disc["capabilities"])
                 write(f"t/{tid}/run/{iid}/discovery.json", disc)
-                write_bytes(f"t/{tid}/run/{iid}/package.zip", ok(get(f"/api/investigations/{iid}/package.zip")).content)
+                pkg = ok(get(f"/api/investigations/{iid}/package.zip")).content   # hosts serve no .zip: carried as base64 JSON
+                write(f"t/{tid}/run/{iid}/package.json", {"method": "PKG-1", "bytes": len(pkg), "sha256": hashlib.sha256(pkg).hexdigest(),
+                                                          "base64": base64.b64encode(pkg).decode()})
                 write(f"t/{tid}/run/{iid}/ask.json", {intent: ok(post(f"/api/investigations/{iid}/ask", {"question": q})).json()
                                                       for intent, q in QUESTIONS.items()})
                 runs.append({"iid": iid, "label": label, "params": params, "default": not params,

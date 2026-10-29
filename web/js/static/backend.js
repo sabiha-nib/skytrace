@@ -165,10 +165,14 @@ export const staticApi = {
   report: (iid) => getText(`t/${runTarget.get(iid)}/run/${iid}/report.md`),
   discovery: (iid) => getJSON(`t/${runTarget.get(iid)}/run/${iid}/discovery.json`),
   capabilities: () => getJSON("capabilities.json"),
+  // The package zip built by the server at build time, carried as base64 (static hosts may not serve .zip files);
+  // its SHA-256 is checked before it is offered, so the bytes are exactly the server's.
   packageBytes: async (iid) => {
-    const r = await fetch(BASE + `t/${runTarget.get(iid)}/run/${iid}/package.zip`);
-    if (!r.ok) throw new Error(r.status === 404 ? "not included in this preview" : `${r.status} ${r.statusText}`);
-    return r.arrayBuffer();
+    const p = await getJSON(`t/${runTarget.get(iid)}/run/${iid}/package.json`);
+    const bin = Uint8Array.from(atob(p.base64), (c) => c.charCodeAt(0));
+    const hex = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bin)), (b) => b.toString(16).padStart(2, "0")).join("");
+    if (bin.length !== p.bytes || hex !== p.sha256) throw new Error("the stored package does not match its checksum");
+    return bin.buffer;
   },
   async updateRecord(id, body) {
     const list = load(), d = list.find((r) => r.record_id === id);

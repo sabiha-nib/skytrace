@@ -12,7 +12,7 @@ Three ways to open the application. All three show the same interface; they diff
 
 `scripts/build_static.py` starts the real server with `OFFLINE=1`, calls its API and records the responses into
 `dist/preview/data/`: targets, observation images, for each synthetic target the default analysis and the five
-stability perturbations (record, summary, evidence graph, report, discovery report, reproducibility package and the
+stability perturbations (record, summary, evidence graph, report, discovery report, the reproducibility package — the server-built zip carried as base64 with its SHA-256, checked in the browser before it is offered — and the
 local assistant's answer to each question type), the stability result, and the capability registry as the preview
 sees it. `PREVIEW_MANIFEST.json` lists every file with its SHA-256 and the commit it was built from.
 

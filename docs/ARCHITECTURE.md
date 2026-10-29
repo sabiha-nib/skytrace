@@ -50,7 +50,7 @@ named, precomputed results said to be precomputed. Generated table: [DISCOVERY_M
 | Uncertainty Explorer (UNC-1) | inside the discovery report | `web/js/uncertainty.js` (Lab tab) | same file |
 | Registration diagnostics (REGDIAG-1) | in the pair comparison | `web/js/timemachine.js` | browser port `web/js/static/compare.js` (parity-tested) |
 | Evidence graph: competing explanations | `view.evidence_graph` | `web/js/graph.js` | `graph.json` |
-| Reproducibility package (PKG-1) | `GET /api/investigations/{id}/package.zip` | Report Studio (`web/js/records.js`) | `package.zip` built by the server at build time |
+| Reproducibility package (PKG-1) | `GET /api/investigations/{id}/package.zip` | Report Studio (`web/js/records.js`) | `package.json`: the server-built zip as base64 with its SHA-256, checked in the browser before download (static hosts may not serve .zip) |
 | Vault: rename, retag, notes, context, duplicate | `PATCH /api/records/{rid}`, `POST /api/records/{rid}/clone` | `web/js/records.js` | browser storage (`web/js/static/backend.js`) |
 | Investigation context (question, user hypotheses) | stored with a record (`context`, ≤ 50 kB) | `state.context`, sanitised on reopen (`state.sanitizeContext`) | browser storage |
 | Command palette, glossary, shortcuts, levels, loop bar | — | `web/js/palette.js`, `web/js/main.js`, CSS `body[data-level]` | same |
