@@ -74,9 +74,11 @@ async function loadTarget(tid, { keepSelection = null, push = true } = {}) {
   renderHeader(); renderRuler(); refreshCopilot();
   RENDER[state.ws]();
   writeHash(push);
+  // The preview's default analysis is already computed, so open each target in its working state.
+  if (STATIC && state.target) await runAnalysis(undefined, { quiet: true });
 }
 
-async function runAnalysis(params) {
+async function runAnalysis(params, { quiet = false } = {}) {
   if (!state.target) return;
   const btn = $("#run-btn");
   btn.disabled = true; btn.replaceChildren(el("span", { class: "spinner" }), "Analysing…");
@@ -86,7 +88,7 @@ async function runAnalysis(params) {
     state.prevInv = prev;
     state.inv = r; state.model = deriveModel(r.record);
     const o = state.model.outcomes.map((x) => `${x.question.replace("_", " ")}: ${x.category.replaceAll("_", " ")}`).join(" · ");
-    toast(`Analysis complete. ${o}`, 5000);
+    if (!quiet) toast(`Analysis complete. ${o}`, 5000);
     if (prev) $("#thread").append(el("p", { class: "faint" }, "New analysis run; later answers refer to it."));
   } catch (e) { toast(STATIC ? e.message : `Analysis failed: ${e.message}`, 7000); }
   renderHeader(); renderRuler(); refreshCopilot();

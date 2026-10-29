@@ -6,7 +6,24 @@ Skytrace investigates NASA SPHEREx's repeated near-infrared images of the same p
 
 ![Time Machine comparing two wavelength-matched observations](docs/screenshots/time-machine-matched.png)
 
-## Status (v0.3.0, 2026-10-29)
+## Preview
+
+| Way to open it | Command / link | What runs |
+|---|---|---|
+| **Hosted preview** (claude.ai artifact, private to its owner until shared) | https://claude.ai/artifact/RoUxXMSEELpbxBHj8wgzpT | the static build below: the same interface, with every result precomputed by the Python pipeline from the synthetic targets |
+| Static preview, locally | `python scripts/build_static.py && python -m http.server -d dist/preview 8700` → http://127.0.0.1:8700/ | the same files, no backend |
+| **Full application** | `OFFLINE=1 python run.py` → http://127.0.0.1:8600 | the server: live analysis with any parameters, the copilot loop, server-side records and replay |
+
+The static preview says on every screen that it is a preview of precomputed results. Things that need the server
+(arbitrary parameters, questions about named observations, replay by re-execution) are disabled or refused with
+an explanation; pair comparisons, image registration and record-hash checks run in the browser with code that is
+tested for parity with the Python implementation.
+
+## Status (v0.4.0, 2026-10-29)
+
+Phase 4 made the application previewable without a server and audited every control
+([docs/PHASE4_AUDIT.md](docs/PHASE4_AUDIT.md)). Phase 3 (validation) is summarised in
+[docs/PHASE3_GATES.md](docs/PHASE3_GATES.md).
 
 Phase 3 was a validation phase: independent checks of the file reader, a calibration and uncertainty audit,
 a stricter assessment engine, provenance verification and robustness tests. Gate summary:
@@ -14,14 +31,14 @@ a stricter assessment engine, provenance verification and robustness tests. Gate
 
 | Part | State |
 |---|---|
-| Application (API + web interface) | Works end to end offline; browser acceptance test 11/11 |
+| Application (API + web interface) | Works end to end offline; 31 browser tests pass (journey + every control, in both the server and the static-preview mode) |
 | Scientific pipeline | Parallax, Gaia quality cuts, visit-averaged motion fit, reference-calibrated photometry and an error-model check added (`skytrace-analysis/2`). Validated on synthetic data with known truth, including 12 robustness scenarios |
 | Real SPHEREx data | **Not yet acquired (blocked).** IRSA, SIMBAD and Gaia are refused by this environment's network policy (proxy 403). Nothing here is a real-data result. What to allowlist: [docs/ENVIRONMENT_REPORT.md](docs/ENVIRONMENT_REPORT.md) |
 | FITS/WCS reading | Built-in reader validated against 14 independent astropy/wcslib test files with stated tolerances (six defects found and fixed). **Not yet compared with astropy on a real SPHEREx file** |
 | Assessment | `ASSESS-2`: every outcome states its sensitivity; a non-detection is never reported as proof, a failed fit never as "no motion" |
 | Provenance | `scripts/verify_provenance.py` checks a record against its files' SHA-256, origins, codes and re-run determinism |
 | Meta copilot | Tool contract (`TOOLS-2`) and guard (`GUARD-3`) tested with a scripted client. **No live Meta API call has been made (blocked: no route, no key)** |
-| Tests | 193 unit/integration/robustness tests and 11 browser steps pass; the 4 live tests fail here for lack of network |
+| Tests | 199 unit/integration/robustness tests and 31 browser tests pass; the 4 live tests fail here for lack of network |
 
 The bundled data are **synthetic**: two generated targets, SYN-HPM-1 (a fast-moving star) and SYN-VAR-1 (a star that dims). They exist so the whole workflow can be exercised and tested. Every synthetic file carries `SYNTHETIC = T`, every image is watermarked, and the interface labels them on every screen. The data verifier refuses a synthetic file inside an archive bundle.
 

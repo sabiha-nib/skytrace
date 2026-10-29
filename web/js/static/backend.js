@@ -16,6 +16,7 @@ const cache = new Map();
 const runsByTarget = new Map();     // tid -> [{iid, label, params, default, content_hash}]
 const runTarget = new Map();        // iid -> tid
 const records = new Map();          // iid -> parsed record
+const imagesByTarget = new Map();   // tid -> promise of {key: image payload}
 const STORE_KEY = "skytrace.preview.records.v1";
 let memoryStore = null;             // used when browser storage is unavailable
 
@@ -31,7 +32,6 @@ async function getText(path) {
   try { return await p; } catch (e) { cache.delete(path); throw e; }
 }
 const getJSON = async (path) => JSON.parse(await getText(path));
-const fname = (key) => key.replace(/[^A-Za-z0-9_-]/g, "_");
 
 async function runs(tid) {
   if (!runsByTarget.has(tid)) {
@@ -117,7 +117,12 @@ export const staticApi = {
   status: () => getJSON("status.json"),
   targets: () => getJSON("targets.json"),
   target: (tid) => getJSON(`t/${tid}/target.json`),
-  image: (tid, key) => getJSON(`t/${tid}/img/${fname(key)}.json`),
+  async image(tid, key) {
+    if (!imagesByTarget.has(tid)) imagesByTarget.set(tid, getJSON(`t/${tid}/images.json`));
+    const all = await imagesByTarget.get(tid);
+    if (!all[key]) throw new Error(`${key} has no stored image in this preview`);
+    return all[key];
+  },
   async pair(tid, a, b, iid) {
     const [pa, pb] = await Promise.all([staticApi.image(tid, a), staticApi.image(tid, b)]);
     let ma = null, mb = null, comparison = null;
@@ -151,7 +156,7 @@ export const staticApi = {
   async ask(iid, question) {
     if (KEY_RE.test(question))
       throw new PreviewLimit("questions that name specific observations are answered by the local server's assistant; in this preview, use the Time Machine's comparison panel for a pair, or ask a general question.");
-    return getJSON(`t/${runTarget.get(iid)}/run/${iid}/ask/${intentOf(question)}.json`);
+    return (await getJSON(`t/${runTarget.get(iid)}/run/${iid}/ask.json`))[intentOf(question)];
   },
   async records() { return { records: load(), storage: recordStorageKind() }; },
   async saveRecord(body) { return saveFor(body.investigation_id, body.name, body.notes, body.transcript); },

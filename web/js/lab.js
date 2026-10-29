@@ -84,7 +84,7 @@ function outcomes(p) {
   }
   p.append(grid, el("div", { class: "controls" },
     el("button", { class: "btn", onclick: async () => {
-      try { download(`skytrace-${state.targetId}-${state.inv.investigation_id}.md`, await api.report(state.inv.investigation_id)); toast("Report downloaded"); }
+      try { if (await download(`skytrace-${state.targetId}-${state.inv.investigation_id}.md`, await api.report(state.inv.investigation_id))) toast("Report downloaded"); }
       catch (e) { toast(e.message); } } }, "Download report (Markdown)"),
     el("span", { class: "muted" }, `Rules ${m.outcomes[0]?.rules || ""} · analysis ${m.record.parameters.analysis_version} · content hash ${m.record.content_hash.slice(0, 12)}…`)));
 }

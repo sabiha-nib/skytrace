@@ -53,3 +53,49 @@ Scientific modules and their versions (`science/`, `analysis.py` v2, ASSESS-2), 
 (bundle verification, PROVCHECK-1, synthetic labelling, watermark), WLMATCH-2 gating of brightness
 comparisons, GUARD-3 and TOOLS-2, offline mode with zero external requests, strict CSP, record
 save/replay with content hashes, and every existing test (193 + 11 browser steps).
+
+## Results (v0.4.0)
+
+### Preview delivered
+
+| Path | State |
+|---|---|
+| Hosted artifact `https://claude.ai/artifact/RoUxXMSEELpbxBHj8wgzpT` (version 2) | **Published**: 90 files, 10.4 MB, private to its owner until shared. **Not opened from the build environment**: the hosted page needs a signed-in viewer ("Couldn't load artifact" for the headless browser here). The identical files were opened locally inside an emulation of the host's document skeleton at 1440/820/390 px: no errors, no external requests, no horizontal overflow |
+| Static build `dist/preview/` | Built by `scripts/build_static.py`; served with `python -m http.server -d dist/preview 8700`; covered by the browser tests below |
+| Full application `OFFLINE=1 python run.py` | Unchanged entry point; covered by the browser tests below |
+
+### Acceptance gates
+
+| Gate | Result |
+|---|---|
+| Repository audit completed | PASS (this document) |
+| Existing app starts | PASS (`run.py`, port 8611, `/api/status` answered) |
+| Browser preview opened and inspected | PASS locally (server mode and static build, three viewports, screenshots inspected); hosted copy NOT RUN (sign-in required) |
+| No fatal JavaScript errors in the verified workflow | PASS (`test_j_*`: no page errors or console errors in either mode; the one expected log line is the HTTP 400 of a deliberately refused import) |
+| No unintended external requests offline | PASS (both modes; the static build makes no `/api/` request at all) |
+| All visible controls tested | PASS (`tests/e2e/test_controls.py`, 10 steps × 2 modes) |
+| Synthetic and real data clearly distinguished | PASS (pill, banner, watermark; preview pill and note; challenge targets keep the no-data state) |
+| No fake live API status or fabricated claims | PASS (copilot labelled "Local assistant · no language model"; preview answers are the server's recorded local-assistant answers; no model status claimed) |
+| Existing scientific and provenance tests preserved | PASS (all Phase 1–3 tests still run and pass) |
+| New tests pass | PASS (Node parity tests, import/export integration test, graph completeness test, 20 new browser steps) |
+| Responsive layout checked | PASS (820 and 390 px in both modes; overlay copilot with Escape/Close) |
+| Production build verified | PASS (`build_static.py` output verified by manifest and served without a backend) |
+| Startup and preview instructions accurate | PASS (README "Preview" commands executed in this run) |
+| Remaining blockers documented | PASS (below) |
+
+### Defects found and fixed in this phase
+
+1. Evidence Graph omitted five recorded method versions → method nodes now come from `parameters.methods`.
+2. Evidence Graph linked the variability claim to pairs by raw z, while ASSESS-2 decides on the calibrated z → the graph now uses the assessment's own significance (`assess.pair_significance`).
+3. Graph claim labels overlapped the comparison column → labels above the node, in plain words.
+4. Time Machine difference mode never showed its caption (set after the first render) → caption passed with the frames.
+5. Browser back/forward did nothing → workspace and target changes push history entries; `popstate` restores them.
+6. Clipboard copy threw an unhandled rejection where the clipboard is refused → falls back to selecting the text.
+7. Downloads are blocked inside the artifact viewer → the viewer's `downloads` capability is used there.
+8. No way to export or import a record → server export endpoint and verified import (content hash must recompute); in the preview the hash is recomputed in the browser with a parity-tested port of `stable_hash`.
+
+### Remaining blockers
+
+* Real SPHEREx data, astropy and the live Meta test remain blocked by the network policy (`ENVIRONMENT_REPORT.md`).
+* The hosted preview could not be opened from here; it should be opened once by its owner (and shared from its
+  Share menu if others need it).

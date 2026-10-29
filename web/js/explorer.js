@@ -3,7 +3,7 @@
 import { api } from "./api.js";
 import { state, emit } from "./state.js";
 import { ImageViewer, decodeFrame } from "./viewer.js";
-import { $, DET_COLORS, clear, detSwatch, el, fmt, fmtDate, shortKey, toast } from "./util.js";
+import { $, DET_COLORS, clear, detSwatch, el, fmt, fmtDate, shortKey, toast, copyText } from "./util.js";
 
 let viewer = null;
 let filters = { detector: "all", status: "all" };
@@ -85,8 +85,8 @@ function noData(t) {
     el("h3", {}, `No SPHEREx data stored for ${t.name} yet`),
     el("p", {}, "This build has no archive bundle for this target. The development environment could not reach the IRSA archive, so no real observations were downloaded. Nothing is shown in their place."),
     el("p", {}, "On a machine with internet access, acquire and verify the real data with:"),
-    el("div", { class: "copy-cmd" }, el("code", {}, t.acquire_command),
-      el("button", { class: "btn small", onclick: () => navigator.clipboard?.writeText(t.acquire_command).then(() => toast("Command copied")) }, "Copy")),
+    (() => { const code = el("code", {}, t.acquire_command);
+      return el("div", { class: "copy-cmd" }, code, el("button", { class: "btn small", onclick: () => copyText(t.acquire_command, code) }, "Copy")); })(),
     el("p", {}, "Then restart Skytrace; the target will appear with its observations."),
     t.role ? el("p", {}, el("strong", {}, "Planned use: "), t.role) : null,
     rows.length ? el("div", { class: "card" }, el("h3", {}, "Planning hints ", el("span", { class: "muted" }, "(secondary source, unverified; not used in any measurement)")),

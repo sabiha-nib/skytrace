@@ -30,8 +30,7 @@ export async function renderRecords() {
   exp.addEventListener("click", async () => {
     try {
       const text = await api.recordText(state.inv.investigation_id);
-      download(`skytrace-${state.targetId}-${state.inv.investigation_id}.json`, text, "application/json");
-      toast("Record exported");
+      if (await download(`skytrace-${state.targetId}-${state.inv.investigation_id}.json`, text, "application/json")) toast("Record exported");
     } catch (e) { toast(e.message); }
   });
   body.append(el("div", { class: "card" }, el("h3", {}, "Save the current investigation"),

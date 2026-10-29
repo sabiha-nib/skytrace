@@ -1,3 +1,19 @@
+# Test report — v0.4.0 (2026-10-29)
+
+## Phase 4 additions (previewable application)
+
+| Command | Result |
+|---|---|
+| `python scripts/verify.py --e2e` | **VERIFIED, 18/18 checks** (new: static preview build matches its manifest) |
+| `python -m pytest tests/unit tests/integration tests/robustness` | **199 passed, 2 skipped** |
+| `python -m pytest -m e2e tests/e2e` | **31 passed**: the 11-step journey plus `test_controls.py` (10 steps) in the server **and** the static-preview mode |
+| `python scripts/build_static.py` | 90 files, 10.4 MB, from the real server (OFFLINE=1) |
+| Hosted artifact | published (version 2); opening it from the build environment: **NOT RUN** (sign-in required) |
+
+New tests: `unit/test_static_preview.py` (Node: browser pair comparison equals Python for all 2,260 pairs of both fixtures; browser content hash equals Python and detects edits; both mutation-checked), `integration/test_api.py::test_record_export_and_verified_import`, `unit/test_report_ai.py::test_evidence_graph_names_every_recorded_method_and_uses_assessed_significance`, `e2e/test_controls.py` (every visible control, back/forward, keyboard selection, overlay dismissal with Escape, tablet and mobile widths, downloads, import of an intact and a tampered record, no external requests).
+
+The sections below are the Phase 3 report (v0.3.0), unchanged.
+
 # Test report — v0.3.0 (2026-10-29)
 
 Phase 3 (validation and scientific completion). Everything below was executed in the cloud build

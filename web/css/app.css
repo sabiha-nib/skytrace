@@ -43,7 +43,7 @@ a { color: var(--accent); }
 
 /* ------------------------------------------------------------------ frame */
 .app {
-  display: grid; height: 100vh;
+  display: grid; height: 100%;   /* html and body are 100%: fits hosts that pad the root for safe areas */
   grid-template-columns: 184px minmax(0, 1fr) 380px;
   grid-template-rows: auto auto minmax(0, 1fr);
   grid-template-areas: "top top top" "ruler ruler ruler" "nav main copilot";

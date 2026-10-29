@@ -88,6 +88,20 @@ def main() -> int:
               f"{r.get('n_files')} files, {r.get('total_bytes', 0) / 1e6:.1f} MB" + ("" if r["ok"] else "; " + "; ".join(r["problems"][:3])))
     n_archive = sum(r["kind"] == "archive" and r["ok"] for r in results)
 
+    # static preview build (if present): every file matches its manifest, and it carries no secrets
+    pm = ROOT / "dist" / "preview" / "PREVIEW_MANIFEST.json"
+    if pm.exists():
+        man = json.loads(pm.read_text())
+        import hashlib
+        bad = [f["path"] for f in man["files"] if not (ROOT / "dist" / "preview" / f["path"]).is_file()
+               or hashlib.sha256((ROOT / "dist" / "preview" / f["path"]).read_bytes()).hexdigest() != f["sha256"]]
+        leaks = [f["path"] for f in man["files"] if f["path"].endswith((".js", ".json", ".html", ".md")) and
+                 any(r.search((ROOT / "dist" / "preview" / f["path"]).read_text(errors="ignore")) for r in SECRET_PATTERNS)]
+        check("static preview build", not bad and not leaks,
+              f"{len(man['files'])} files match PREVIEW_MANIFEST.json" if not bad and not leaks else f"mismatch {bad[:3]} secrets {leaks[:3]}")
+    else:
+        warn("no static preview build (python scripts/build_static.py)")
+
     # synthetic fixtures regenerate byte-identically from the package generator
     r = subprocess.run([sys.executable, str(ROOT / "scripts" / "make_synthetic_fixtures.py"), "--check"], cwd=ROOT,
                        capture_output=True, text=True)

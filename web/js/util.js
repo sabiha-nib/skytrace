@@ -81,7 +81,27 @@ export function b64ToUint8(b64) {
   return u8;
 }
 
-export function download(name, text, type = "text/markdown") {
+// Offer a file to save. Inside a claude.ai artifact viewer, page-started downloads are blocked, so the viewer's
+// `downloads` capability is used (the viewer confirms the save). Elsewhere (the local app, a plain browser) a Blob
+// link is used. Resolves true when the file was handed over, false (with a message) otherwise.
+export async function download(name, text, type = "text/markdown") {
+  if (window.claude?.use) {
+    let dl = null;
+    try { dl = await window.claude.use("downloads"); } catch { dl = null; }
+    if (!dl) { toast("Saving files is not available in this view."); return false; }
+    try { await dl.save({ filename: name, data: text }); return true; }
+    catch (e) { toast(e?.code === "declined" ? "Not saved." : `Could not save the file (${e?.code || "unavailable"}).`); return false; }
+  }
   const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: name });
   document.body.append(a); a.click(); a.remove();
+  return true;
+}
+
+// Copy text; where the clipboard is refused, select the text so the viewer can copy it themselves.
+export async function copyText(text, selectEl) {
+  try { await navigator.clipboard.writeText(text); toast("Copied"); }
+  catch {
+    if (selectEl) { const r = document.createRange(); r.selectNodeContents(selectEl); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+    toast("Copy was blocked here; the text is selected so you can copy it.");
+  }
 }

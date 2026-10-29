@@ -1,4 +1,4 @@
-# Requirement traceability (v0.3.0, 2026-10-29)
+# Requirement traceability (v0.4.0, 2026-10-29)
 
 `IMPLEMENTED` means the code exists and its deterministic tests pass. `VERIFIED` means it is also confirmed on real data or a live service. `BLOCKED` names the missing access. Hackathon submission requirements were retired when the project moved to Meta.
 
@@ -42,3 +42,7 @@
 | R34 | Guard: identifiers and uncertainty in addition to claims, numbers, citations, limitations, synthetic status | `ai/guard.py` (GUARD-3) | `test_guard3_identifiers_and_uncertainty` | IMPLEMENTED | |
 | R35 | Live Meta test | `scripts/meta_smoke_test.py` | — | **BLOCKED** | api.meta.ai refused; no key |
 | R36 | Robustness and perturbation stability (synthetic, labelled) | `synthetic.py`, `stability.py`, `/api/targets/{id}/stability` | `tests/robustness` (12), e2e `test_05b` | IMPLEMENTED | `TEST_REPORT.md` |
+| R37 | Previewable application without a server; honest gating of server-only features | `scripts/build_static.py`, `web/js/static/` | `tests/e2e/test_controls.py[static]` | IMPLEMENTED | hosted as a private claude.ai artifact; hosted copy not opened from the build environment (sign-in) |
+| R38 | Browser computations equal the Python ones (pair comparison, record content hash) | `web/js/static/compare.js`, `hash.js` | `tests/unit/test_static_preview.py` (Node parity, mutation-checked) | IMPLEMENTED | |
+| R39 | Every visible control works or is disabled with a reason; back/forward; keyboard; overlay dismissal | `web/js/*` | `tests/e2e/test_controls.py` (both modes) | IMPLEMENTED | |
+| R40 | Record export and verified import | `/api/investigations/{id}/record.json`, `/api/records/import`, `records.js` | integration + e2e | IMPLEMENTED | |

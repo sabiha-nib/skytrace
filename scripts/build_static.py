@@ -79,6 +79,12 @@ def copy_web() -> None:
     html = html.replace('href="/static/css/app.css"', 'href="css/app.css"').replace('src="/static/js/main.js"', 'src="js/main.js"')
     html = html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  <meta name="skytrace-mode" content="static">', 1)
     (OUT / "index.html").write_text(html)
+    # artifact.html: the same page as body content, for hosts that wrap the page in their own document skeleton
+    head = re.search(r"<head>(.*?)</head>", html, re.S).group(1)
+    body = re.search(r"<body>(.*?)</body>", html, re.S).group(1)
+    keep = sorted((ln for ln in head.splitlines() if re.search(r"<title>|skytrace-mode|name=\"description\"|rel=\"stylesheet\"", ln)),
+                  key=lambda ln: "<title>" not in ln)      # the host reads the <title> from the top of the file
+    (OUT / "artifact.html").write_text("\n".join(ln.strip() for ln in keep) + "\n" + body.strip() + "\n")
 
 
 def main() -> int:
@@ -134,10 +140,12 @@ def main() -> int:
                 continue                      # challenge targets without data: the app shows their no-data state
             detail = ok(get(f"/api/targets/{tid}")).json()
             write(f"t/{tid}/target.json", detail)
+            images = {}
             for o in detail["observations"]:
                 if o.get("file"):
-                    write(f"t/{tid}/img/{fname(o['key'])}.json", ok(get(f"/api/targets/{tid}/observations/{o['key']}/image")).json())
+                    images[o["key"]] = ok(get(f"/api/targets/{tid}/observations/{o['key']}/image")).json()
                     n_files += 1
+            write(f"t/{tid}/images.json", images)      # one file per target keeps the hosted preview under its file limit
             runs = []
             for label, params in [("Default parameters", {})] + stability.perturbations({}):
                 s = ok(post(f"/api/targets/{tid}/analyze", {"params": params})).json()
@@ -147,8 +155,8 @@ def main() -> int:
                 write(f"t/{tid}/run/{iid}/meta.json", {k: v for k, v in s.items() if k != "record"})
                 write(f"t/{tid}/run/{iid}/graph.json", ok(get(f"/api/investigations/{iid}/graph")).json())
                 write(f"t/{tid}/run/{iid}/report.md", ok(get(f"/api/investigations/{iid}/report.md")).text)
-                for intent, q in QUESTIONS.items():
-                    write(f"t/{tid}/run/{iid}/ask/{intent}.json", ok(post(f"/api/investigations/{iid}/ask", {"question": q})).json())
+                write(f"t/{tid}/run/{iid}/ask.json", {intent: ok(post(f"/api/investigations/{iid}/ask", {"question": q})).json()
+                                                      for intent, q in QUESTIONS.items()})
                 runs.append({"iid": iid, "label": label, "params": params, "default": not params,
                              "content_hash": s["record"]["content_hash"]})
                 print(f"  {tid}: {label} -> {iid}")
