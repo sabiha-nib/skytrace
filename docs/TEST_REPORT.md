@@ -1,4 +1,4 @@
-# Test report — v0.6.0 (2026-10-30)
+# Test report — v0.6.0 and v0.6.1 (2026-10-30)
 
 Statuses: **PASS** (executed, met), **FAIL** (executed, not met), **BLOCKED** (could not be executed here; the reason is
 named), **NOT RUN** (not attempted).
@@ -22,7 +22,7 @@ named), **NOT RUN** (not attempted).
 | G13 | Native reader vs astropy on a real SPHEREx file | needs network and astropy (PyPI 403) | BLOCKED |
 | G14 | Live Meta Model API call | no key in the environment; the API host is refused (403) | BLOCKED |
 | G15 | Dockerfile build | base images cannot be pulled | NOT RUN |
-| G16 | Hosted preview opened after republishing | see the release section below | see below |
+| G16 | Hosted preview opened after republishing | 0.6.0 published as version 4 of the hosted artifact and opened in the built-in browser of the Claude desktop app (not signed in; the artifact is readable by link): page loaded with *Skytrace 0.6.0 · preview 70e3dc4*; Command Center, planner (plan, *Run 3 ready steps* → completed with results), copilot question with source label, *Add to notebook as draft* → two draft blocks in the notebook; only console error was the host's own `/api/account` 403. **Found a defect**: at 861–1180 px the top bar pushed *Run* and *Copilot* off-screen → fixed in 0.6.1 (see the release section) | PASS (0.6.0, with the defect found); 0.6.1: see below |
 | G17 | Release artifacts | `scripts/make_release.py` → see the release section below; 0.4.0 and 0.5.0 artifacts untouched | see below |
 
 ## New tests in v0.6

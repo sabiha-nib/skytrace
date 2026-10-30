@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.6.1 — 2026-10-30 · top-bar fix
+
+* **Fixed**: between 861 and 1180 px wide, the top bar did not wrap and pushed *Run analysis*, *Copilot* and the status
+  pills past the right edge. Found by opening the hosted 0.6.0 preview in an 800-px-wide browser pane. The bar now wraps at
+  those widths, and `test_j_levels` checks every visible top-bar control at nine widths from 390 to 1440 px in both modes.
+* No other change; 0.6.0 artifacts are kept.
+
 ## 0.6.0 — 2026-10-30 · the research operating system
 
 Skytrace now keeps a whole line of research in one validated, hash-checked session and offers a set of research tools

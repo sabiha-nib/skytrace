@@ -322,10 +322,16 @@ def test_i_narrow_copilot_overlay_and_escape(app):
 
 
 def test_j_levels(app):
+    # every visible top-bar control lies inside the window, from phone to desktop widths (870–1180 px once pushed
+    # the Run and Copilot buttons off-screen; seen in the hosted preview)
+    for w in (1440, 1280, 1180, 1100, 1000, 900, 870, 820, 390):
+        app.set_viewport_size({"width": w, "height": 900})
+        for sel in ["#run-btn", ".level-switch", "#palette-btn", "#help-btn", "#copilot-toggle", "#model-pill", "#data-pill"]:
+            loc = app.locator(sel)
+            if loc.is_visible():
+                bb = loc.bounding_box()
+                assert bb["x"] + bb["width"] <= w + 0.5, (w, sel)
     app.set_viewport_size({"width": 1440, "height": 900})
-    for sel in ["#run-btn", ".level-switch", "#palette-btn"]:     # the top bar fits a 1440 px window
-        bb = app.locator(sel).bounding_box()
-        assert bb["x"] + bb["width"] <= 1440, sel
     app.click(".level-switch button[data-level=explore]")
     assert app.locator("body").get_attribute("data-level") == "explore"
     app.click(".nav button[data-ws=lab]")

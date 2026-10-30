@@ -629,3 +629,9 @@ ol.plain { list-style: decimal; padding-left: 20px; }
 .msg .ans-actions { margin-top: 8px; gap: 6px; flex-wrap: wrap; }
 .msg .recorded-q { font-size: 12px; margin: 0 0 6px; }
 .msg.user .mode { color: var(--muted); }
+
+/* Between the phone layout (≤ 860 px) and the full desktop (> 1180 px) the top bar wraps rather than pushing the Run and
+   Copilot buttons past the right edge (found when viewing the hosted preview in an 800-px-wide pane). */
+@media (max-width: 1180px) {
+  .topbar { flex-wrap: wrap; row-gap: 8px; }
+}
