@@ -19,3 +19,13 @@
 | `pytest -m live` fails | no network route to the services (expected in restricted environments) | run it where IRSA, SIMBAD and Gaia are reachable |
 | e2e tests skip | Playwright or Chromium missing | install Playwright with its Chromium; the tests use no other network |
 | `make_release.py` refuses to run | uncommitted changes, or that version's zip already exists | commit; bump the version (earlier release artifacts are never overwritten), or pass `--force` deliberately |
+
+| Sessions dialog lists "Unreadable session files (kept, not deleted)" | a file in `data/sessions/` is not valid JSON or fails validation | open it to inspect; Skytrace never deletes it; fix or remove it yourself |
+| "Import refused: content hash …" for a session | the session file was edited after export | re-export it; edit sessions only through the interface |
+| A plan step shows *blocked* | a precondition is unmet (no pair selected, server-only action in the preview, no network) | the step's note names the missing input; supply it and plan again |
+| A plan step stays *needs review* | inspection steps wait for your written judgement | open the step, write what you saw, *Mark reviewed* |
+| Experiment Studio: "Custom parameter sets need the local server" | the static preview recorded only the standard experiments | run the full application |
+| Negative control "not available" | no other fixture has that effect absent by construction | expected with the two fixtures; it is not a failure of the method |
+| Connector preview refused in the static preview | previews are built by the server's acquisition code | run the full application (no network is used by a preview) |
+| Copilot answer says it was recorded for a different question | static preview: one recorded answer per question type | ask in the full application for an answer to your exact wording |
+| Two tabs show different session contents | sessions are single-writer; the last save wins | use one tab per session, or branch the session |

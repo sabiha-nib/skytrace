@@ -64,3 +64,16 @@ content hash recomputes from `record.json` (the README shows how). To replay, pl
 `bundle_manifest.json` under `data/bundles/` (or use the bundled synthetic fixture) and import `record.json` into the
 full application, then *Replay*.
 
+## Research sessions and experiments (v0.6)
+
+* **Session export** (Sessions dialog → *Export session (JSON)*) is the full session in canonical form; its `content_hash`
+  recomputes as SHA-256 of the canonical text without that field (Python `skytrace.session.body_hash`, JS `sessioncore.bodyHash`;
+  both are tested to agree). *Import session* refuses any file whose stated hash differs.
+* **Session package** (Notebook → *Export session package (ZIP)*) is a deterministic stored ZIP: `session.json`, `notebook.md`
+  (references resolved against the active run at export time) and a README explaining how to recompute the hash. Same session,
+  same bytes (`tests/unit/test_notebook_package.py`).
+* **Reproducibility experiment** (Experiment Studio) runs the baseline twice, independently, and compares content hashes;
+  `python scripts/gen_research_methods.py` re-runs the standard experiments on both fixtures and writes their outcomes into
+  `docs/RESEARCH_METHODS.md`.
+* **Plans and workflows** are data: a stored plan keeps each step's action and inputs, and a workflow is a declarative JSON file
+  (`skytrace.workflow/1`) that validates identically in Python and the browser, so either can be re-run later.

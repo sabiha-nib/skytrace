@@ -59,6 +59,7 @@ def page_timings(base: str, mode: str) -> dict:
     with sync_playwright() as p:
         b = p.chromium.launch()
         loads, ready, disc, arena, unc = [], [], [], [], []
+        p6 = {k: [] for k in ("command_center", "planner_plan", "data_quality", "evidence_ledger", "discovery_radar", "notebook", "experiment_studio")}
         for _ in range(N):
             ctx = b.new_context(viewport={"width": 1440, "height": 900})
             pg = ctx.new_page()
@@ -75,6 +76,18 @@ def page_timings(base: str, mode: str) -> dict:
             pg.click(".nav button[data-ws=lab]")
             unc.append(timed(lambda: (pg.locator("#lab-body .tabs button", has_text="Uncertainty").click(),
                                       pg.locator("#lab-body h3", has_text="Motion uncertainty components").wait_for(timeout=60000))))
+            # Phase 6 workspaces (first render after the run is loaded)
+            pg.click(".level-switch button[data-level=research]")
+            p6["command_center"].append(timed(lambda: (pg.click(".nav button[data-ws=command]"), pg.locator("#command-body h3").first.wait_for(timeout=60000))))
+            pg.click(".nav button[data-ws=planner]")
+            pg.locator("#plan-question").wait_for(timeout=60000)
+            pg.fill("#plan-question", "Did the source change in brightness?")
+            p6["planner_plan"].append(timed(lambda: (pg.click("#plan-go"), pg.locator(".plan-step").first.wait_for(timeout=60000))))
+            p6["data_quality"].append(timed(lambda: (pg.click(".nav button[data-ws=quality]"), pg.locator(".dq-row").first.wait_for(timeout=60000))))
+            p6["evidence_ledger"].append(timed(lambda: (pg.click(".nav button[data-ws=graph]"), pg.locator(".graph-svg .node").first.wait_for(timeout=60000))))
+            p6["discovery_radar"].append(timed(lambda: (pg.click(".nav button[data-ws=radar]"), pg.locator(".radar-item").first.wait_for(timeout=60000))))
+            p6["notebook"].append(timed(lambda: (pg.click(".nav button[data-ws=notebook]"), pg.locator("#nb-search").wait_for(timeout=60000))))
+            p6["experiment_studio"].append(timed(lambda: (pg.click(".nav button[data-ws=experiments]"), pg.locator("[data-template]").first.wait_for(timeout=60000))))
             ctx.close()
         b.close()
     out["page_load_s"] = med(loads)
@@ -83,6 +96,7 @@ def page_timings(base: str, mode: str) -> dict:
     out["discovery_engine_first_render_s"] = med(disc)
     out["hypothesis_arena_render_s"] = med(arena)
     out["uncertainty_tab_render_s"] = med(unc)
+    out["phase6_first_render_s"] = {k: med(v) for k, v in p6.items()}
     return out
 
 
@@ -91,7 +105,7 @@ def main() -> int:
            "runs_per_measurement": N, "measured_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     port = free_port()
     env = {**os.environ, "OFFLINE": "1", "META_API_KEY": "", "MODEL_API_KEY": "", "NO_PROXY": "127.0.0.1,localhost",
-           "SKYTRACE_RECORDS_DIR": str(ROOT / "dist" / ".perf-records")}
+           "SKYTRACE_RECORDS_DIR": str(ROOT / "dist" / ".perf-records"), "SKYTRACE_SESSIONS_DIR": str(ROOT / "dist" / ".perf-records" / "sessions")}
     proc = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], env=env, cwd=ROOT,
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     base = f"http://127.0.0.1:{port}/"
@@ -110,8 +124,16 @@ def main() -> int:
                 pk.append(timed(lambda: requests.get(base + f"api/investigations/{iid}/package.zip", proxies=NOPROXY).raise_for_status()))
             size = len(requests.get(base + f"api/investigations/{iid}/package.zip", proxies=NOPROXY).content)
             st = timed(lambda: requests.post(base + f"api/targets/{tid}/stability", json={"params": {}}, proxies=NOPROXY, timeout=900).raise_for_status())
+            rr = []
+            for _ in range(N):                      # the research report is cached by content hash: first call is the cost
+                r2 = requests.post(base + f"api/targets/{tid}/analyze", json={"params": {"aperture_radius_px": 2.0 + 0.1 * (len(rr) + 1)}}, proxies=NOPROXY, timeout=600)
+                iid2 = r2.json()["investigation_id"]
+                rr.append(timed(lambda: requests.get(base + f"api/investigations/{iid2}/research", proxies=NOPROXY).raise_for_status()))
+            pl = [timed(lambda: requests.post(base + "api/plan", json={"question": "Did the source change in brightness?", "facts": {"has_target_data": True, "has_run": True}},
+                                              proxies=NOPROXY).raise_for_status()) for _ in range(N)]
             api[tid] = {"analysis_s": med(an), "discovery_report_s": med(di), "evidence_graph_s": med(gr),
-                        "package_zip_s": med(pk), "package_zip_bytes": size, "stability_check_s": round(st, 3)}
+                        "package_zip_s": med(pk), "package_zip_bytes": size, "stability_check_s": round(st, 3),
+                        "research_report_first_call_s": med(rr), "plan_s": med(pl)}
         res["server_api"] = api
         res["server_page"] = page_timings(base, "server")
     finally:

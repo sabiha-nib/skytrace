@@ -12,9 +12,11 @@ Three ways to open the application. All three show the same interface; they diff
 
 `scripts/build_static.py` starts the real server with `OFFLINE=1`, calls its API and records the responses into
 `dist/preview/data/`: targets, observation images, for each synthetic target the default analysis and the five
-stability perturbations (record, summary, evidence graph, report, discovery report, the reproducibility package — the server-built zip carried as base64 with its SHA-256, checked in the browser before it is offered — and the
-local assistant's answer to each question type), the stability result, and the capability registry as the preview
-sees it. `PREVIEW_MANIFEST.json` lists every file with its SHA-256 and the commit it was built from.
+stability perturbations (record, summary, evidence graph, report, discovery report, research report (compatibility, data
+quality, ledger, radar), the reproducibility package — the server-built zip carried as base64 with its SHA-256, checked in the browser before it is offered — and the
+local assistant's answer to each question type with the question it was recorded for), the stability result, the standard
+experiments per target, the specifications (planner table, missions, templates, schemas, citations), the connector registry and
+the capability registry as the preview sees it. `PREVIEW_MANIFEST.json` lists every file with its SHA-256 and the commit it was built from.
 
 `index.html` is for local use; `artifact.html` is the same page as body content for hosts that wrap pages in their
 own document. The `<meta name="skytrace-mode" content="static">` tag switches `web/js/api.js` to the static backend
@@ -33,6 +35,14 @@ own document. The `<meta name="skytrace-mode" content="static">` tag switches `w
 | Saved investigations | `data/records/` on the server; replay re-executes | this browser's storage; "Check" compares the content hash with the precomputed runs (no re-execution) |
 | Import | content hash verified, bundle must exist, replay possible | content hash verified in the browser; only records of the preview's own runs can be opened |
 | Report Studio downloads | server endpoints | precomputed files; in the hosted viewer, saving goes through the viewer's download prompt |
+| Research sessions | `data/sessions/` on the server, validated and hash-checked | this browser's storage, same validation and hash in JS; export to keep |
+| Planner | `POST /api/plan` | the browser planner over the same rule table; server-only steps marked unavailable |
+| Data quality, compatibility, ledger, radar | computed by the server | recorded by the server at build time (`research.json`) |
+| Experiments | any template, custom parameters within bounds | the standard set recorded at build time; custom parameters refused with a reason |
+| Workflows | validated by the server, executed step by step | validated and executed in the browser over precomputed runs |
+| Notebook, figures, knowledge graph, missions | browser | browser (same code) |
+| Connectors | registry and request previews (nothing sent) | registry only; previews refused |
+| Copilot 2.0 | 16 tools, labelled sources, drafts, plan hand-off | recorded answers per question type; the answer says which question was recorded when yours differs |
 
 Every screen of the static preview says it is a preview of precomputed results.
 

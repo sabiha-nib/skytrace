@@ -19,7 +19,14 @@ The static preview says on every screen that it is a preview of precomputed resu
 an explanation; pair comparisons, image registration and record-hash checks run in the browser with code that is
 tested for parity with the Python implementation.
 
-## Status (v0.5.0, 2026-10-30)
+## Status (v0.6.0, 2026-10-30)
+
+Phase 6 turned the discovery environment into a research operating system: a persistent, validated and hashed research
+session; one registry of executable actions used by an investigation planner, workflows, a Discovery Radar of research
+opportunities and guided missions; multi-epoch sequences that never interpolate; an experiment studio with negative controls;
+a data-quality observatory without scores; an evidence ledger; a research notebook; a figure studio and a knowledge graph;
+connector previews; and a copilot that labels where each answer came from ([docs/PHASE6_AUDIT.md](docs/PHASE6_AUDIT.md),
+[docs/RESEARCH_METHODS.md](docs/RESEARCH_METHODS.md), [Phase 6 catalogue](docs/PHASE6_CATALOGUE.md)).
 
 Phase 5 turned the investigation tool into a discovery environment built around one loop — explore, observe, compare,
 detect, test, explain, verify, preserve, share — with an engine that says what the data can and cannot establish, a
@@ -32,6 +39,7 @@ Phase 3 (validation): [docs/PHASE3_GATES.md](docs/PHASE3_GATES.md).
 | Part | State |
 |---|---|
 | Application (API + web interface) | Works end to end offline, in both the server and the static-preview mode; every control is exercised by browser tests (counts in [docs/TEST_REPORT.md](docs/TEST_REPORT.md)) |
+| Research operating system (v0.6) | Research sessions (SESSION-1), capability registry with actions (CAPREG-2), Investigation Planner (PLAN-1), Command Center, sequences (SEQ-1), compatibility matrix (COMPAT-1), data quality (DQ-1), evidence ledger (LEDGER-1), Discovery Radar (RADAR-1), Experiment Studio (EXP-1), workflows (WF-1), missions (MISSION-1), notebook, figure studio (FIG-2), knowledge graph (KG-1), connector previews (ACQ-2), Copilot 2.0 |
 | Discovery environment (v0.5) | Discovery Engine (DISC-1), Hypothesis Arena (HYPO-1), Uncertainty Explorer (UNC-1), registration diagnostics (REGDIAG-1), capability registry (CAPREG-1), reproducibility package (PKG-1), vault, report studio, command palette, glossary, three levels of detail |
 | Scientific pipeline | Parallax, Gaia quality cuts, visit-averaged motion fit, reference-calibrated photometry and an error-model check added (`skytrace-analysis/2`). Validated on synthetic data with known truth, including 12 robustness scenarios |
 | Real SPHEREx data | **Not yet acquired (blocked).** IRSA, SIMBAD and Gaia are refused by this environment's network policy (proxy 403). Nothing here is a real-data result. What to allowlist: [docs/ENVIRONMENT_REPORT.md](docs/ENVIRONMENT_REPORT.md) |
@@ -74,6 +82,23 @@ Each target becomes a bundle in `data/bundles/<target>/`: the original files byt
 
 ## What you can do in the app
 
+New in 0.6 (workspaces grouped Observe · Investigate · Verify · Record):
+
+- **Research sessions**: everything you do in one line of work — question, runs, hypotheses, notes, plans, experiments, missions, workflows — kept as one validated, hash-checked session. Open, rename, branch, export and import (a changed file is refused).
+- **Command Center**: what is loaded, the session, the outcomes, data quality, open radar items and missions, from real values only.
+- **Investigation Planner**: ask a question in plain words; get a plan of registered actions with statuses (suggested, ready, running, completed, blocked, failed, needs review). Expensive steps wait for confirmation; inspection steps wait for your written judgement.
+- **Time Machine sequences**: play every compatible epoch of one detector, frame by frame, with frame differences; never interpolated; it says when only two visits exist.
+- **Data Quality Observatory**: eleven checks with their rules (invalid / incompatible / not available / not checked / valid — no score), the full compatibility matrix with reasons, a metadata diff, time coverage and connector previews.
+- **Evidence Ledger**: each claim's support counted by kind, contradictions found by four fixed rules, provenance, methods, completeness and the session's change history.
+- **Experiment Studio**: parameter, sensitivity, method-comparison, reproducibility, negative-control and robustness experiments; and validated workflows over several targets with per-item records, cancel and retry.
+- **Discovery Radar**: research opportunities, each with what, why, evidence, data needed, method, what it cannot establish, and whether it can run now.
+- **Research Notebook**: structured blocks (13 types) that reference recorded values, your text clearly separated from assistant drafts, version history, undo, Markdown export and a deterministic session package.
+- **Figure Studio and knowledge graph** (in the Vault): figures with titles, units and provenance exported as SVG; links between saved records and sessions from stored facts only.
+- **Missions**: six guided research tasks whose completion is read from the session — no points or badges.
+- **Copilot 2.0**: plans, data quality, the ledger and competing explanations as new read-only tools; every answer names its source; add an answer to the notebook as a labelled draft or hand a question to the Planner.
+
+From 0.5:
+
 - **Discovery Engine**: the evidence inventory (every item with source, origin, epoch, checksum; unknown values left empty and counted), research questions marked answerable, answerable with limits, or not answerable (with why), a test plan for each, an evidence review, and rule-based next steps that say what each can and cannot establish.
 - **Hypothesis Arena**: competing explanations for each outcome (intrinsic change, calibration change, error model, registration, parallax, …) tested against recorded values by stated rules. Statuses are consistent, contradicted, inconclusive, not tested, evidence unavailable or incompatible; no probabilities. Write your own hypotheses, attach recorded tests, undo a removal.
 - **Wavelength ruler** (always visible): every observation placed by the wavelength measured at the target and by date. Wavelength-matched pairs, the only ones whose brightness may be compared, appear as vertical links.
@@ -83,7 +108,7 @@ Each target becomes a bundle in `data/bundles/<target>/`: the original files byt
 - **Uncertainty** (Discovery Lab tab): what each recorded uncertainty is made of, bounds shown as bounds, parameter sensitivity kept separate, and the effects no method here quantifies. Any chart can be exported as an SVG that carries its target, investigation hash and method versions.
 - **Evidence Graph**: sources → observations → measurements → comparisons → claims → competing explanations, methods and limitations, built only from recorded events. Selecting a claim traces exactly what supports it.
 - **Investigations** (vault and report studio): save an investigation with its parameters, data checksum, results, research question, your hypotheses and the copilot conversation; search, tag, rename, duplicate, compare two, reopen, replay; import with a preview and a content-hash check before anything is stored. Export the report, record, evidence graph, discovery report or a deterministic reproducibility package with SHA256SUMS.
-- **Everywhere**: the discovery-loop bar, a command palette (Ctrl/⌘+K or /), a glossary and shortcut reference (?), Alt+1…7 for workspaces, back/forward history, and three levels of detail (Explore, Investigate, Research) that change what is shown, never what is computed.
+- **Everywhere**: the discovery-loop bar, a command palette (Ctrl/⌘+K or /), a glossary and shortcut reference (?), Alt+1…9 for the visible workspaces, back/forward history, and three levels of detail (Explore, Investigate, Research) that change what is shown, never what is computed.
 - **Research copilot**: answers questions about the evidence using 16 read-only tools, laid out as Answer · Evidence · Method · Limitations · Next step. It can say what Skytrace can do here from the capability registry. The panel shows each tool call and its output, tags claims as evidence, interpretation or speculation, links observations, and lists any drafts the guard withheld.
 
 ## How the science works
@@ -110,17 +135,19 @@ A `Dockerfile` is included. It has **not been built here**, because the build en
 
 ```
 run.py                       start the app (no install needed)
-src/skytrace/                Python package: archive/ (data layer), science/ (deterministic), ai/ (copilot), server/ (API)
+src/skytrace/                Python package: archive/ (data layer), science/ (deterministic), ai/ (copilot), server/ (API),
+                             research OS readers (session, planner, compat, quality, ledger, radar, experiments, missions, workflows, connectors)
 web/                         interface (HTML, CSS, ES modules)
 config/targets.json          the five challenge targets
 fixtures/synthetic/          SYNTHETIC bundles (generated by src/skytrace/synthetic.py; scripts/make_synthetic_fixtures.py)
 data/bundles/                real archive bundles (created by scripts/acquire_targets.py)
+data/sessions/               research sessions saved by the server (git-ignored)
 scripts/                     diagnose environment, acquire, index, verify bundles, analyse, verify provenance, smoke-test Meta, verify, release
 tests/                       unit/, integration/ (API), robustness/ (synthetic variants), e2e/ (browser), live/ (real services)
 docs/                        architecture, methods, provenance, limitations, reproducibility, AI use, test report
 ```
 
-Documentation: [Architecture](docs/ARCHITECTURE.md) · [Scientific methods](docs/SCIENTIFIC_METHODS.md) · [Discovery methods](docs/DISCOVERY_METHODS.md) · [Feature catalogue](docs/FEATURE_CATALOGUE.md) · [Preview](docs/PREVIEW.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Release notes](docs/RELEASE_NOTES.md) · Phase 5: [Audit](docs/PHASE5_AUDIT.md) · [Data provenance](docs/DATA_PROVENANCE.md) · [Limitations](docs/LIMITATIONS.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Model integration](docs/MODEL_INTEGRATION.md) · [AI use](docs/AI_USE.md) · [Test report](docs/TEST_REPORT.md) · [Requirement traceability](docs/REQUIREMENT_TRACEABILITY.md) · Phase 3: [Gates](docs/PHASE3_GATES.md) · [Environment](docs/ENVIRONMENT_REPORT.md) · [FITS/WCS validation](docs/FITS_WCS_VALIDATION.md) · [Calibration audit](docs/CALIBRATION_AUDIT.md) · [Assessment engine](docs/ASSESSMENT_ENGINE.md) · [Copilot tools](docs/COPILOT_TOOLS.md)
+Documentation: [Architecture](docs/ARCHITECTURE.md) · [Scientific methods](docs/SCIENTIFIC_METHODS.md) · [Discovery methods](docs/DISCOVERY_METHODS.md) · [Research methods](docs/RESEARCH_METHODS.md) · [Feature catalogue (0.5)](docs/FEATURE_CATALOGUE.md) · [Phase 6 catalogue](docs/PHASE6_CATALOGUE.md) · Phase 6: [Audit](docs/PHASE6_AUDIT.md) · [Preview](docs/PREVIEW.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Release notes](docs/RELEASE_NOTES.md) · Phase 5: [Audit](docs/PHASE5_AUDIT.md) · [Data provenance](docs/DATA_PROVENANCE.md) · [Limitations](docs/LIMITATIONS.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Model integration](docs/MODEL_INTEGRATION.md) · [AI use](docs/AI_USE.md) · [Test report](docs/TEST_REPORT.md) · [Requirement traceability](docs/REQUIREMENT_TRACEABILITY.md) · Phase 3: [Gates](docs/PHASE3_GATES.md) · [Environment](docs/ENVIRONMENT_REPORT.md) · [FITS/WCS validation](docs/FITS_WCS_VALIDATION.md) · [Calibration audit](docs/CALIBRATION_AUDIT.md) · [Assessment engine](docs/ASSESSMENT_ENGINE.md) · [Copilot tools](docs/COPILOT_TOOLS.md)
 
 ## Data credits
 

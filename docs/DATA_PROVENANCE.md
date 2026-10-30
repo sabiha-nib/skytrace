@@ -62,3 +62,18 @@ it, when the manifest or record does not state it. The reproducibility package (
 byte, the bundle manifest, and SHA256SUMS over every member; it contains no image data. In the static preview these
 files were produced by the server at build time and are listed in `PREVIEW_MANIFEST.json` with their checksums.
 
+## Research sessions and Phase 6 readers (v0.6)
+
+* **Sessions** (SESSION-1) refer to analysis runs by investigation id *and* content hash; a reference block in the notebook
+  resolves against the run whose hash it names, and says so when that run is not loaded. A session's own hash (SHA-256 over its
+  SKY-CANON-1 text without `content_hash`) is verified on every save, load and import; an import with a different hash is refused.
+  Server sessions live in `data/sessions/` (git-ignored); the static preview keeps them in this browser's storage.
+* **Compatibility, data quality, ledger and radar** (COMPAT-1, DQ-1, LEDGER-1, RADAR-1) read the record, the bundle manifest and
+  the discovery index; the research report carries the record's content hash and is cached by it. DQ-FILES re-hashes bundle files
+  when the bundle directory is available and reports *not checked* otherwise (e.g. through the copilot).
+* **Experiments** (EXP-1) re-execute `analysis.run` on the bundle; each run keeps its parameters, timing, outcome categories and
+  content hash. A negative control names the fixture used and its generator input (the truth by construction).
+* **Assistant drafts** in the notebook carry their source (local deterministic assistant or verified external model) and the
+  question; they are labelled `[draft]` in exports until accepted.
+* **Connectors** (ACQ-2) record nothing from the network in this environment: the previews are built by the acquisition code
+  with a recorder in place of the transport, and say so. Every service was refused by the proxy (`data/environment_report.json`).

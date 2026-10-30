@@ -1,5 +1,52 @@
 # Release notes
 
+## 0.6.0 — 2026-10-30 · the research operating system
+
+Skytrace now keeps a whole line of research in one validated, hash-checked session and offers a set of research tools
+around it — planner, data-quality observatory, evidence ledger, experiment studio, notebook, radar, missions, automation —
+all executing the same registered actions and none producing a probability or a score. The bundled data are still
+synthetic, and real-data acquisition and the Meta model are still blocked in the build environment.
+
+**New**
+* **Research sessions** (SESSION-1): question, runs, hypotheses (with versions), notebook, plans, experiments, missions,
+  workflows and an append-only history in one session; validated by a schema interpreter shared by Python and JS (SCHEMA-1)
+  and hashed over canonical JSON (SKY-CANON-1). Open, rename, branch, export, import (hash-verified, never overwriting);
+  0.5 saved records migrate.
+* **Capability registry with actions** (CAPREG-2): 14 executable actions with preconditions, outputs, confirmation, cost and
+  static-preview availability; one browser executor for the planner, workflows, radar and missions.
+* **Observatory Command Center**: data state, session, outcomes, quality, radar and missions from real values.
+* **Investigation Planner** (PLAN-1): plain-language questions → plans of registered actions with statuses, dependencies,
+  confirmation for expensive steps, `needs review` for inspection steps, revisions, and honest refusals.
+* **Multi-epoch sequences** (SEQ-1) in the Time Machine: playback over compatible sequences only, frame differences,
+  sequence export; never interpolated; says when only two visits exist.
+* **Data Quality Observatory** (DQ-1, COMPAT-1): eleven checks with rules and five outcomes (no score), the full compatibility
+  matrix with reason codes, metadata diff, duplicate detection, time coverage, connector previews (ACQ-2; nothing is sent).
+* **Evidence Ledger** (LEDGER-1): support counted per claim, single-item support flagged, contradictions by rules C1–C4,
+  provenance, methods, completeness and change history.
+* **Experiment Studio** (EXP-1): parameter, sensitivity, method comparison, reproducibility, negative control (on another
+  fixture) and robustness experiments, each with its criterion and a validity note; **workflows** (WF-1): validated, bounded,
+  batch over targets, per-item records, cancel, retry, export/import.
+* **Discovery Radar** (RADAR-1): research opportunities with what / why / evidence / data needed / method / cannot establish /
+  can run now, in a stated order.
+* **Research Notebook**: 13 block types, references resolved against recorded values, authorship labels, versions, undo,
+  search, Markdown export and a deterministic session package (ZIP).
+* **Figure Studio** (FIG-2) and **knowledge graph** (KG-1) in the Vault; **missions** (MISSION-1) without gamification.
+* **Copilot 2.0**: 16 read-only tools (new: plan_investigation, get_data_quality, get_evidence_ledger, get_hypothesis_tests),
+  five new local intents, the source of every answer labelled, *Add to notebook as draft*, *Plan this question in the Planner*.
+* **Phase 6 catalogue**: 309 distinct concepts (the brief's 300 in 30 domains, 15 synonyms merged, 24 added) with status,
+  group, evidence and verifying test; **research methods** document generated from code and fixture runs.
+
+**Changed**
+* Navigation grouped Observe · Investigate · Verify · Record; Alt+1…9 over the visible workspaces; the default workspace is
+  the Command Center. Levels still change visibility only; opening a deeper workspace raises the level and says so.
+* Retry-After from archives is honoured up to 60 s. Copilot routing gained five intents (parity-tested in the preview).
+
+**Not changed**
+* The analysis pipeline (`skytrace-analysis/2`) and every 0.5 result and content hash. All 0.5 tests still pass; none removed.
+
+**Still blocked**
+* Real SPHEREx/SIMBAD/Gaia access and the Meta Model API (proxy 403, re-checked 2026-10-30). Live tests fail for that reason.
+
 ## 0.5.0 — 2026-10-30 · the discovery environment
 
 Skytrace now walks an investigation through one loop — explore, observe, compare, detect, test, explain, verify,

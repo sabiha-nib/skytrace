@@ -1,7 +1,9 @@
 # Scientific methods
 
 Phase 5 methods that read finished investigations (CAPREG-1, DISC-1, HYPO-1, UNC-1, REGDIAG-1, PKG-1) are in
-[DISCOVERY_METHODS.md](DISCOVERY_METHODS.md).
+[DISCOVERY_METHODS.md](DISCOVERY_METHODS.md). Phase 6 methods (SESSION-1, CAPREG-2, PLAN-1, COMPAT-1, SEQ-1, DQ-1, LEDGER-1,
+RADAR-1, EXP-1, MISSION-1, WF-1, ACQ-2, FIG-2, KG-1, NOTE-1) are in [RESEARCH_METHODS.md](RESEARCH_METHODS.md), generated
+from the code and from runs on the synthetic fixtures. None of them measures; none produces a probability or a score.
 
 Every method has a version ID. Each ID is written into every result that uses it, so a result always names the exact rule that produced it. Thresholds are fixed constants, not tuned per target. All numbers below come from runs of the code at commit time (see [TEST_REPORT.md](TEST_REPORT.md)).
 
