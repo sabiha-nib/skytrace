@@ -635,3 +635,51 @@ ol.plain { list-style: decimal; padding-left: 20px; }
 @media (max-width: 1180px) {
   .topbar { flex-wrap: wrap; row-gap: 8px; }
 }
+
+/* ------------------------------------------------------------------ Phase 7: research frontier */
+.spe-layers { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin: 0 0 12px; }
+.spe-layer { background: var(--ink-2); border: 1px solid var(--line-soft); border-radius: var(--r-s, 6px); padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.spe-layer .n { font-family: var(--serif); color: var(--accent); font-size: 18px; line-height: 1; }
+.spe-layer .spe-sum { color: var(--muted); font-size: 12px; }
+.horizon-cards, .asl-list, .ka-results, .review-list, .causal-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.horizon-card, .asl-item { background: var(--ink-2); border: 1px solid var(--line-soft); border-left: 3px solid var(--accent); border-radius: var(--r-s, 6px); padding: 10px 12px; }
+.horizon-card h4 { margin: 6px 0; font-size: 15px; }
+.horizon-card.feas-needs-new-data, .horizon-card.feas-needs-a-new-method { border-left-color: var(--line); }
+.horizon-card.feas-needs-the-server { border-left-color: var(--violet); }
+.pill.feas { color: var(--accent); }
+.hz-scroll { overflow-x: auto; }
+.hz-map { min-width: 900px; width: 100%; height: auto; }
+.hz-map .hz-col { fill: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.hz-map .hz-node { font-size: 11px; fill: var(--text, #e2e8f4); }
+.hz-map .k-evidence { fill: var(--violet); } .hz-map .k-method { fill: var(--accent); } .hz-map .k-required-evidence { fill: var(--warn); }
+.hz-map .hz-edge { stroke: var(--line); stroke-width: 1; }
+.asl-item.sev-critical { border-left-color: var(--bad); } .asl-item.sev-major { border-left-color: var(--warn); }
+.asl-item.sev-moderate { border-left-color: var(--violet); } .asl-item.sev-note { border-left-color: var(--line); }
+.pill.sev-critical { color: var(--bad); border-color: var(--bad); } .pill.sev-major { color: var(--warn); border-color: var(--warn); }
+.pill.sev-moderate { color: var(--violet); } .pill.st-acknowledged, .pill.st-resolved-by-rule { color: var(--ok); }
+.asl-item textarea { flex: 1 1 260px; min-height: 2.4em; }
+.pill.sim { color: var(--violet); border-color: color-mix(in srgb, var(--violet) 50%, transparent); }
+.cf-table tr.changed td, .cf-table tr.changed th { color: var(--accent); font-weight: 600; }
+.syn-table tr.v-disagrees td:last-child { color: var(--warn); } .syn-table tr.v-agrees td:last-child { color: var(--ok); }
+.atlas-map, .atlas-field { width: 100%; height: auto; background: var(--ink); border: 1px solid var(--line-soft); border-radius: var(--r-s, 6px); }
+.atlas-map { min-width: 640px; }
+.atlas-field { max-width: 380px; }
+.atlas-map .grid { stroke: var(--line-soft); stroke-width: .6; } .atlas-map .grid.eq { stroke: var(--line); }
+.atlas-map .axis-l { fill: var(--faint, #6c7a9a); font-size: 10px; }
+.atlas-pt circle { fill: var(--accent); cursor: pointer; } .atlas-pt.syn circle { fill: none; stroke: var(--violet); stroke-width: 2; }
+.atlas-pt.current circle { stroke: #fff; stroke-width: 2; } .atlas-pt text { fill: var(--text, #e2e8f4); font-size: 12px; }
+.atlas-pt:focus-visible { outline: none; } .atlas-pt:focus-visible circle { stroke: var(--accent); stroke-width: 3; }
+.atlas-field .field-bg { fill: var(--ink); } .atlas-field .ref { fill: var(--muted); } .atlas-field .tgt { fill: none; stroke: var(--accent); stroke-width: 2; }
+tr.current th, tr.current td { color: var(--accent); }
+.ka-results li, .review-list li { background: var(--ink-2); border: 1px solid var(--line-soft); border-radius: var(--r-s, 6px); padding: 8px 10px; display: grid; gap: 2px; }
+.review-list li.rv-not-met { border-left: 3px solid var(--warn); } .review-list li.rv-met { border-left: 3px solid var(--ok); } .review-list li.rv-not-checked { border-left: 3px solid var(--line); }
+#repro-table tr.rp-fail td strong { color: var(--bad); } #repro-table tr.rp-pass td strong { color: var(--ok); }
+.causal-list li { padding: 4px 0; } .causal-list .rel { color: var(--accent); } .causal-list .rel.dep { color: var(--muted); }
+.story .story-ch h3 { font-family: var(--serif); }
+.twin-diff th { font-size: 12px; } .twin-diff td { font-size: 12px; max-width: 40ch; }
+@media (max-width: 1180px) { .spe-layers { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 860px) { .spe-layers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 861px) { .nav { overflow-y: auto; min-height: 0; } }
+.nav-group + .nav-group { margin-top: 4px; }
+.nav button { padding-top: 5px; padding-bottom: 5px; }
+#ap-objective, #syn-json, #design-truth, #design-schedules { width: 100%; box-sizing: border-box; }

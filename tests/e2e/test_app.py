@@ -32,7 +32,7 @@ def free_port():
 @pytest.fixture(scope="module")
 def server(tmp_path_factory):
     port = free_port()
-    env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": str(tmp_path_factory.mktemp("records")), "SKYTRACE_SESSIONS_DIR": str(tmp_path_factory.mktemp("sessions")),
+    env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": str(tmp_path_factory.mktemp("records")), "SKYTRACE_SESSIONS_DIR": str(tmp_path_factory.mktemp("sessions")), "SKYTRACE_SYNTHLAB_DIR": str(tmp_path_factory.mktemp("synthlab")),
            "META_API_KEY": "", "MODEL_API_KEY": "", "NO_PROXY": "127.0.0.1,localhost"}
     proc = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], env=env, cwd=ROOT,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

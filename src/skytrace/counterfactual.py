@@ -49,6 +49,18 @@ LEGEND = {"observed": "read from the data files", "derived": "computed from obse
           "hypothetical": "a scenario that did not happen; not an alternative physical reality"}
 
 
+PRESETS = [
+    {"label": "Stricter brightness threshold (|z| ≥ 8)", "kind": "threshold", "change": {"variability_z": 8.0}},
+    {"label": "Looser brightness threshold (|z| ≥ 3)", "kind": "threshold", "change": {"variability_z": 3.0}},
+    {"label": "Stricter motion threshold (8σ)", "kind": "threshold", "change": {"motion_detect_sigma": 8.0}},
+    {"label": "Photometric uncertainties twice as large (simulated)", "kind": "error_scale", "change": {"photometric_error_factor": 2.0}},
+    {"label": "Brightness without reference calibration (PAIRDIFF-1 only)", "kind": "method", "change": {"variability_method": "PAIRDIFF-1"}},
+    {"label": "Exclude detector 1", "kind": "exclusion", "change": {"detectors": [1]}},
+    {"label": "Exclude detectors 4–6 (long wavelengths)", "kind": "exclusion", "change": {"detectors": [4, 5, 6]}},
+    {"label": "Wider aperture (3 px)", "kind": "parameter", "change": {"aperture_radius_px": 3.0}},
+    {"label": "Without parallax correction", "kind": "parameter", "change": {"apply_parallax": False}},
+]
+
 # ---------------------------------------------------------------------------- validation
 def clean_params(params: dict) -> dict:
     out = {}

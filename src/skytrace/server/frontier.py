@@ -15,7 +15,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 from starlette.routing import Route
 
-from .. import (adversarial, canon, counterfactual, discovery, hypotheses, infogain, planner, possibility, repro, review, synthobs,
+from .. import (adversarial, canon, capabilities, counterfactual, discovery, hypotheses, infogain, planner, possibility, repro, review, synthobs,
                 twin, uncertainty)
 from ..view import InvestigationView
 
@@ -127,10 +127,11 @@ def specs() -> dict:
     return {"counterfactual": {"kinds": list(counterfactual.KINDS), "labels": counterfactual.LABEL, "legend": counterfactual.LEGEND,
                                "threshold_bounds": counterfactual.THRESHOLD_BOUNDS, "error_scale_bounds": counterfactual.ERROR_SCALE_BOUNDS,
                                "param_bounds": counterfactual.analysis.PARAM_BOUNDS, "param_booleans": list(counterfactual.analysis.PARAM_BOOLEANS),
-                               "max_excluded_keys": counterfactual.MAX_EXCLUDED_KEYS},
+                               "max_excluded_keys": counterfactual.MAX_EXCLUDED_KEYS, "presets": counterfactual.PRESETS},
             "synthetic": {"templates": synthobs.TEMPLATES, "positions": synthobs.POSITIONS, "defaults": synthobs.DEFAULTS, "spec": synthobs.SPEC,
                           "design_max": synthobs.DESIGN_MAX},
             "twin": {"sections": list(twin.SECTIONS), "kinds": list(twin.KINDS), "semantics": twin.SEMANTICS},
+            "autopilot": {"levels": capabilities.AUTOPILOT_LEVELS, "permission": capabilities.PERMISSION},
             "horizon_categories": possibility.CATS, "asl_modes": adversarial.MODES, "asl_severity": adversarial.SEVERITY,
             "review_roles": review.ROLES, "review_causal_words": list(review.CAUSAL_WORDS), "repro_checks": repro.CHECKS,
             "methods": {"spe": possibility.METHOD, "horizon": possibility.HORIZON, "asl": adversarial.METHOD, "info": infogain.METHOD,

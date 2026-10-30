@@ -195,6 +195,9 @@ def test_twins_integrity_and_comparison():
     assert not twin.compare(a, twin.target(b.target, rec))["comparable"]
     o = twin.observation(rec, b.discovery, b.manifest, b.observations()[0]["key"])
     assert twin.verify(o) and o["sections"]["inputs"]["sha256"]
+    r = cf.run(load, "syn-var-1", {"kind": "threshold", "change": {"variability_z": 8}}, baseline_record=rec)
+    st = twin.scenario_twin(r)
+    assert twin.verify(st) and rec["content_hash"] in st["derived_from"] and st["kind"] == "scenario"
 
 
 # ------------------------------------------------------------------ SPE-1 / HORIZON-1
@@ -276,3 +279,51 @@ def test_browser_overlays_match_python(tmp_path):
     assert js["twins"][1]["identical"] is True
     for got, (a1, d1, a2, d2) in zip(js["sep"], seps):
         assert math.isclose(got, _vincenty(a1, d1, a2, d2), rel_tol=1e-12, abs_tol=1e-12)
+
+
+def _galactic(ra, dec):
+    G = [[-0.0548755604162154, -0.8734370902348850, -0.4838350155487132], [0.4941094278755837, -0.4448296299600112, 0.7469822444972189],
+         [-0.8676661490190047, -0.1980763734312015, 0.4559837761750669]]
+    r = math.pi / 180
+    v = [math.cos(dec * r) * math.cos(ra * r), math.cos(dec * r) * math.sin(ra * r), math.sin(dec * r)]
+    g = [sum(G[i][j] * v[j] for j in range(3)) for i in range(3)]
+    lon = math.atan2(g[1], g[0]) / r
+    return (lon + 360 if lon < 0 else lon), math.asin(max(-1, min(1, g[2]))) / r
+
+
+@pytest.mark.skipif(NODE is None, reason="node not installed")
+def test_browser_twin_and_coordinates_match_python(tmp_path):
+    s = session.new("twin parity", "syn-var-1")
+    s["runs"] = [{"investigation_id": "abc", "content_hash": "a" * 64, "label": "default", "attached_at": s["created_at"], "params": {}}]
+    s["hypotheses"] = [{"id": "h1", "statement": "It dimmed.", "tests": [], "kind": "interpretation", "created_at": s["created_at"]}]
+    s["question"] = {"id": None, "text": "Did it dim?"}
+    s = session.finalize(s)
+    l, b_ = _galactic(266.40499, -28.93617)               # the Galactic centre (ICRS) → l ≈ 0, b ≈ 0
+    assert min(l, 360 - l) < 0.01 and abs(b_) < 0.01
+    job = {"session": s, "coords": [[266.40499, -28.93617], [0, 0], [10.68471, 41.26875], [77.0, 30.4]],
+           "sexa": [["17h57m48.49847s", True], ["+04d41m36.1139s", False], ["-29d00m00s", False], ["12.5", True], ["nonsense", True]]}
+    f = tmp_path / "job.json"
+    f.write_text(json.dumps(job))
+    code = (f"import {{ readFileSync }} from 'node:fs'; import {{ pathToFileURL }} from 'node:url';"
+            f"const fc = await import(pathToFileURL({json.dumps(str(ROOT / 'web/js/frontiercore.js'))}).href);"
+            f"const canon = await import(pathToFileURL({json.dumps(str(ROOT / 'web/js/canon.js'))}).href);"
+            f"const job = JSON.parse(readFileSync({json.dumps(str(f))}, 'utf8'));"
+            "const tw = await fc.investigationTwin(job.session, canon.digest);"
+            "process.stdout.write(JSON.stringify({tw, gal: job.coords.map(([a, d]) => fc.icrsToGalactic(a, d)), sexa: job.sexa.map(([t, r]) => fc.parseSexagesimal(t, r))}));")
+    r = subprocess.run([NODE, "--input-type=module", "-e", code], capture_output=True, text=True, timeout=60, check=True)
+    js = json.loads(r.stdout)
+    assert js["tw"] == json.loads(json.dumps(twin.investigation(s)))
+    for (gl, gb), (ra, dec) in zip(js["gal"], job["coords"]):
+        pl, pb = _galactic(ra, dec)
+        assert math.isclose(gl, pl, abs_tol=1e-9) and math.isclose(gb, pb, abs_tol=1e-9)
+    assert math.isclose(js["sexa"][0], (17 + 57 / 60 + 48.49847 / 3600) * 15, rel_tol=1e-12)
+    assert math.isclose(js["sexa"][1], 4 + 41 / 60 + 36.1139 / 3600, rel_tol=1e-12)
+    assert js["sexa"][2] == -29.0 and js["sexa"][3] == 12.5 and js["sexa"][4] is None
+
+
+def test_executor_implements_every_registered_action():
+    import re
+    src = (ROOT / "web/js/executor.js").read_text()
+    block = src.split("const ACTIONS = {")[1].split("\n};")[0]
+    names = set(re.findall(r"^  async (\w+)\(", block, re.M))
+    assert names == capabilities.ACTION_IDS

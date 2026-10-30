@@ -156,7 +156,9 @@ async def target_detail(request: Request):
     b = _bundle(request.path_params["tid"])
     return _json({"target": b.target, "kind": b.kind, "observations": b.all_observations(),
                   "selection": b.discovery.get("selection"), "search": b.discovery.get("search"),
-                  "references": {"catalogue": b.references.get("catalogue"), "n": len(b.references.get("stars", []))},
+                  "references": {"catalogue": b.references.get("catalogue"), "n": len(b.references.get("stars", [])),
+                                 "stars": [{"source_id": r.get("source_id"), "ra": r.get("ra"), "dec": r.get("dec")}
+                                           for r in b.references.get("stars", [])[:200]]},
                   "manifest": {k: b.manifest[k] for k in ("schema", "kind", "created_at", "generator", "notes", "total_bytes")},
                   "verification": _verify(b.path), "inspection": b.inspection})
 

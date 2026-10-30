@@ -32,7 +32,7 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from skytrace import __version__, stability  # noqa: E402
+from skytrace import canon, counterfactual, synthobs, __version__, stability  # noqa: E402
 from skytrace.ai.local import _intent  # noqa: E402
 
 OUT = ROOT / "dist" / "preview"
@@ -136,6 +136,7 @@ def main() -> int:
     port = free_port()
     rec_dir = tempfile.mkdtemp(prefix="skytrace-build-records-")
     env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": rec_dir, "SKYTRACE_SESSIONS_DIR": rec_dir + "/sessions",
+           "SKYTRACE_SYNTHLAB_DIR": rec_dir + "/synthlab",
            "META_API_KEY": "", "MODEL_API_KEY": ""}
     proc = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], env=env, cwd=ROOT,
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -183,6 +184,7 @@ def main() -> int:
                     n_files += 1
             write(f"t/{tid}/images.json", images)      # one file per target keeps the hosted preview under its file limit
             runs = []
+            stab = ok(post(f"/api/targets/{tid}/stability", {"params": {}})).json()
             for label, params in [("Default parameters", {})] + stability.perturbations({}):
                 s = ok(post(f"/api/targets/{tid}/analyze", {"params": params})).json()
                 iid = s["investigation_id"]
@@ -200,17 +202,41 @@ def main() -> int:
                                                           "base64": base64.b64encode(pkg).decode()})
                 write(f"t/{tid}/run/{iid}/ask.json", {intent: {**ok(post(f"/api/investigations/{iid}/ask", {"question": q})).json(), "recorded_question": q}
                                                       for intent, q in QUESTIONS.items()})
+                write(f"t/{tid}/run/{iid}/frontier.json", ok(post(f"/api/investigations/{iid}/frontier", {"stability": stab} if not params else {})).json())
+                if not params:
+                    write(f"t/{tid}/run/{iid}/reproduce.json", ok(post(f"/api/investigations/{iid}/reproduce", {})).json())
+                    cfs = []
+                    for pr in counterfactual.PRESETS:      # the prepared counterfactuals, against the default run
+                        sc = {"kind": pr["kind"], "change": pr["change"], "label": pr["label"]}
+                        r = ok(post("/api/counterfactuals", {"target_id": tid, "baseline_investigation_id": iid, "scenario": sc})).json()
+                        cfs.append({"key": canon.dumps({"kind": pr["kind"], "change": pr["change"]}), "label": pr["label"], "result": r})
+                    write(f"t/{tid}/counterfactuals.json", cfs)
+                    print(f"  {tid}: {len(cfs)} counterfactual scenarios")
                 runs.append({"iid": iid, "label": label, "params": params, "default": not params,
                              "content_hash": s["record"]["content_hash"]})
                 print(f"  {tid}: {label} -> {iid}")
             write(f"t/{tid}/runs.json", runs)
-            write(f"t/{tid}/stability.json", ok(post(f"/api/targets/{tid}/stability", {"params": {}})).json())
+            write(f"t/{tid}/stability.json", stab)
             exps = {}
             for cfg in EXPERIMENTS:                     # the standard experiments, executed by the server at build time
                 key = cfg["template"] + (f":{cfg['question']}" if "question" in cfg else "")
                 exps[key] = ok(post("/api/experiments", {"target_id": tid, **cfg})).json()
                 print(f"  {tid}: experiment {key} -> {exps[key]['evaluation'].get('passed')}")
             write(f"t/{tid}/experiments.json", exps)
+        syn = []                                       # Synthetic Observatory templates and one schedule comparison
+        for t_ in synthobs.TEMPLATES:
+            sc = t_["scenario"]
+            r = ok(post("/api/synthetic", {"scenario": sc})).json()
+            key = canon.dumps({"seed": sc["seed"], "pm_mas_yr": sc["pm_mas_yr"], "passes": sc["passes"], "target_flux_scale": sc.get("target_flux_scale")})
+            syn.append({"id": t_["id"], "key": key, "result": r})
+            print(f"  synthetic {t_['id']}: " + ", ".join(f"{x['question']} {x['verdict']}" for x in r["evaluation"]["rows"]))
+        write("synthetic.json", syn)
+        tpl = synthobs.TEMPLATES[0]["scenario"]
+        truth = {"seed": tpl["seed"], "pm_mas_yr": tpl["pm_mas_yr"]}
+        schedules = [{"name": "two passes, 6 months, same position", "passes": [{"day": 0, "position": "A", "brightness": 1}, {"day": 182, "position": "A", "brightness": 1}]},
+                     {"name": "four passes over 18 months", "passes": tpl["passes"]}]
+        d = ok(post("/api/observation-design", {"truth": truth, "schedules": schedules})).json()
+        write("design.json", {**d, "inputs": {"truth": truth, "schedules": schedules}})
     finally:
         proc.terminate()
         proc.wait(10)

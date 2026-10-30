@@ -42,26 +42,42 @@
 
   <nav class="nav" aria-label="Workspaces">
     <div class="session-box" id="session-box"></div>
-    <div class="nav-group"><h3 class="nav-h">Observe</h3>
+    <div class="nav-group"><h3 class="nav-h">Observatory</h3>
       <button data-ws="command" aria-current="page">Command Center</button>
       <button data-ws="explorer">Sky Explorer</button>
       <button data-ws="time">Time Machine</button>
-      <button data-ws="quality" data-min-level="investigate">Data Quality</button>
+      <button data-ws="atlas">Cosmic Atlas</button>
     </div>
-    <div class="nav-group"><h3 class="nav-h">Investigate</h3>
-      <button data-ws="planner" data-min-level="investigate">Investigation Planner</button>
+    <div class="nav-group"><h3 class="nav-h">Discover</h3>
+      <button data-ws="horizon" data-min-level="investigate">Discovery Horizon</button>
       <button data-ws="discovery" data-min-level="investigate">Discovery Engine</button>
-      <button data-ws="lab">Discovery Lab</button>
-      <button data-ws="arena" data-min-level="investigate">Hypothesis Arena</button>
-      <button data-ws="experiments" data-min-level="research">Experiment Studio</button>
-    </div>
-    <div class="nav-group"><h3 class="nav-h">Verify</h3>
-      <button data-ws="graph" data-min-level="investigate">Evidence Ledger</button>
       <button data-ws="radar" data-min-level="investigate">Discovery Radar</button>
     </div>
-    <div class="nav-group"><h3 class="nav-h">Record</h3>
+    <div class="nav-group"><h3 class="nav-h">Investigate</h3>
+      <button data-ws="lab">Discovery Lab</button>
+      <button data-ws="arena" data-min-level="investigate">Hypothesis Arena</button>
+      <button data-ws="graph" data-min-level="investigate">Evidence Ledger</button>
+      <button data-ws="counterfactual" data-min-level="research">Counterfactual Lab</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Experiment</h3>
+      <button data-ws="experiments" data-min-level="research">Experiment Studio</button>
+      <button data-ws="synthetic" data-min-level="research">Synthetic Observatory</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Understand</h3>
+      <button data-ws="quality" data-min-level="investigate">Data Quality</button>
+      <button data-ws="adversarial" data-min-level="investigate">Adversarial Lab</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Orchestrate</h3>
+      <button data-ws="planner" data-min-level="investigate">Investigation Planner</button>
+      <button data-ws="autopilot" data-min-level="research">Research Autopilot</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Knowledge</h3>
       <button data-ws="notebook">Research Notebook</button>
+      <button data-ws="knowledge" data-min-level="investigate">Knowledge Atlas</button>
       <button data-ws="records">Vault &amp; Reports</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Publish</h3>
+      <button data-ws="review" data-min-level="investigate">Review &amp; Story</button>
     </div>
     <div class="nav-foot" id="nav-foot"></div>
   </nav>
@@ -108,6 +124,54 @@
       <h2 class="ws-title" id="ws-notebook-title">Research Notebook</h2>
       <p class="ws-sub">Structured notes kept with the session: text you write, and blocks that reference observations, measurements, claims, explanations, experiments and figures by identifier. Referenced values are read from the record, never typed; your interpretations stay labelled as yours.</p>
       <div id="notebook-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-horizon" aria-labelledby="ws-horizon-title">
+      <h2 class="ws-title" id="ws-horizon-title">Discovery Horizon</h2>
+      <p class="ws-sub">What scientific work remains possible with the evidence available: the investigation laid out in six layers by the Scientific Possibility Engine, then research opportunities — each with its question, the evidence that prompted it, the data it needs, the method, its limits, feasibility and why it is ranked where it is. Opportunities, never findings.</p>
+      <div id="horizon-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-counterfactual" aria-labelledby="ws-counterfactual-title">
+      <h2 class="ws-title" id="ws-counterfactual-title">Counterfactual Universe Lab</h2>
+      <p class="ws-sub">Change one stated thing — a parameter, an excluded input, a threshold, the error model, the method — and see exactly which results change. The original investigation is never altered, and a scenario is not an observation or an alternative physical reality.</p>
+      <div id="counterfactual-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-synthetic" aria-labelledby="ws-synthetic-title">
+      <h2 class="ws-title" id="ws-synthetic-title">Synthetic Observatory</h2>
+      <p class="ws-sub">Generate labelled synthetic scenarios with known ground truth, run the unchanged pipeline on them, and compare expected, measured and algorithm output — and compare hypothetical observation schedules. Generated data test the software; they never replace observations.</p>
+      <div id="synthetic-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-adversarial" aria-labelledby="ws-adversarial-title">
+      <h2 class="ws-title" id="ws-adversarial-title">Adversarial Science Lab</h2>
+      <p class="ws-sub">Challenge the investigation's own interpretation with documented rules — competing explanations, method assumptions, evidence weaknesses, sensitivity, blind spots — rank the open tests, and separate dependency, assumption and proposal in the causality workbench. A challenge is something to examine, not an established flaw.</p>
+      <div id="adversarial-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-autopilot" aria-labelledby="ws-autopilot-title">
+      <h2 class="ws-title" id="ws-autopilot-title">Research Autopilot</h2>
+      <p class="ws-sub">A controlled orchestrator: state an objective, review the proposed workflow of registered actions, choose a permission level and authorize; each step is validated, executed, recorded and stopped on failure. Network access is never granted here.</p>
+      <div id="autopilot-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-atlas" aria-labelledby="ws-atlas-title">
+      <h2 class="ws-title" id="ws-atlas-title">Cosmic Atlas</h2>
+      <p class="ws-sub">Where the targets are on the sky and how far apart they appear. Angular separations are computed; distances are shown only when a parallax is recorded; nothing three-dimensional is inferred from sky positions.</p>
+      <div id="atlas-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-knowledge" aria-labelledby="ws-knowledge-title">
+      <h2 class="ws-title" id="ws-knowledge-title">Knowledge Atlas</h2>
+      <p class="ws-sub">Search everything this installation holds — investigations, sessions, notes, hypotheses, opportunities, challenges, methods, concepts — with exact, structured matching, and compare Astro-Twins: hashed records of analyses, targets and investigations.</p>
+      <div id="knowledge-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-review" aria-labelledby="ws-review-title">
+      <h2 class="ws-title" id="ws-review-title">Review Room & Discovery Story</h2>
+      <p class="ws-sub">Structured software review by five rule sets, the Reproducibility Challenge with its stated verdict rule, and a story of the investigation written only from recorded outcomes. The reviewers are rule sets, not people.</p>
+      <div id="review-body"></div>
     </section>
 
     <section class="workspace" id="ws-discovery" aria-labelledby="ws-discovery-title">

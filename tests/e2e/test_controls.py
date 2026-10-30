@@ -49,7 +49,7 @@ def wait_up(url, proc):
 def app(request, tmp_path_factory):
     port = free_port()
     env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": str(tmp_path_factory.mktemp("rec")),
-           "SKYTRACE_SESSIONS_DIR": str(tmp_path_factory.mktemp("sessions")),
+           "SKYTRACE_SESSIONS_DIR": str(tmp_path_factory.mktemp("sessions")), "SKYTRACE_SYNTHLAB_DIR": str(tmp_path_factory.mktemp("synthlab")),
            "META_API_KEY": "", "MODEL_API_KEY": "", "NO_PROXY": "127.0.0.1,localhost"}
     if request.param == "server":
         proc = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], env=env, cwd=ROOT,
@@ -372,7 +372,7 @@ def test_k_palette_help_shortcuts(app):
     app.locator("#help").wait_for(state="hidden")
     app.keyboard.press("Alt+1")
     app.locator(".nav button[data-ws=command][aria-current=page]").wait_for()
-    app.keyboard.press("Alt+7")                       # investigate level: command, explorer, time, quality, planner, discovery, lab
+    app.keyboard.press("Alt+8")                       # investigate level: command, explorer, time, atlas, horizon, discovery, radar, lab
     app.locator(".nav button[data-ws=lab][aria-current=page]").wait_for()
 
 
@@ -508,7 +508,8 @@ def test_r_new_workspaces_narrow(app):
     app.click(".level-switch button[data-level=research]")
     for w, h, name in [(820, 1100, "tablet"), (390, 844, "mobile")]:
         app.set_viewport_size({"width": w, "height": h})
-        for ws in ["discovery", "arena", "records", "command", "planner", "quality", "radar", "notebook", "experiments"]:
+        for ws in ["discovery", "arena", "records", "command", "planner", "quality", "radar", "notebook", "experiments",
+                   "horizon", "counterfactual", "synthetic", "adversarial", "autopilot", "atlas", "knowledge", "review"]:
             app.locator(f".nav button[data-ws={ws}]").click()
             app.wait_for_timeout(400)
             assert app.locator("#main").bounding_box()["width"] <= w
@@ -795,12 +796,166 @@ def test_s10_figure_studio(app):
     app.locator("#kg h3", has_text="Knowledge graph").wait_for()
 
 
+def _research_level(app):
+    app.click(".level-switch button[data-level=research]")
+
+
+def test_t1_discovery_horizon(app, tmp_path):
+    _research_level(app)
+    app.click(".nav button[data-ws=horizon]")
+    app.locator(".horizon-card").first.wait_for(timeout=60000)
+    assert app.locator(".spe-layer").count() == 6
+    first = app.locator(".horizon-card").first
+    for label in ("Prompted by", "Required data", "Available data", "Proposed method", "Limitations", "Expected output", "Why this rank"):
+        first.locator("dt", has_text=label).wait_for()
+    assert "finding" not in " ".join(app.locator(".horizon-card h4").all_text_contents()).lower()
+    app.locator(".tagrow .tag", has_text="C4").click()
+    assert app.locator(".horizon-card").count() == app.locator(".horizon-card[data-cat=C4]").count() > 0
+    app.locator("[data-hview=map]").click()
+    app.locator("svg.hz-map text.hz-node").first.wait_for()
+    app.locator("[data-hview=cards]").click()
+    with app.expect_download() as d:
+        app.click("#horizon-export")
+    data = json.loads(Path(d.value.path()).read_text())
+    assert data["cards"] and all(c["prompted_by"] for c in data["cards"])
+    q = app.locator(".horizon-card h4").first.text_content()
+    app.locator(".horizon-card button", has_text="Plan this question").first.click()
+    app.locator("#plan-question").wait_for()
+    pw.expect(app.locator("#plan-question")).to_have_value(q)
+    app.locator(".tagrow .tag", has_text="all categories").count()
+
+
+def test_t2_counterfactual_lab(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=counterfactual]")
+    app.locator(".cf-preset", has_text="Stricter brightness threshold").click()
+    res = app.locator(".cf-result")
+    res.wait_for(timeout=60000)
+    res.locator(".pill", has_text="assumed").wait_for()
+    res.locator(".pill", has_text="baseline intact").wait_for()
+    assert res.locator("tr.changed").count() >= 1
+    assert "not an observation" in res.text_content()
+    app.locator("#cf-lineage tbody tr").first.wait_for()
+    with app.expect_download() as d:
+        app.click("#cf-export")
+    r = json.loads(Path(d.value.path()).read_text())
+    assert r["baseline"]["intact"] and r["scenario"]["baseline_hash"] == r["baseline"]["content_hash"]
+    if app.mode == "server":                  # a custom scenario (static: only the prepared ones are recorded)
+        app.select_option("#cf-kind", "error_scale")
+        app.fill("#cf-value", "3")
+        app.click("#cf-run")
+        app.locator(".cf-result .pill", has_text="simulated").wait_for(timeout=60000)
+    else:
+        app.select_option("#cf-kind", "error_scale")
+        app.fill("#cf-value", "3")
+        app.click("#cf-run")
+        app.locator("#cf-result .withheld", has_text="not precomputed").wait_for(timeout=30000)
+
+
+def test_t3_adversarial_lab(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=adversarial]")
+    item = app.locator(".asl-item[data-challenge=M-CALCHECK]")
+    item.wait_for(timeout=60000)
+    item.locator("dt", has_text="Rule").wait_for()
+    item.locator("textarea").fill("Checked the reference-star scatter in the ledger.")
+    item.locator("button", has_text="Acknowledge").click()
+    app.locator(".asl-item[data-challenge=M-CALCHECK] .pill", has_text="acknowledged").wait_for(timeout=30000)
+    app.locator("[data-atab=ranking]").click()
+    app.locator("#info-table tbody tr").first.wait_for()
+    app.locator("dd", has_text="no numerical information gain").wait_for()
+    app.locator("[data-atab=causal]").click()
+    app.fill("#causal-from", "a calibration change in pass 3")
+    app.fill("#causal-to", "the D1 flux difference")
+    app.click("#causal-add")
+    app.locator("#causal-user li", has_text="user-proposed").wait_for(timeout=30000)
+    app.locator(".causal-list li", has_text="model-derived").first.wait_for()
+
+
+def test_t4_synthetic_observatory_and_design(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=synthetic]")
+    app.select_option("#syn-template", "slow-mover")
+    app.click("#syn-run")
+    if app.mode == "server":
+        app.click("#syn-run")                 # confirm
+    res = app.locator(".syn-result")
+    res.wait_for(timeout=120000)
+    assert res.locator("tbody tr").count() == 2 and "agrees" in res.text_content()
+    res.locator(".pill", has_text="synthetic").wait_for()
+    app.locator("[data-stab=design]").click()
+    app.click("#design-run")
+    if app.mode == "server":
+        app.click("#design-run")
+    app.locator("#design-result tbody tr").nth(1).wait_for(timeout=180000)
+    with app.expect_download() as d:
+        app.click("#design-brief")
+    assert "Not a telescope schedule" in Path(d.value.path()).read_text()
+
+
+def test_t5_research_autopilot(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=autopilot]")
+    app.fill("#ap-objective", "Challenge my interpretation of the brightness change.")
+    app.click("#ap-propose")
+    app.locator("#ap-steps tbody tr").nth(2).wait_for(timeout=30000)
+    app.select_option("#ap-level", "plan")
+    pw.expect(app.locator("#ap-run")).to_be_disabled()
+    app.select_option("#ap-level", "local")
+    app.click("#ap-run")
+    app.locator("#toast", has_text="authorization").wait_for()
+    app.check("#ap-auth")
+    app.click("#ap-run")
+    app.locator("#ap-steps tr.ap-completed").nth(1).wait_for(timeout=120000)
+    app.locator("h3", has_text="Proposed next step").wait_for(timeout=60000)
+
+
+def test_t6_cosmic_atlas(app):
+    app.click(".nav button[data-ws=atlas]")
+    app.locator("#atlas-table tbody tr").nth(4).wait_for(timeout=30000)
+    assert "unknown (no parallax recorded)" in app.locator("#atlas-table").text_content()
+    assert app.locator("#atlas-sep tbody tr").count() >= 1
+    assert "no projected or physical separation" in app.locator("#atlas-body").text_content()
+    app.locator("svg.atlas-field").wait_for()
+
+
+def test_t7_knowledge_atlas_and_twins(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=knowledge]")
+    app.locator("#ka-search").wait_for(timeout=60000)
+    app.fill("#ka-search", "calibration")
+    app.locator("#ka-results li").first.wait_for()
+    assert "no embedding model" in app.locator("#knowledge-body").text_content()
+    app.locator("[data-ktab=twins]").click()
+    app.locator("#twin-integrity", has_text="recompute").wait_for(timeout=30000)
+    app.select_option("#twin-b", "1")
+    app.locator("#knowledge-body h3", has_text="Not comparable").wait_for()
+
+
+def test_t8_review_room_repro_story(app):
+    app.click(".nav button[data-ws=review]")
+    app.locator(".review-list li").first.wait_for(timeout=60000)
+    assert "not people" in app.locator("#review-body").text_content()
+    app.locator("[data-rtab=repro]").click()
+    app.click("#repro-run")
+    if app.mode == "server":
+        app.click("#repro-run")
+    app.locator("#review-body h3", has_text="Verdict: reproduced").wait_for(timeout=120000)
+    app.locator("[data-rtab=story]").click()
+    app.locator(".story-ch").nth(9).wait_for()
+    with app.expect_download() as d:
+        app.click("#story-export")
+    md = Path(d.value.path()).read_text()
+    assert "SYNTHETIC TEST DATA" in md and "## 10. The next research question" in md and "discovered" not in md.lower()
+
+
 def test_y_accessible_names(app):
     """Every visible button, field and chart in every workspace has an accessible name (no axe-core offline: a direct check)."""
     app.set_viewport_size({"width": 1440, "height": 900})
     problems = []
     app.click(".level-switch button[data-level=research]")
-    for ws in ["command", "planner", "quality", "radar", "notebook", "experiments", "discovery", "explorer", "time", "lab", "arena", "graph", "records"]:
+    for ws in ["command", "planner", "quality", "radar", "notebook", "experiments", "discovery", "explorer", "time", "lab", "arena", "graph", "records",
+               "horizon", "counterfactual", "synthetic", "adversarial", "autopilot", "atlas", "knowledge", "review"]:
         app.locator(f".nav button[data-ws={ws}]").click()
         app.wait_for_timeout(700)
         scope = app.locator(f"#ws-{ws}, .topbar, .copilot, .session-box")

@@ -147,3 +147,46 @@ export function angularSeparationDeg(ra1, dec1, ra2, dec2) {
   const den = Math.sin(b1) * Math.sin(b2) + Math.cos(b1) * Math.cos(b2) * Math.cos(dl);
   return Math.atan2(num, den) / r;
 }
+
+// ICRS (J2000) → Galactic, with the standard rotation matrix (Hipparcos/ICRS definition of the galactic frame).
+const G = [[-0.0548755604162154, -0.8734370902348850, -0.4838350155487132],
+           [0.4941094278755837, -0.4448296299600112, 0.7469822444972189],
+           [-0.8676661490190047, -0.1980763734312015, 0.4559837761750669]];
+export function icrsToGalactic(raDeg, decDeg) {
+  const r = Math.PI / 180;
+  const v = [Math.cos(decDeg * r) * Math.cos(raDeg * r), Math.cos(decDeg * r) * Math.sin(raDeg * r), Math.sin(decDeg * r)];
+  const g = G.map((row) => row[0] * v[0] + row[1] * v[1] + row[2] * v[2]);
+  let l = Math.atan2(g[1], g[0]) / r;
+  if (l < 0) l += 360;
+  return [l, Math.asin(Math.max(-1, Math.min(1, g[2]))) / r];
+}
+
+/** "17h57m48.49847s" / "+04d41m36.1139s" (or decimal degrees) → degrees; null when not parseable. */
+export function parseSexagesimal(s, isRa) {
+  if (typeof s === "number") return s;
+  if (typeof s !== "string") return null;
+  const t = s.trim();
+  if (/^[+-]?\d+(\.\d+)?$/.test(t)) return Number(t);
+  const m = t.match(/^([+-]?)(\d+)[hd:\s]\s*(\d+)[m'′:\s]\s*([\d.]+)\s*[s"″]?$/);
+  if (!m) return null;
+  const v = Number(m[2]) + Number(m[3]) / 60 + Number(m[4]) / 3600;
+  return (m[1] === "-" ? -1 : 1) * v * (isRa && /h/.test(t) ? 15 : 1);
+}
+
+/** TWIN-1 investigation twin, built in the browser from the session (port of twin.investigation; parity-tested). */
+export async function investigationTwin(session, digest) {
+  const s = session;
+  const SECTIONS = ["inputs", "parameters", "methods", "measurements", "outputs", "assumptions", "provenance"];
+  const sections = {
+    inputs: { target_id: s.target_id ?? null, runs: (s.runs || []).map((r) => ({ content_hash: r.content_hash, label: r.label })) },
+    parameters: { question: s.question?.text ?? null },
+    outputs: { n_notes: (s.notebook || []).length, n_plans: (s.plans || []).length, n_experiments: (s.experiments || []).length, n_hypotheses: (s.hypotheses || []).length },
+    assumptions: { hypotheses: (s.hypotheses || []).map((h) => h.statement).slice(0, 20) },
+    provenance: { session_hash: s.content_hash ?? null, history_events: (s.history || []).length },
+  };
+  const derived = [...new Set([...(s.runs || []).map((r) => r.content_hash), ...(s.content_hash ? [s.content_hash] : [])])].sort();
+  const body = { schema: "skytrace.twin/1", method: "TWIN-1", kind: "investigation", id: String(s.session_id), version: 1,
+    semantics: "A computational record of what Skytrace knows and did, not a physical model of an astronomical object.",
+    sections: Object.fromEntries(SECTIONS.map((k) => [k, sections[k] || {}])), derived_from: derived };
+  return { ...body, content_hash: await digest(body) };
+}

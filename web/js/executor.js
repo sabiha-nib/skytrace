@@ -6,7 +6,7 @@
 // Static preview: actions marked "unavailable" are refused; "precomputed" ones serve the build's results.
 
 import { api, STATIC } from "./api.js";
-import { emit, getDiscovery, getResearch, state } from "./state.js";
+import { emit, getDiscovery, getFrontier, getResearch, state } from "./state.js";
 import * as S from "./session.js";
 
 let hooks = { runAnalysis: null, loadTarget: null };
@@ -102,6 +102,41 @@ const ACTIONS = {
     needRun();
     const buf = await api.packageBytes(state.inv.investigation_id);
     return { status: "completed", result: { bytes: buf.byteLength, sha256: await sha256hex(buf) } };
+  },
+  async run_counterfactual(inputs) {
+    needRun();
+    if (!inputs.scenario) { emit("goto", { ws: "counterfactual" }); return { status: "needs_review", result: { opened: "Counterfactual Lab: choose the change to examine" } }; }
+    const r = await api.counterfactual(state.targetId, state.inv.investigation_id, inputs.scenario);
+    return { status: "completed", result: { scenario_hash: r.scenario_hash, outcomes_changed: r.comparison.filter((x) => x.changed && x.metric.startsWith("category.")).length,
+      baseline_intact: !!r.baseline.intact } };
+  },
+  async challenge_interpretation() {
+    needRun();
+    const f = await getFrontier();
+    return { status: "completed", result: Object.fromEntries(Object.entries(f.asl.counts).map(([k, v]) => [`challenges_${k}`, v])) };
+  },
+  async rank_tests() {
+    needRun();
+    const f = await getFrontier();
+    const top = f.info.candidates[0];
+    return { status: "completed", result: { candidate_tests: f.info.candidates.length, top_test: top ? top.test : null, top_feasibility: top ? top.feasibility : null } };
+  },
+  async review_investigation() {
+    needRun();
+    const f = await getFrontier();
+    const c = Object.values(f.review.counts);
+    return { status: "completed", result: { met: c.reduce((a, x) => a + x.met, 0), not_met: c.reduce((a, x) => a + x["not met"], 0), not_checked: c.reduce((a, x) => a + x["not checked"], 0) } };
+  },
+  async reproduce() {
+    needRun();
+    const r = await api.reproduce(state.inv.investigation_id);
+    await S.log("repro.run", `REPRO-1: ${r.verdict}${r.recorded_at_build ? " (recorded at build)" : ""}`, null, { create: true });
+    return { status: "completed", result: { verdict: r.verdict, failed: r.checks.filter((c) => c.outcome === "fail").length, recorded_at_build: !!r.recorded_at_build } };
+  },
+  async run_synthetic(inputs) {
+    if (!inputs.scenario) { emit("goto", { ws: "synthetic" }); return { status: "needs_review", result: { opened: "Synthetic Observatory: choose a scenario" } }; }
+    const r = await api.synthetic(inputs.scenario);
+    return { status: "completed", result: { scenario_id: r.scenario_id, ...Object.fromEntries(r.evaluation.rows.map((x) => [`${x.question}_verdict`, x.verdict])) } };
   },
   async acquire_data() { throw new Error("acquisition needs network access to the archives, which is blocked here; run scripts/acquire_targets.py on a networked machine"); },
 };

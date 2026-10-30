@@ -130,6 +130,7 @@ export function closeHelp() {
 }
 
 export function glossaryTerms() { return GLOSSARY.map(([k]) => k); }
+export function glossaryEntries() { return GLOSSARY.map(([k, v]) => ({ term: k, text: v })); }
 
 export function observationCommands(go) {
   return (state.target?.observations || []).filter((o) => o.included).slice(0, 200).map((o) => ({

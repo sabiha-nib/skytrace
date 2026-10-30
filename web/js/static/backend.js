@@ -297,8 +297,10 @@ export const staticApi = {
     if (!hit) throw new PreviewLimit("only the template scenarios are precomputed in the preview; custom scenarios generate files and need python run.py.");
     return { ...hit.result, recorded_at_build: true };
   },
-  async design() {
+  async design(truth, schedules) {
     const d = await getJSON("design.json");
+    if (canonKey({ truth, schedules }) !== canonKey(d.inputs))
+      throw new PreviewLimit("only the default schedule comparison is precomputed in the preview; edited schedules generate files and need python run.py.");
     return { ...d, recorded_at_build: true };
   },
   async provenance() { throw new PreviewLimit("provenance verification re-reads the stored files and re-runs the analysis: it needs the local server (python run.py)."); },

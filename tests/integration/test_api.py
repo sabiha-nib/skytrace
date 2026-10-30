@@ -22,7 +22,7 @@ def base(tmp_path_factory):
     port = s.getsockname()[1]
     s.close()
     env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": str(tmp_path_factory.mktemp("rec")), "META_API_KEY": "",
-           "SKYTRACE_SESSIONS_DIR": str(tmp_path_factory.mktemp("sessions"))}
+           "SKYTRACE_SESSIONS_DIR": str(tmp_path_factory.mktemp("sessions")), "SKYTRACE_SYNTHLAB_DIR": str(tmp_path_factory.mktemp("synthlab"))}
     p = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], env=env, cwd=ROOT,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     url = f"http://127.0.0.1:{port}"
@@ -227,3 +227,21 @@ def test_phase6_research_planner_sessions_experiments_connectors(base):
     w = sp["workflow_templates"][0]
     assert post(base, "/api/workflows/validate", {"workflow": w}).json()["valid"]
     assert not post(base, "/api/workflows/validate", {"workflow": dict(w, steps=[{"id": "x", "action": "rm_rf", "depends": []}])}).json()["valid"]
+
+
+def test_phase7_frontier_counterfactual_reproduce_synthetic(base):
+    r = post(base, "/api/targets/syn-var-1/analyze", {"params": {}})
+    iid = r.json()["investigation_id"]
+    f = post(base, f"/api/investigations/{iid}/frontier", {}).json()
+    assert {"spe", "asl", "info", "review", "repro", "twins"} <= set(f)
+    assert [l["n"] for l in f["spe"]["layers"]] == [1, 2, 3, 4, 5, 6] and f["info"]["probability_model"] is None
+    assert post(base, f"/api/investigations/{iid}/frontier", {"stability": "x"}).status_code == 400
+    c = post(base, "/api/counterfactuals", {"target_id": "syn-var-1", "baseline_investigation_id": iid,
+                                                  "scenario": {"kind": "threshold", "change": {"variability_z": 9}}}).json()
+    assert c["baseline"]["intact"] and c["scenario"]["baseline_hash"] == f["content_hash"] and c["twin"]["kind"] == "scenario"
+    assert post(base, "/api/counterfactuals", {"target_id": "syn-var-1", "scenario": {"kind": "parameter", "change": {"aperture_radius_px": 99}}}).status_code == 400
+    assert post(base, "/api/counterfactuals", {"target_id": "../etc", "scenario": {"kind": "method", "change": {"variability_method": "PAIRDIFF-1"}}}).status_code in (400, 404)
+    assert post(base, f"/api/investigations/{iid}/reproduce", {}).json()["verdict"] == "reproduced"
+    assert post(base, "/api/synthetic", {"scenario": {"seed": 1}}).status_code == 400
+    sp = get(base, "/api/specs").json()["frontier"]
+    assert sp["counterfactual"]["presets"] and sp["autopilot"]["levels"] and sp["twin"]["semantics"]

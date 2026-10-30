@@ -23,18 +23,30 @@ import { openSequence } from "./timemachine.js";
 import * as S from "./session.js";
 import { bindSessions, closeSessions, openSessions, renderSessionBox } from "./sessionsui.js";
 import { setHooks } from "./executor.js";
+import { renderHorizon } from "./horizonui.js";
+import { renderCounterfactual } from "./counterfactualui.js";
+import { renderSynthetic } from "./synthobsui.js";
+import { renderAdversarial, setAdversarialTab } from "./adversarialui.js";
+import { renderAutopilot } from "./autopilotui.js";
+import { renderAtlas } from "./atlasui.js";
+import { renderKnowledge } from "./knowledgeui.js";
+import { renderReview, setReviewTab } from "./reviewui.js";
 import { $, $$, el, fmtDate, toast } from "./util.js";
 
 const RENDER = { command: renderCommand, discovery: renderDiscovery, explorer: renderExplorer, time: renderTime, lab: renderLab, arena: renderArena,
                  graph: renderLedger, records: renderRecords, planner: renderPlanner, experiments: renderExperiments, quality: renderQuality,
-                 radar: renderRadar, notebook: renderNotebook };
+                 radar: renderRadar, notebook: renderNotebook, horizon: renderHorizon, counterfactual: renderCounterfactual, synthetic: renderSynthetic,
+                 adversarial: renderAdversarial, autopilot: renderAutopilot, atlas: renderAtlas, knowledge: renderKnowledge, review: renderReview };
 const WS_LABEL = { command: "Command Center", explorer: "Sky Explorer", time: "Time Machine", quality: "Data Quality Observatory", planner: "Investigation Planner",
                    discovery: "Discovery Engine", lab: "Discovery Lab", arena: "Hypothesis Arena", experiments: "Experiment Studio", graph: "Evidence Ledger",
-                   radar: "Discovery Radar", notebook: "Research Notebook", records: "Vault & Reports" };
+                   radar: "Discovery Radar", notebook: "Research Notebook", records: "Vault & Reports", horizon: "Discovery Horizon",
+                   counterfactual: "Counterfactual Lab", synthetic: "Synthetic Observatory", adversarial: "Adversarial Science Lab", autopilot: "Research Autopilot",
+                   atlas: "Cosmic Atlas", knowledge: "Knowledge Atlas", review: "Review Room & Discovery Story" };
 const LEVELS = ["explore", "investigate", "research"];
 const minLevel = (ws) => document.querySelector(`.nav button[data-ws=${ws}]`)?.dataset.minLevel || "explore";
 const visibleWs = () => $$(".nav button[data-ws]").map((b) => b.dataset.ws).filter((ws) => LEVELS.indexOf(minLevel(ws)) <= LEVELS.indexOf(state.level));
-const LOGGED = { arena: "arena.view", radar: null, quality: null, graph: null, planner: "planner.view", notebook: "notebook.view", experiments: "experiments.view" };
+const LOGGED = { arena: "arena.view", radar: null, quality: null, graph: null, planner: "planner.view", notebook: "notebook.view", experiments: "experiments.view",
+                 counterfactual: "counterfactual.view", adversarial: "adversarial.view", review: "review.view", synthetic: "synthetic.view", autopilot: "autopilot.view" };
 
 // The discovery loop. Each step names where it happens; "Explain" opens the copilot.
 const LOOP = [["Explore", "command"], ["Observe", "explorer"], ["Compare", "time"], ["Detect", "lab"], ["Test", "arena"],
@@ -119,7 +131,7 @@ function renderHeader() {
 
 async function loadTarget(tid, { keepSelection = null, push = true } = {}) {
   if (state.targetId !== tid) state.context = state.session ? state.context : emptyContext();   // a session's context spans its targets
-  state.discovery = null; state.research = null;
+  state.discovery = null; state.research = null; state.frontier = null;
   state.targetId = tid;
   state.target = null; state.inv = null; state.model = null; state.prevInv = null; state.selectedKey = null; state.partnerKey = null;
   resetCopilot();
@@ -147,7 +159,7 @@ async function runAnalysis(params, { quiet = false } = {}) {
     const prev = state.inv ? { record: state.inv.record, model: state.model } : null;
     const r = await api.analyze(state.targetId, params || {});
     state.prevInv = prev;
-    state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null;
+    state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null;
     if (state.session) S.attachRun(r, Object.keys(params || {}).length ? "re-run with changed parameters" : "analysis");
     const o = state.model.outcomes.map((x) => `${x.question.replace("_", " ")}: ${x.category.replaceAll("_", " ")}`).join(" · ");
     if (!quiet) toast(`Analysis complete. ${o}`, 5000);
@@ -198,6 +210,8 @@ function bind() {
     if (focus) { focusGraph(focus); if (ws === "graph" && !tab) setLedgerTab("graph"); }
     if (tab && ws === "lab") setLabTab(tab);
     if (tab && ws === "graph") setLedgerTab(tab === "ledger" ? "claims" : tab);
+    if (tab && ws === "adversarial") setAdversarialTab(tab);
+    if (tab && ws === "review") setReviewTab(tab);
     if (qtab) setQualityTab(qtab);
     if (question) setPlannerQuestion(question);
     renderRuler();
@@ -219,7 +233,7 @@ function bind() {
     if (state.targetId !== d.target_id) await loadTarget(d.target_id);
     try {
       const r = await api.investigation(d.investigation_id);
-      state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null;
+      state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null;
       state.context = sanitizeContext(d.context);   // restored as saved (untrusted, so only known fields); nothing is filled in
       resetCopilot();
       $("#thread").append(el("p", { class: "faint" }, `Reopened “${d.name}”, saved ${d.saved_at}. Earlier conversation:`));

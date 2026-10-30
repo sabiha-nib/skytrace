@@ -15,7 +15,7 @@ let pendingQuestion = null, armed = new Set(), busy = false;
 
 export function setPlannerQuestion(q) { pendingQuestion = q; }
 
-function facts() {
+export function facts() {
   const pair = state.selectedKey && state.partnerKey ? [state.selectedKey, state.partnerKey] : null;
   return { has_target_data: !!state.target, has_run: !!state.inv, run_hash: state.inv?.record.content_hash || null, pair,
            server: !STATIC, static: STATIC, network: state.status?.offline ? false : null, has_question: !!state.session?.question?.text,

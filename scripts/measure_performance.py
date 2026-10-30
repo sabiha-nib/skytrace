@@ -105,7 +105,8 @@ def main() -> int:
            "runs_per_measurement": N, "measured_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     port = free_port()
     env = {**os.environ, "OFFLINE": "1", "META_API_KEY": "", "MODEL_API_KEY": "", "NO_PROXY": "127.0.0.1,localhost",
-           "SKYTRACE_RECORDS_DIR": str(ROOT / "dist" / ".perf-records"), "SKYTRACE_SESSIONS_DIR": str(ROOT / "dist" / ".perf-records" / "sessions")}
+           "SKYTRACE_RECORDS_DIR": str(ROOT / "dist" / ".perf-records"), "SKYTRACE_SESSIONS_DIR": str(ROOT / "dist" / ".perf-records" / "sessions"),
+           "SKYTRACE_SYNTHLAB_DIR": str(ROOT / "dist" / ".perf-records" / "synthlab")}
     proc = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], env=env, cwd=ROOT,
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     base = f"http://127.0.0.1:{port}/"
