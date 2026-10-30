@@ -1,3 +1,106 @@
+# Test report: v0.7.0 (2026-10-31)
+
+Statuses: **PASS** means executed and met. **FAIL** means executed and not met. **BLOCKED** means it could not be executed here, and
+the reason is named. **NOT RUN** means it was not attempted.
+
+## Gates (v0.7.0, at release commit `da5ab0f`)
+
+| # | Gate | Command / evidence | Status |
+|---|---|---|---|
+| G1 | Unit, integration, robustness and parity tests | `python -m pytest` (via `verify.py`): **292 passed, 2 skipped** (astropy not installed). The 0.6.1 baseline was 269 passed; no test was removed | PASS |
+| G2 | Every control, both modes, desktop/tablet/phone widths | `pytest -m e2e tests/e2e`: **89 passed**. The baseline was 73; `t1`–`t8` were added in both modes | PASS |
+| G3 | Browser ports equal Python | `test_frontier.py`: horizon, challenge and review overlays, twin comparison, investigation twin, angular separation, galactic coordinates and sexagesimal parsing, run under Node against Python on the same inputs. All earlier parity tests still run | PASS |
+| G4 | Known-answer and rule tests of the Phase 7 methods | `test_frontier.py` (18 tests). Re-assessment with no change reproduces the record exactly (both fixtures). Counterfactuals are isolated: bundle file hashes and the baseline object are unchanged. Validation refusals are tested. Synthetic scenarios are byte-deterministic and labelled, with known-answer verdicts and refusals. Schedule comparison is tested. ASL-1 rules and statuses, INFO-1 has no probabilities, REPRO-1 verdicts are tested and a tampered record fails R8. REVIEW-1 findings cite sources. Twin integrity and comparison are tested. Possibility layers and horizon cards are tested. Every action has a permission class, the executor implements every registered action, and v0.7 session fields are accepted while 0.6 sessions stay valid. Plus `integration/test_api.py::test_phase7_frontier_counterfactual_reproduce_synthetic` | PASS |
+| G5 | Whole-system verification | `python scripts/verify.py --e2e` at `da5ab0f`: **VERIFIED 18/18**, with 4 warnings (no astropy, no real bundles, no Meta key, smoke test never run) | PASS |
+| G6 | Static preview integrity | `verify.py`: 184 files match `PREVIEW_MANIFEST.json` | PASS |
+| G7 | Provenance of the fixture investigations | `verify.py`: 10 checks per fixture | PASS |
+| G8 | Catalogue consistency | `test_phase7_catalogue.py` (4 tests). It checks 400 brief concepts in 40 domains, 406 distinct, synonyms that point to counted concepts, and that every cited file, test function and Phase 6 entry exists. Deferred items must cite nothing and the generated files must be current. The 0.5 and 0.6 catalogue tests are unchanged | PASS |
+| G9 | Records unchanged by Phase 7 | The content hashes of all 12 recorded runs (6 per fixture) in the 0.7.0 preview are identical to the 0.6.1 preview archive | PASS |
+| G10 | Accessibility (automated) | `test_accessibility.py`. e2e `test_y` covers accessible names, extended to the eight new workspaces. e2e `test_r` (no horizontal scroll at 820 and 390 px) and `test_k` (Alt+1…9 over the new navigation) | PASS |
+| G11 | Accessibility with a screen reader | — | NOT RUN |
+| G12 | Performance measured | `python scripts/measure_performance.py` writes `docs/performance.json` (results below) | PASS |
+| G13 | Real SPHEREx acquisition and live archive tests | `diagnose_environment.py` re-run: IRSA SIA/TAP, SIMBAD, Gaia, Meta, PyPI and npm all get a proxy 403. `pytest -m live tests/live`: 2 failed and 2 errors, each `proxy_refused (proxy answered 403 to CONNECT; host not allowed)` | BLOCKED |
+| G14 | Native reader vs astropy on a real SPHEREx file | Needs network and astropy (PyPI 403) | BLOCKED |
+| G15 | Live Meta Model API call; multi-agent research; semantic indexing | No key; the API host is refused (403). No embedding model is reachable | BLOCKED |
+| G16 | Dockerfile build | Base images cannot be pulled | NOT RUN |
+| G17 | Hosted preview after republishing | Published as version 6 of the hosted artifact. `data/status.json` (0.7.0, commit `da5ab0f`), `js/autopilotui.js` and `data/t/syn-var-1/counterfactuals.json` were read back from the hosted artifact with SHA-256 identical to the local build. The page was **not opened in a browser**: no browser on the desktop app was reachable from this session. The same files were exercised by the static-mode e2e run (G2) and the Phase 7 screenshots | PARTIAL (files verified; not opened) |
+| G18 | Release artifacts | `scripts/make_release.py`: archives verified (release section below). Earlier artifacts (0.2.0–0.6.1) untouched | PASS |
+
+## Release (0.7.0)
+
+| Version | Commit | Archive (sha256) | Preview archive (sha256) | Hosted artifact |
+|---|---|---|---|---|
+| 0.7.0 | `da5ab0f` | `dist/skytrace-0.7.0.zip` (`57e962d8a08d9bf1efde42d3c8529a7272cc57adcd105fa569d9d7c82c97676a`, 434 files, 17.5 MB; zip integrity verified, no forbidden files, bundle checksums OK) | `dist/skytrace-preview-0.7.0.zip` (`fbd0b9954294d2289507e33fe8466769ced25b9d5d54f20d7af20309b598e48c`) | version 6 (G17) |
+
+The manifest is kept as `dist/RELEASE_MANIFEST-0.7.0.json`. Nothing was pushed.
+
+## New tests in v0.7
+
+Unit/API:
+- `test_frontier.py` (18, including two Node parity tests and the executor/registry coverage test)
+- `test_phase7_catalogue.py` (4)
+- `integration/test_api.py::test_phase7_frontier_counterfactual_reproduce_synthetic`
+
+One assertion changed because the fact changed: the registry version, from CAPREG-2 to CAPREG-3.
+
+Browser (both modes, `e2e/test_controls.py`):
+- `t1` Discovery Horizon: six layers, the nine card fields, category filter, map, export, plan hand-off.
+- `t2` Counterfactual Lab: preset with assumed label and baseline-intact indicator, lineage, export. Server: custom error-scale scenario labelled simulated. Static: refusal.
+- `t3` Adversarial Lab: challenge with rule, acknowledgement note, ranking with no numerical gain, user-proposed and model-derived relationships.
+- `t4` Synthetic Observatory and Observation Design: template run labelled synthetic, schedule comparison, brief export.
+- `t5` Autopilot: plan-only level cannot run, authorization required, steps completed, proposed next step.
+- `t6` Cosmic Atlas: table, field view.
+- `t7` Knowledge Atlas and twins: search results, integrity recomputes, different kinds not comparable.
+- `t8` Review Room: reviewers are not people, verdict "reproduced", ten story chapters, export.
+
+`test_k`, `test_r` and `test_y` were extended to the new workspaces.
+
+## Performance (v0.7.0; this machine, 2 CPUs, median of 3; `docs/performance.json`)
+
+| Measurement | Server mode | Static preview |
+|---|---:|---:|
+| Page load | 0.272 s | 0.203 s |
+| First result (server: runs the analysis; preview: loads the precomputed run) | 4.294 s | 0.374 s |
+| Discovery Horizon, first cards | 0.095 s | 0.113 s |
+| Adversarial Lab, first challenge | 0.077 s | 0.090 s |
+| Review Room, first finding | 0.060 s | 0.051 s |
+| Counterfactual preset (threshold re-assessment) → result | 0.081 s | 0.075 s |
+| Synthetic template → result (server: verify or write the bundle and run the full analysis) | 4.437 s | 0.064 s |
+| Autopilot, objective → plan | 0.082 s | 0.061 s |
+| Cosmic Atlas, Knowledge Atlas | 0.076 s, 0.115 s | 0.071 s, 0.070 s |
+
+Server API (`syn-var-1` / `syn-hpm-1`):
+
+| Call | `syn-var-1` | `syn-hpm-1` |
+|---|---:|---:|
+| Frontier report, first call for a new record | 0.111 s | 0.105 s |
+| Counterfactual exclusion (pipeline re-run) | 3.061 s | 2.910 s |
+| Reproducibility challenge with replay | 3.597 s | 3.517 s |
+| Analysis | 3.591 s | 3.357 s |
+| Stability check | 21.2 s | 20.0 s |
+
+The static preview is 184 files and 18.3 MB. Phase 6 workspace timings are unchanged within noise (see `performance.json`).
+
+## Screenshots (v0.7)
+
+`docs/screenshots/phase7-*.png` (16), taken from the static preview by `python scripts/phase7_screenshots.py`:
+- discovery-horizon, discovery-horizon-mobile, opportunity-map
+- counterfactual-lab
+- adversarial-lab, test-ranking, causality-workbench
+- synthetic-observatory, observation-design
+- autopilot
+- cosmic-atlas
+- knowledge-atlas, twins
+- review-room, reproducibility, story
+
+Every image shows synthetic test data and is labelled so. Looking at them found three defects, which were fixed before the
+release commit:
+- Long tables in the new workspaces clipped their right-hand columns.
+- The reproducibility verdict rule ran past its card.
+- At the plan-only level, the autopilot said "skipped (needs inspect)" for steps whose permission the level nominally allows.
+
+---
+
 # Test report — v0.6.0 and v0.6.1 (2026-10-30)
 
 Statuses: **PASS** (executed, met), **FAIL** (executed, not met), **BLOCKED** (could not be executed here; the reason is
