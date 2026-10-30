@@ -48,6 +48,22 @@ const serverApi = {
   deleteRecord: (rid) => req(`/api/records/${rid}`, { method: "DELETE" }),
   // The record text is passed through unparsed so its numbers keep the exact form the content hash was computed on.
   importRecord: (text, name) => req("/api/records/import", { method: "POST", body: `{"name": ${JSON.stringify(name || "")}, "record": ${text}}` }),
+  // ---- Phase 6
+  specs: () => req("/api/specs"),
+  research: (iid) => req(`/api/investigations/${iid}/research`),
+  plan: (question, facts) => req("/api/plan", { method: "POST", body: JSON.stringify({ question, facts }) }),
+  experiment: (tid, cfg) => req("/api/experiments", { method: "POST", body: JSON.stringify({ target_id: tid, ...cfg }) }),
+  provenance: (iid, rerun = true) => req(`/api/investigations/${iid}/provenance`, { method: "POST", body: JSON.stringify({ rerun }) }),
+  connectors: () => req("/api/connectors"),
+  connectorPreview: (cid, params) => req(`/api/connectors/${cid}/preview`, { method: "POST", body: JSON.stringify({ params }) }),
+  validateWorkflow: (workflow) => req("/api/workflows/validate", { method: "POST", body: JSON.stringify({ workflow }) }),
+  sessions: () => req("/api/sessions"),
+  createSession: (name, target_id) => req("/api/sessions", { method: "POST", body: JSON.stringify({ name, target_id }) }),
+  session: (sid) => req(`/api/sessions/${sid}`),
+  saveSession: (s) => req(`/api/sessions/${s.session_id}`, { method: "PUT", body: JSON.stringify({ session: s }) }),
+  deleteSession: (sid) => req(`/api/sessions/${sid}`, { method: "DELETE" }),
+  importSession: (s) => req("/api/sessions/import", { method: "POST", body: JSON.stringify({ session: s }) }),
+  sessionFromRecord: (rid) => req(`/api/sessions/from-record/${rid}`, { method: "POST", body: "{}" }),
 };
 
 export const api = STATIC ? (await import("./static/backend.js")).staticApi : serverApi;

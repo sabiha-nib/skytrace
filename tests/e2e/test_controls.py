@@ -49,6 +49,7 @@ def wait_up(url, proc):
 def app(request, tmp_path_factory):
     port = free_port()
     env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": str(tmp_path_factory.mktemp("rec")),
+           "SKYTRACE_SESSIONS_DIR": str(tmp_path_factory.mktemp("sessions")),
            "META_API_KEY": "", "MODEL_API_KEY": "", "NO_PROXY": "127.0.0.1,localhost"}
     if request.param == "server":
         proc = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], env=env, cwd=ROOT,
@@ -338,8 +339,8 @@ def test_k_palette_help_shortcuts(app):
     app.keyboard.press("Escape")
     app.locator("#help").wait_for(state="hidden")
     app.keyboard.press("Alt+1")
-    app.locator(".nav button[data-ws=discovery][aria-current=page]").wait_for()
-    app.keyboard.press("Alt+4")
+    app.locator(".nav button[data-ws=command][aria-current=page]").wait_for()
+    app.keyboard.press("Alt+7")                       # investigate level: command, explorer, time, quality, planner, discovery, lab
     app.locator(".nav button[data-ws=lab][aria-current=page]").wait_for()
 
 
@@ -472,9 +473,10 @@ def test_q_copilot_sections_and_capabilities(app):
 
 
 def test_r_new_workspaces_narrow(app):
+    app.click(".level-switch button[data-level=research]")
     for w, h, name in [(820, 1100, "tablet"), (390, 844, "mobile")]:
         app.set_viewport_size({"width": w, "height": h})
-        for ws in ["discovery", "arena", "records"]:
+        for ws in ["discovery", "arena", "records", "command", "planner", "quality", "radar", "notebook", "experiments"]:
             app.locator(f".nav button[data-ws={ws}]").click()
             app.wait_for_timeout(400)
             assert app.locator("#main").bounding_box()["width"] <= w
@@ -489,14 +491,264 @@ def test_r_new_workspaces_narrow(app):
     app.set_viewport_size({"width": 1440, "height": 900})
 
 
+def test_s1_command_center_session_and_mission(app):
+    app.set_viewport_size({"width": 1440, "height": 900})
+    app.click(".level-switch button[data-level=research]")
+    app.click(".nav button[data-ws=command]")
+    app.locator("#command-body h3", has_text="Data quality").wait_for(timeout=30000)
+    app.locator("#command-body h3", has_text="Observation coverage").wait_for()
+    app.locator(".cc-coverage circle").first.wait_for(state="attached")
+    app.fill("#cc-question", "Could this source have changed between the two recorded observation epochs?")
+    app.click("#cc-question-set")
+    app.locator("#session-box .session-name", has_text="SYN-VAR-1").wait_for(timeout=30000)
+    app.locator(".cc-question", has_text="changed between").wait_for()
+    app.locator("#command-body .activity li", has_text="Research question").wait_for()
+    m = app.locator(".mission[data-mission=compare-pair]")
+    m.locator("button", has_text="Start mission").click()
+    m = app.locator(".mission[data-mission=compare-pair]")
+    m.locator(".tasks li.done", has_text="Run (or load) the analysis").wait_for(timeout=30000)
+    assert m.locator(".tasks li.done", has_text="wavelength-matched pair").count() == 0
+
+
+def test_s2_planner_plans_runs_and_persists(app):
+    app.click(".nav button[data-ws=time]")
+    app.locator(".partner-list button.partner").first.wait_for(timeout=30000)
+    app.locator(".partner-list button.partner").filter(has_not=app.locator(".why")).first.click()   # a wavelength-matched partner
+    app.locator("#tm-banner", has_text="Wavelength-matched pair").wait_for(timeout=30000)
+    app.click(".nav button[data-ws=command]")
+    app.locator(".mission[data-mission=compare-pair] .tasks li.done", has_text="wavelength-matched pair").wait_for(timeout=30000)
+    app.click(".nav button[data-ws=planner]")
+    q = app.locator("#plan-question")
+    pw.expect(q).to_have_value("Could this source have changed between the two recorded observation epochs?")
+    app.click("#plan-go")
+    app.locator(".plan-step[data-step=analysis] .step-st", has_text="completed").wait_for(timeout=30000)
+    for sid in ("quality", "pair", "tests", "uncertainty"):
+        app.locator(f".plan-step[data-step={sid}] .step-st", has_text="ready").wait_for()
+    app.locator(".plan-step[data-step=stability] .step-st", has_text="suggested").wait_for()
+    app.click("#plan-run")
+    for sid in ("quality", "pair", "tests", "uncertainty"):
+        app.locator(f".plan-step[data-step={sid}] .step-st", has_text="completed").wait_for(timeout=60000)
+    app.locator(".plan-step[data-step=pair] .step-result", has_text="compatible").wait_for()
+    app.locator(".plan-step[data-step=inspect] .step-st", has_text="ready").wait_for()
+    app.locator(".plan-step[data-step=inspect] button", has_text="Run").click()
+    app.locator(".nav button[data-ws=time][aria-current=page]").wait_for()
+    app.click(".nav button[data-ws=planner]")
+    st = app.locator(".plan-step[data-step=inspect]")
+    st.locator(".step-st", has_text="needs review").wait_for()
+    st.locator("textarea").fill("No artefact visible at the target position.")
+    st.locator("button", has_text="Mark reviewed").click()
+    app.locator(".plan-step[data-step=inspect] .step-st", has_text="completed").wait_for()
+    app.locator(".plan-next", has_text="Next scientifically useful step").wait_for()
+    # unanswerable and unrecognised questions are said to be so, with no steps
+    q.fill("Why did it dim?")
+    app.click("#plan-go")
+    app.locator("#plan-canvas .status-rejected", has_text="Not answerable here").wait_for()
+    assert app.locator(".plan-step").count() == 0
+    # the plan survives a reload: it is in the session
+    app.reload()
+    if app.mode == "server":                                  # the server keeps no analysis across page loads; the session does
+        app.locator("#run-btn").wait_for()
+        app.click("#run-btn")
+        app.locator("#run-btn", has_text="Re-run analysis").wait_for(timeout=120000)
+    app.click(".nav button[data-ws=command]")
+    app.locator("#command-body h3", has_text="Pending research tasks").wait_for(timeout=30000)
+    app.click(".nav button[data-ws=planner]")
+    app.locator(".plan-step[data-step=inspect] .step-st", has_text="completed").wait_for(timeout=30000)
+
+
+def test_s3_quality_matrix_metadata_sequences(app):
+    app.click(".nav button[data-ws=quality]")
+    app.locator(".dq-row[data-check=DQ-FILES]").click()
+    app.locator(".dq-card", has_text="every file's SHA-256 equals the manifest").wait_for()
+    assert "score" not in app.locator("#quality-body").text_content().lower().replace("no overall quality score", "").replace("there is no overall quality score", "")
+    app.locator("[data-qtab=matrix]").click()
+    app.locator(".matrix-svg .mcell[tabindex='0']").first.click()
+    app.locator("#matrix-cell button", has_text="Compare their metadata").click()
+    app.locator("[data-qtab=metadata][aria-selected=true]").wait_for()
+    app.locator(".compare-records th", has_text="sha256").wait_for()
+    app.locator("[data-qtab=coverage]").click()
+    app.locator("#quality-body td", has_text="SEQ-D1-1").wait_for()
+    app.locator("#quality-body tr", has_text="SEQ-D1-1").locator("button", has_text="Open").click()
+    app.locator(".nav button[data-ws=time][aria-current=page]").wait_for()
+    app.locator(".seq-note", has_text="nothing is interpolated").wait_for(timeout=30000)
+    app.locator(".seq-frames li").nth(1).wait_for(timeout=30000)
+    app.locator("#seq-info h3", has_text="Frame 1 of").wait_for()
+    app.click("button[aria-label='Next frame']")
+    app.locator("#seq-info h3", has_text="Frame 2 of").wait_for()
+    app.click("#seq-diff")
+    app.locator("#time-body .caption", has_text="frame 2 − frame 1").wait_for()
+    with app.expect_download() as d:
+        app.click("#seq-export")
+    rec = json.loads(Path(d.value.path()).read_text())
+    assert rec["method"] == "SEQ-1" and all(f["sha256"] for f in rec["frames"]) and rec["synthetic"] is True
+    app.locator("button", has_text="Back to pair comparison").click()
+
+
+def test_s4_connectors(app):
+    app.click(".nav button[data-ws=quality]")
+    app.locator("[data-qtab=connectors]").click()
+    card = app.locator("[data-connector=spherex_sia]")
+    card.wait_for(timeout=30000)
+    btn = card.locator("button", has_text="Validate and preview")
+    if app.mode == "static":
+        assert btn.is_disabled()
+    else:
+        card.locator("input[name=ra]").fill("10.5")
+        card.locator("input[name=dec]").fill("-5")
+        card.locator("input[name=radius_arcsec]").fill("1")
+        btn.click()
+        card.locator(".conn-out", has_text="Not sent").wait_for()
+        card.locator(".conn-out", has_text="irsa.ipac.caltech.edu/SIA").wait_for()
+        card.locator("input[name=ra]").fill("400")
+        btn.click()
+        card.locator(".conn-out .status-rejected").wait_for()
+    assert "not usable now" in card.text_content()
+
+
+def test_s5_radar(app):
+    app.click(".nav button[data-ws=radar]")
+    app.locator(".radar-item").first.wait_for(timeout=30000)
+    assert "not detections" in app.locator("#radar-body").text_content()
+    app.locator(".radar-item[data-signal=R1]").first.wait_for()
+    app.locator(".tagrow .tag", has_text="can run now").click()
+    assert app.locator(".radar-item.blocked").count() == 0
+    app.locator(".radar-item[data-signal=R1]").first.locator("button", has_text="Open the pair").click()
+    app.locator(".nav button[data-ws=time][aria-current=page]").wait_for()
+
+
+def test_s6_ledger_inspectors(app):
+    app.click(".nav button[data-ws=graph]")
+    app.locator(".graph-svg .node").first.wait_for(timeout=30000)
+    app.locator("[data-ltab=claims]").click()
+    app.locator("#claim-detail", has_text="Directly linked support").wait_for(timeout=30000)
+    assert "not a measure of how well" in app.locator("#claim-detail").text_content()
+    app.locator("[data-ltab=contradictions]").click()
+    app.locator("#ledger-host h3", has_text="Contradiction inspector").wait_for()
+    app.locator("#ledger-host li", has_text="C1").first.wait_for()           # raw vs calibrated conflict in the variable fixture
+    app.locator("[data-ltab=provenance]").click()
+    app.locator("#ledger-host td.mono").first.wait_for()
+    app.locator("[data-ltab=methods]").click()
+    app.locator("#ledger-host dt", has_text="Methods linked").first.wait_for()
+    app.locator("[data-ltab=completeness]").click()
+    app.locator("#ledger-host h3", has_text="Evidence completeness").wait_for()
+    app.locator("[data-ltab=history]").click()
+    app.locator("#ledger-host li", has_text="question").first.wait_for()
+    app.click(".nav button[data-ws=command]")
+    app.locator("#command-body h3", has_text="Missions").first.wait_for(timeout=30000)
+
+
+def test_s7_notebook_blocks_versions_undo_exports(app, tmp_path):
+    app.click(".nav button[data-ws=notebook]")
+    app.select_option("#nb-type", "paragraph")
+    app.fill("#nb-text", "The third pass looks fainter on D1.")
+    app.click("#nb-add")
+    blk = app.locator(".nb-block.nb-paragraph").first
+    blk.wait_for(timeout=30000)
+    blk.locator("textarea").fill("The third pass looks fainter on D1 and D2.")
+    blk.locator("button", has_text="Save").click()
+    app.locator(".nb-block.nb-paragraph .nb-head", has_text="edited 1×").wait_for()
+    for t in ("measurement", "evidence", "figure", "citation"):
+        app.select_option("#nb-type", t)
+        app.locator("#nb-ref").wait_for()
+        app.click("#nb-add")
+        app.locator(f".nb-block.nb-{t}").first.wait_for()
+    app.locator(".nb-block.nb-measurement", has_text="µJy").wait_for()
+    app.locator(".nb-block.nb-figure svg").wait_for()
+    assert app.locator(".nb-block .status-rejected").count() == 0               # every reference resolves
+    app.locator(".nb-block.nb-citation button", has_text="Delete").click()
+    app.locator("#nb-undo button", has_text="Undo").click()
+    app.locator(".nb-block.nb-citation").wait_for()
+    with app.expect_download() as d:
+        app.click("#nb-export-md")
+    md = Path(d.value.path()).read_text()
+    assert "[you]" in md and "[recorded]" in md and "SYNTHETIC" in md
+    with app.expect_download() as d:
+        app.click("#nb-export-pkg")
+    import zipfile
+    z = zipfile.ZipFile(d.value.path())
+    names = z.namelist()
+    assert z.testzip() is None and any(n.endswith("/SHA256SUMS") for n in names) and any(n.endswith("/session.json") for n in names)
+    assert any(n.endswith("/investigation-package.zip") for n in names)
+    import hashlib
+    sess = json.loads(z.read(next(n for n in names if n.endswith("/session.json"))))
+    from skytrace import canon
+    assert canon.digest({k: v for k, v in sess.items() if k != "content_hash"}) == sess["content_hash"]
+
+
+def test_s8_experiments_and_workflows(app):
+    app.click(".nav button[data-ws=experiments]")
+    app.locator("[data-template=reproducibility]").click()
+    app.click("#exp-run")
+    app.click("#exp-run")                                   # confirm
+    app.locator("#exp-result", has_text="criterion met").wait_for(timeout=120000)
+    if app.mode == "static":
+        app.locator("#exp-result", has_text="Recorded when this preview was built").wait_for()
+    app.locator("#exp-result", has_text="not thereby a valid experiment").wait_for()
+    app.locator("[data-template=parameter]").click()
+    if app.mode == "static":
+        app.locator("#experiments-body", has_text="Custom parameter sets need the local server").wait_for()
+    app.locator(".tabs button", has_text="Workflows").click()
+    app.click("#wf-validate")
+    app.locator("#wf-validation", has_text="Valid").wait_for(timeout=30000)
+    app.fill("#wf-text", '{"schema": "skytrace.workflow/1", "name": "bad", "targets": ["syn-var-1"], "steps": [{"id": "x", "action": "rm_rf", "depends": []}]}')
+    app.click("#wf-validate")
+    app.locator("#wf-validation .status-rejected").first.wait_for()
+    app.fill("#wf-text", json.dumps({"schema": "skytrace.workflow/1", "name": "e2e", "targets": ["syn-hpm-1", "syn-var-1"],
+                                     "steps": [{"id": "analysis", "action": "run_analysis", "inputs": {}, "depends": []},
+                                               {"id": "quality", "action": "check_quality", "inputs": {}, "depends": ["analysis"]}]}))
+    app.click("#wf-run")
+    app.click("#wf-run")                                     # confirm
+    app.locator("#wf-log td.wf-completed").nth(3).wait_for(timeout=180000)
+    assert app.locator("#wf-log td.wf-failed").count() == 0
+    app.locator("#data-pill", has_text="Synthetic").wait_for()
+    pw.expect(app.locator("#target-select")).to_have_value("syn-var-1")
+
+
+def test_s9_sessions_dialog_export_import(app, tmp_path):
+    app.locator("#session-btn").click()
+    app.locator("#sessions").wait_for(state="visible")
+    with app.expect_download() as d:
+        app.click("#session-export")
+    exported = tmp_path / "s.json"
+    d.value.save_as(exported)
+    s = json.loads(exported.read_text())
+    assert s["schema"] == "skytrace.research_session/1" and s["notebook"] and s["plans"]
+    app.set_input_files("#session-import-file", str(exported))
+    app.locator("#toast", has_text="content hash verified").wait_for(timeout=30000)
+    bad = dict(s, name="tampered")
+    (tmp_path / "bad.json").write_text(json.dumps(bad))
+    app.set_input_files("#session-import-file", str(tmp_path / "bad.json"))
+    app.locator("#toast", has_text="Import refused").wait_for(timeout=30000)
+    assert app.locator("#sessions-body tbody tr").count() >= 2
+    app.locator("#sessions-body td.status-ok").first.wait_for()
+    app.keyboard.press("Escape")
+    app.locator("#sessions").wait_for(state="hidden")
+
+
+def test_s10_figure_studio(app):
+    app.click(".nav button[data-ws=records]")
+    app.locator("#figure-studio select#fig-select").wait_for(timeout=30000)
+    app.select_option("#fig-select", "zhist")
+    app.locator("#fig-chart figcaption", has_text="pairs").wait_for()
+    app.fill("#fig-title-in", "Pair significances (e2e)")
+    app.locator("#figure-studio button", has_text="Apply").click()
+    app.locator("#fig-chart h4", has_text="Pair significances (e2e)").wait_for()
+    with app.expect_download() as d:
+        app.click("#fig-export-svg")
+    svg = Path(d.value.path()).read_text()
+    assert "<metadata>" in svg and "SYNTHETIC TEST DATA" in svg and "zhist" in svg
+    app.locator("#kg h3", has_text="Knowledge graph").wait_for()
+
+
 def test_y_accessible_names(app):
     """Every visible button, field and chart in every workspace has an accessible name (no axe-core offline: a direct check)."""
     app.set_viewport_size({"width": 1440, "height": 900})
     problems = []
-    for ws in ["discovery", "explorer", "time", "lab", "arena", "graph", "records"]:
+    app.click(".level-switch button[data-level=research]")
+    for ws in ["command", "planner", "quality", "radar", "notebook", "experiments", "discovery", "explorer", "time", "lab", "arena", "graph", "records"]:
         app.locator(f".nav button[data-ws={ws}]").click()
         app.wait_for_timeout(700)
-        scope = app.locator(f"#ws-{ws}, .topbar, .copilot")
+        scope = app.locator(f"#ws-{ws}, .topbar, .copilot, .session-box")
         for b in scope.locator("button:visible").all():
             name = (b.get_attribute("aria-label") or b.inner_text() or b.get_attribute("title") or "").strip()
             if not name:

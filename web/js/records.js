@@ -11,7 +11,13 @@
 import { api } from "./api.js";
 import { emit, sanitizeContext, state } from "./state.js";
 import { verifyRecordText } from "./static/hash.js";
-import { $, categoryLabel, clear, download, el, fmtDate, questionLabel, toast } from "./util.js";
+import { $, categoryLabel, clear, download, el, fmtDate, questionLabel, renderToken, toast } from "./util.js";
+import { getResearch } from "./state.js";
+import { buildFigure, figureCard, figureList } from "./figurestudio.js";
+import { build as buildKG, view as kgView } from "./kg.js";
+import * as S from "./session.js";
+
+let figId = "timeline", figCfg = {};
 
 let query = "", tagFilter = null, selected = new Set(), pendingImport = null, renaming = null;
 
@@ -25,14 +31,87 @@ function storageNote(kind) {
 const parseTags = (s) => [...new Set(String(s || "").split(",").map((t) => t.trim()).filter(Boolean))].slice(0, 20);
 
 export async function renderRecords() {
+  const live = renderToken("records");
   const body = $("#records-body");
   clear(body);
-  body.append(saveCard(), studioCard(), importCard());
+  body.append(saveCard(), studioCard(), figureStudioCard(), importCard());
   const list = el("div", { class: "card", id: "vault" }, el("h3", {}, "Saved investigations"), el("p", { class: "busy" }, el("span", { class: "spinner" }), "Loading…"));
   body.append(list);
   let recs, storage;
   try { ({ records: recs, storage } = await api.records()); } catch (e) { list.replaceChildren(el("p", {}, e.message)); return; }
+  if (!live()) return;
   renderVault(list, recs, storage);
+  const kg = el("section", { class: "card", id: "kg", "aria-labelledby": "kg-title" }, el("h3", { id: "kg-title" }, "Knowledge graph (KG-1)"), el("p", { class: "busy" }, el("span", { class: "spinner" }), "Relating stored investigations…"));
+  body.append(kg);
+  try {
+    const sess = (await api.sessions()).sessions;
+    const g = buildKG(recs, sess);
+    const exp = el("button", { class: "btn small", type: "button" }, "Export graph (JSON)");
+    exp.addEventListener("click", async () => { if (await download("skytrace-knowledge-graph.json", JSON.stringify(g, null, 1), "application/json")) toast("Knowledge graph exported"); });
+    kg.replaceChildren(el("h3", { id: "kg-title" }, "Knowledge graph (KG-1)"), kgView(g), el("div", { class: "controls" }, exp));
+  } catch (e) { kg.replaceChildren(el("h3", {}, "Knowledge graph"), el("p", {}, e.message)); }
+}
+
+// ------------------------------------------------------------------ figure studio (FIG-2)
+function figureStudioCard() {
+  const card = el("section", { class: "card", id: "figure-studio", "aria-labelledby": "fig-title" }, el("h3", { id: "fig-title" }, "Figure Studio"));
+  if (!state.inv) { card.append(el("p", { class: "muted" }, "Run an analysis first: figures are drawn from recorded values.")); return card; }
+  const out = el("div", { id: "fig-out" }, el("p", { class: "busy" }, el("span", { class: "spinner" }), "Loading…"));
+  card.append(el("p", { class: "muted" }, "Every figure is drawn from the recorded values of this run and carries its units, data source, method and limitations. Settings are saved with the exported SVG so the figure can be regenerated."), out);
+  getResearch().then((r) => {
+    const sel = el("select", { id: "fig-select", "aria-label": "Figure" }, ...figureList(r).map((f) => el("option", { value: f.id, selected: f.id === figId || null }, f.label)));
+    const title = el("input", { type: "text", id: "fig-title-in", placeholder: "Title (optional)", "aria-label": "Figure title", value: figCfg.title || "" });
+    const xl = el("input", { type: "text", placeholder: "x-axis label (optional)", "aria-label": "x-axis label", value: figCfg.xlabel || "" });
+    const yl = el("input", { type: "text", placeholder: "y-axis label (optional)", "aria-label": "y-axis label", value: figCfg.ylabel || "" });
+    const ann = el("input", { type: "text", placeholder: "Annotation (optional)", "aria-label": "Annotation", value: figCfg.annotation || "" });
+    const apply = el("button", { class: "btn small", type: "button" }, "Apply");
+    const draw = () => {
+      figId = sel.value;
+      figCfg = Object.fromEntries(Object.entries({ title: title.value.trim(), xlabel: xl.value.trim(), ylabel: yl.value.trim(), annotation: ann.value.trim() }).filter(([, v]) => v));
+      const holder = el("div", { id: "fig-chart" });
+      try {
+        const f = buildFigure(figId, r, figCfg);
+        const exp = el("button", { class: "btn small", type: "button", id: "fig-export-svg" }, "Export SVG (with provenance)");
+        exp.addEventListener("click", async () => {
+          const svgText = figureSvgText(f);
+          if (await download(`skytrace-${state.targetId}-${f.id.replace(/[^a-z0-9]+/gi, "-")}.svg`, svgText, "image/svg+xml")) { await S.log("figure.export", `Figure exported: ${f.title}`, f.id); toast("Figure exported"); }
+        });
+        const toNote = el("button", { class: "btn small ghost", type: "button" }, "Add to notebook");
+        toNote.addEventListener("click", async () => {
+          const { insertFigure } = await import("./notebookhelpers.js");
+          await insertFigure(f.id); toast("Figure block added to the notebook");
+        });
+        holder.append(figureCard(f, el("div", { class: "controls" }, exp, toNote)));
+      } catch (e) { holder.append(el("p", { class: "muted" }, `Not available: ${e.message}`)); }
+      const prev = out.querySelector("#fig-chart");
+      if (prev) prev.replaceWith(holder); else out.append(holder);
+    };
+    apply.addEventListener("click", draw);
+    sel.addEventListener("change", draw);
+    out.replaceChildren(el("div", { class: "controls" }, sel, title, xl, yl, ann, apply), el("div", { id: "fig-chart" }));
+    draw();
+  }).catch((e) => out.replaceChildren(el("p", {}, e.message)));
+  return card;
+}
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+function figureSvgText(f) {
+  const vb = f.svg.getAttribute("viewBox").split(/\s+/).map(Number);
+  const [w, h] = [vb[2], vb[3]];
+  const lines = [f.summary, `Units: ${f.units}`, `Data: ${f.source}`.slice(0, 160), `Method: ${f.method}`.slice(0, 160), `Limitations: ${f.limitations.join("; ")}`.slice(0, 200),
+    `Investigation ${state.inv.record.content_hash.slice(0, 16)} · Skytrace ${state.status?.version || ""} · settings ${JSON.stringify(f.settings)}`];
+  const syn = !!state.model?.synthetic;
+  const inner = new XMLSerializer().serializeToString(f.svg.cloneNode(true)).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+  const foot = 16 * (lines.length + (syn ? 1 : 0)) + 10;
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h + 30 + foot}" viewBox="0 0 ${w} ${h + 30 + foot}">
+<style>text{font-family:Helvetica,Arial,sans-serif;font-size:11px;fill:#222}.axis-line,.errbar{stroke:#666}.thresh{stroke:#c0552d;stroke-dasharray:3 3}.bar{fill:#3a8fb7}.gapline{stroke:#c0552d;stroke-dasharray:2 3}.t{font-size:13px;font-weight:bold}.m{font-size:10px;fill:#444}.s{font-size:10px;fill:#a0306c;font-weight:bold}</style>
+<metadata>${esc(JSON.stringify({ figure: f.settings, title: f.title, units: f.units, source: f.source, method: f.method, limitations: f.limitations, investigation: state.inv.record.content_hash, synthetic: syn }))}</metadata>
+<rect width="100%" height="100%" fill="#fff"/><text class="t" x="10" y="20">${esc(f.title)}</text>
+<svg x="0" y="30" width="${w}" height="${h}" viewBox="${vb.join(" ")}">${inner}</svg>
+${syn ? `<text class="s" x="10" y="${30 + h + 16}">SYNTHETIC TEST DATA: generated by code, not an astronomical observation</text>` : ""}
+${lines.map((l, i) => `<text class="m" x="10" y="${30 + h + 16 * (i + 1 + (syn ? 1 : 0))}">${esc(l)}</text>`).join("\n")}
+</svg>`;
 }
 
 // ------------------------------------------------------------------ save
@@ -185,6 +264,11 @@ function row(r, list, recs, storage) {
   const rename = el("button", { class: "btn small ghost", "aria-label": `Rename or retag ${r.name}` }, "Edit");
   const clone = el("button", { class: "btn small ghost", "aria-label": `Duplicate ${r.name}` }, "Duplicate");
   const del = el("button", { class: "btn small ghost", "aria-label": `Delete ${r.name}` }, "Delete");
+  const asSession = el("button", { class: "btn small ghost", "aria-label": `Open ${r.name} as a research session` }, "As session");
+  asSession.addEventListener("click", async () => {
+    try { const x = await api.sessionFromRecord(r.record_id); await S.openSession(x.session_id); toast(`Research session “${x.name}” created from the saved investigation (the record is unchanged)`, 6000); }
+    catch (e) { toast(e.message, 6000); }
+  });
   open.addEventListener("click", async () => {
     try { const d = await api.record(r.record_id); emit("open-record", { ...d, context: sanitizeContext(d.context) }); } catch (e) { toast(e.message); }
   });
@@ -214,7 +298,7 @@ function row(r, list, recs, storage) {
   return el("tr", {}, el("td", {}, sel), nameCell, el("td", {}, r.target_id, el("div", { class: "faint" }, r.bundle_kind || "")),
     el("td", {}, (r.outcomes || []).length ? r.outcomes.map((o) => `${questionLabel(o.question)}: ${categoryLabel(o.category)}`).join("; ") : el("span", { class: "faint" }, "not stored")),
     el("td", {}, fmtDate(r.saved_at)), el("td", { class: "mono" }, r.content_hash.slice(0, 12)), el("td", {}, res),
-    el("td", { class: "row-actions" }, open, replay, rename, clone, del));
+    el("td", { class: "row-actions" }, open, replay, rename, clone, asSession, del));
 }
 
 function renameForm(r, list, recs, storage) {

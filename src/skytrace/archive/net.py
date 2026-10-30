@@ -22,6 +22,7 @@ from urllib.parse import urlencode
 from ..provenance import Provenance, sha256_bytes, stable_hash, utc_now_iso
 
 TRANSIENT_STATUS = {408, 425, 429, 500, 502, 503, 504}
+MAX_RETRY_AFTER_S = 60.0   # a Retry-After hint is honoured up to this many seconds
 DEFAULT_MAX_BYTES = 256 * 1024 * 1024  # bounded downloads; a full SPHEREx MEF is ~70 MB
 
 
@@ -102,7 +103,12 @@ class Fetcher:
         resp = session.get(url, timeout=self.timeout, stream=True)
         try:
             if resp.status_code != 200:
-                raise _HTTPStatus(resp.status_code)
+                ra = None
+                try:
+                    ra = float((getattr(resp, "headers", None) or {}).get("Retry-After"))
+                except (TypeError, ValueError):
+                    ra = None          # absent, or an HTTP date (not parsed): fall back to exponential back-off
+                raise _HTTPStatus(resp.status_code, ra)
             chunks, total = [], 0
             for chunk in resp.iter_content(chunk_size=1 << 16):
                 total += len(chunk)
@@ -122,6 +128,7 @@ class Fetcher:
 
         if not self.offline:
             for i in range(self.retries):
+                delay = self.backoff_s * (2 ** i)
                 try:
                     content = self._live(url)
                     if validate:
@@ -132,9 +139,11 @@ class Fetcher:
                     path = self._write_cache(kind, release, url, content, prov)
                     return FetchResult(content, prov, path)
                 except _HTTPStatus as e:
-                    attempts.append(f"live#{i + 1}: HTTP {e.status}")
+                    attempts.append(f"live#{i + 1}: HTTP {e.status}" + (f" (Retry-After {e.retry_after:g} s)" if e.retry_after is not None else ""))
                     if e.status not in TRANSIENT_STATUS:
                         break
+                    if e.retry_after is not None and e.retry_after >= 0:
+                        delay = min(MAX_RETRY_AFTER_S, e.retry_after)   # honour the server's rate-limit hint, bounded
                 except FetchError as e:
                     attempts.append(f"live#{i + 1}: {e.reason}")
                     break
@@ -147,7 +156,7 @@ class Fetcher:
                         break
                     attempts.append(f"live#{i + 1}: {type(e).__name__}: {_short(e)}")
                 if i + 1 < self.retries:
-                    self._sleep(self.backoff_s * (2 ** i))
+                    self._sleep(delay)
         else:
             attempts.append("live: skipped (OFFLINE=1)")
 
@@ -172,8 +181,8 @@ class Fetcher:
 
 
 class _HTTPStatus(Exception):
-    def __init__(self, status: int):
-        self.status = status
+    def __init__(self, status: int, retry_after: float | None = None):
+        self.status, self.retry_after = status, retry_after
 
 
 def _note(p: Provenance, note: str) -> Provenance:

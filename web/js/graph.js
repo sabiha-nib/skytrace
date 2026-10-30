@@ -13,8 +13,8 @@ let data = null, selected = null, pendingFocus = null;
 
 export function focusGraph(id) { pendingFocus = id; }
 
-export async function renderGraph() {
-  const body = $("#graph-body");
+export async function renderGraph(host) {
+  const body = host || $("#graph-body");
   clear(body);
   if (!state.inv) { body.append(el("p", { class: "empty" }, state.target ? "Run the analysis to build the evidence graph." : "This target has no stored observations yet.")); return; }
   body.append(el("p", { class: "busy" }, el("span", { class: "spinner" }), "Building the graph…"));

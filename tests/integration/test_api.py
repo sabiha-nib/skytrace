@@ -1,5 +1,6 @@
 """HTTP API integration tests against the real server process (OFFLINE=1, bundled synthetic data)."""
 
+import json
 import os
 import socket
 import subprocess
@@ -20,7 +21,8 @@ def base(tmp_path_factory):
     s.bind(("127.0.0.1", 0))
     port = s.getsockname()[1]
     s.close()
-    env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": str(tmp_path_factory.mktemp("rec")), "META_API_KEY": ""}
+    env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": str(tmp_path_factory.mktemp("rec")), "META_API_KEY": "",
+           "SKYTRACE_SESSIONS_DIR": str(tmp_path_factory.mktemp("sessions"))}
     p = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], env=env, cwd=ROOT,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     url = f"http://127.0.0.1:{port}"
@@ -146,7 +148,7 @@ def test_phase5_discovery_package_capabilities_and_vault(base):
     s = post(base, "/api/targets/syn-var-1/analyze", {"params": {}}).json()
     iid = s["investigation_id"]
     caps = get(base, "/api/capabilities").json()
-    assert caps["version"] == "CAPREG-1" and any(c["id"] == "archive" and c["available"] is False for c in caps["capabilities"])
+    assert caps["version"] == "CAPREG-2" and any(c["id"] == "archive" and c["available"] is False for c in caps["capabilities"])
     d = get(base, f"/api/investigations/{iid}/discovery").json()
     assert d["method"] == "DISC-1" and d["content_hash"] == s["record"]["content_hash"]
     assert {"inventory", "questions", "hypotheses", "uncertainty", "next_steps"} <= set(d)
@@ -173,3 +175,55 @@ def test_phase5_discovery_package_capabilities_and_vault(base):
     assert c["cloned_from"] == rid and c["name"] == "Copy of renamed"
     listed = {x["record_id"]: x for x in get(base, "/api/records").json()["records"]}
     assert listed[c["record_id"]]["content_hash"] == listed[rid]["content_hash"]
+
+
+def test_phase6_research_planner_sessions_experiments_connectors(base):
+    sp = get(base, "/api/specs").json()
+    assert sp["session_schema_id"] == "skytrace.research_session/1" and "templates" in sp["planner"]
+    iid = post(base, "/api/targets/syn-var-1/analyze", {"params": {}}).json()["investigation_id"]
+    r = get(base, f"/api/investigations/{iid}/research").json()
+    assert r["compat"]["method"] == "COMPAT-1" and r["quality"]["method"] == "DQ-1"
+    assert r["ledger"]["method"] == "LEDGER-1" and r["radar"]["method"] == "RADAR-1"
+    assert not any(k in r["quality"] for k in ("score", "overall_score", "grade")) and all(set(c) >= {"outcome", "rule", "items"} for c in r["quality"]["checks"])
+    # planner: the server fixes where it runs; blocked steps say why
+    p = post(base, "/api/plan", {"question": "Could this source have changed between the two recorded observation epochs?",
+                                 "facts": {"has_target_data": True, "has_run": True, "run_hash": "x", "static": True}}).json()
+    assert p["intent"]["kind"] == "change" and any(s["status"] == "blocked" and "two observations" in s["note"] for s in p["steps"])
+    assert post(base, "/api/plan", {"question": " "}).status_code == 400
+    # sessions: create, update, integrity, import refusal of a tampered copy, migration from a saved record
+    s = post(base, "/api/sessions", {"name": "API test", "target_id": "syn-var-1"}).json()
+    assert len(s["content_hash"]) == 64
+    s["question"] = {"id": "Q-VAR", "text": "Did it change?"}
+    s2 = requests.put(base + f"/api/sessions/{s['session_id']}", json={"session": s}, timeout=30, proxies=NOPROXY).json()
+    assert s2["content_hash"] != s["content_hash"]
+    got = get(base, f"/api/sessions/{s['session_id']}").json()
+    assert got["_verification"]["hash_ok"] is True
+    bad = dict(s2, name="tampered")
+    assert post(base, "/api/sessions/import", {"session": bad}).status_code == 400
+    assert post(base, "/api/sessions/import", {"session": {"schema": "skytrace.research_session/9"}}).status_code == 400
+    imp = post(base, "/api/sessions/import", {"session": s2}).json()
+    assert imp["hash_verified"] and imp["session_id"] != s2["session_id"]
+    lst = get(base, "/api/sessions").json()
+    assert {x["session_id"] for x in lst["sessions"]} >= {s["session_id"], imp["session_id"]}
+    rec = post(base, "/api/records", {"investigation_id": iid, "name": "for migration", "context": {"question": "Q-MOT", "question_text": "moves?"}}).json()
+    mig = post(base, f"/api/sessions/from-record/{rec['record_id']}").json()
+    assert mig["question"]["id"] == "Q-MOT" and mig["history"][-1]["kind"] == "session.migrate"
+    assert requests.delete(base + f"/api/sessions/{imp['session_id']}", timeout=30, proxies=NOPROXY).status_code == 200
+    # experiments: validation before execution; a reproducibility run gives identical hashes
+    assert post(base, "/api/experiments", {"target_id": "syn-var-1", "template": "parameter", "configs": [{"aperture_radius_px": 9}]}).status_code == 400
+    ex = post(base, "/api/experiments", {"target_id": "syn-var-1", "template": "reproducibility"}).json()
+    assert ex["evaluation"]["passed"] is True and ex["n_analyses"] == 2 and "not thereby a valid experiment" in ex["validity_note"]
+    # provenance verification (PROVCHECK-1) without re-run
+    pv = post(base, f"/api/investigations/{iid}/provenance", {"rerun": False}).json()
+    assert pv["checks"] and all("id" in c for c in pv["checks"])
+    # connectors: previews validate and never send
+    c = get(base, "/api/connectors").json()
+    assert {x["id"] for x in c["connectors"]} == {"spherex_sia", "spherex_tap", "simbad_resolve", "gaia_cone"}
+    assert all(x["usable_now"] is False for x in c["connectors"])          # OFFLINE=1
+    pr = post(base, "/api/connectors/spherex_sia/preview", {"params": {"ra": 10, "dec": 5, "release": "QR3", "radius_arcsec": 1}}).json()
+    assert pr["ok"] and pr["sent"] is False and pr["request"]["url"] == "https://irsa.ipac.caltech.edu/SIA"
+    assert post(base, "/api/connectors/spherex_sia/preview", {"params": {"ra": 400}}).json()["ok"] is False
+    # workflows
+    w = sp["workflow_templates"][0]
+    assert post(base, "/api/workflows/validate", {"workflow": w}).json()["valid"]
+    assert not post(base, "/api/workflows/validate", {"workflow": dict(w, steps=[{"id": "x", "action": "rm_rf", "depends": []}])}).json()["valid"]

@@ -12,17 +12,33 @@ import { ask, bindCopilot, refreshCopilot, resetCopilot } from "./copilot.js";
 import { renderDiscovery } from "./discovery.js";
 import { renderArena } from "./arena.js";
 import { bindPalette, closeHelp, closePalette, observationCommands, openHelp, openPalette } from "./palette.js";
+import { renderCommand } from "./commandcenter.js";
+import { renderPlanner, setPlannerQuestion } from "./plannerui.js";
+import { renderExperiments, setTargetLoader } from "./experimentsui.js";
+import { renderQuality, setQualityTab } from "./qualityui.js";
+import { renderRadar } from "./radarui.js";
+import { renderNotebook } from "./notebook.js";
+import { renderLedger, setLedgerTab } from "./ledgerui.js";
+import { openSequence } from "./timemachine.js";
+import * as S from "./session.js";
+import { bindSessions, closeSessions, openSessions, renderSessionBox } from "./sessionsui.js";
+import { setHooks } from "./executor.js";
 import { $, $$, el, fmtDate, toast } from "./util.js";
 
-const RENDER = { discovery: renderDiscovery, explorer: renderExplorer, time: renderTime, lab: renderLab, arena: renderArena,
-                 graph: renderGraph, records: renderRecords };
-const WS_ORDER = ["discovery", "explorer", "time", "lab", "arena", "graph", "records"];
-const WS_LABEL = { discovery: "Discovery Engine", explorer: "Sky Explorer", time: "Time Machine", lab: "Discovery Lab",
-                   arena: "Hypothesis Arena", graph: "Evidence Graph", records: "Investigations" };
+const RENDER = { command: renderCommand, discovery: renderDiscovery, explorer: renderExplorer, time: renderTime, lab: renderLab, arena: renderArena,
+                 graph: renderLedger, records: renderRecords, planner: renderPlanner, experiments: renderExperiments, quality: renderQuality,
+                 radar: renderRadar, notebook: renderNotebook };
+const WS_LABEL = { command: "Command Center", explorer: "Sky Explorer", time: "Time Machine", quality: "Data Quality Observatory", planner: "Investigation Planner",
+                   discovery: "Discovery Engine", lab: "Discovery Lab", arena: "Hypothesis Arena", experiments: "Experiment Studio", graph: "Evidence Ledger",
+                   radar: "Discovery Radar", notebook: "Research Notebook", records: "Vault & Reports" };
+const LEVELS = ["explore", "investigate", "research"];
+const minLevel = (ws) => document.querySelector(`.nav button[data-ws=${ws}]`)?.dataset.minLevel || "explore";
+const visibleWs = () => $$(".nav button[data-ws]").map((b) => b.dataset.ws).filter((ws) => LEVELS.indexOf(minLevel(ws)) <= LEVELS.indexOf(state.level));
+const LOGGED = { arena: "arena.view", radar: null, quality: null, graph: null, planner: "planner.view", notebook: "notebook.view", experiments: "experiments.view" };
 
 // The discovery loop. Each step names where it happens; "Explain" opens the copilot.
-const LOOP = [["Explore", "explorer"], ["Observe", "explorer"], ["Compare", "time"], ["Detect", "lab"], ["Test", "arena"],
-              ["Explain", "copilot"], ["Verify", "graph"], ["Preserve", "records"], ["Share", "records"]];
+const LOOP = [["Explore", "command"], ["Observe", "explorer"], ["Compare", "time"], ["Detect", "lab"], ["Test", "arena"],
+              ["Explain", "copilot"], ["Verify", "graph"], ["Preserve", "notebook"], ["Share", "records"]];
 
 function renderLoop() {
   const nav = $("#loop");
@@ -50,7 +66,13 @@ function setLevel(level, persist = true) {
 }
 
 function setWorkspace(ws, { push = true } = {}) {
-  if (!RENDER[ws]) ws = "explorer";
+  if (!RENDER[ws]) ws = "command";
+  const need = minLevel(ws);
+  if (LEVELS.indexOf(need) > LEVELS.indexOf(state.level)) {
+    setLevel(need);
+    toast(`Switched to the ${need[0].toUpperCase() + need.slice(1)} level to open the ${WS_LABEL[ws]}.`);
+  }
+  if (LOGGED[ws]) S.log(LOGGED[ws], `${WS_LABEL[ws]} opened`);
   if (state.ws === "time" && ws !== "time") stopBlink();
   state.ws = ws;
   $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.ws === ws ? "page" : "false"));
@@ -96,8 +118,8 @@ function renderHeader() {
 }
 
 async function loadTarget(tid, { keepSelection = null, push = true } = {}) {
-  if (state.targetId !== tid) state.context = emptyContext();   // the context belongs to one target's investigation
-  state.discovery = null;
+  if (state.targetId !== tid) state.context = state.session ? state.context : emptyContext();   // a session's context spans its targets
+  state.discovery = null; state.research = null;
   state.targetId = tid;
   state.target = null; state.inv = null; state.model = null; state.prevInv = null; state.selectedKey = null; state.partnerKey = null;
   resetCopilot();
@@ -125,7 +147,8 @@ async function runAnalysis(params, { quiet = false } = {}) {
     const prev = state.inv ? { record: state.inv.record, model: state.model } : null;
     const r = await api.analyze(state.targetId, params || {});
     state.prevInv = prev;
-    state.inv = r; state.model = deriveModel(r.record); state.discovery = null;
+    state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null;
+    if (state.session) S.attachRun(r, Object.keys(params || {}).length ? "re-run with changed parameters" : "analysis");
     const o = state.model.outcomes.map((x) => `${x.question.replace("_", " ")}: ${x.category.replaceAll("_", " ")}`).join(" · ");
     if (!quiet) toast(`Analysis complete. ${o}`, 5000);
     if (prev) $("#thread").append(el("p", { class: "faint" }, "New analysis run; later answers refer to it."));
@@ -153,7 +176,7 @@ function bind() {
       await loadTarget(h.target, { keepSelection: h.obs, push: false });
     else if (h.obs && h.obs !== state.selectedKey) state.selectedKey = h.obs;
     if (h.b) state.partnerKey = h.b;
-    setWorkspace(RENDER[h.ws] ? h.ws : "explorer", { push: false });
+    setWorkspace(RENDER[h.ws] ? h.ws : "command", { push: false });
     renderRuler();
   });
   $("#run-btn").addEventListener("click", () => runAnalysis());
@@ -169,22 +192,34 @@ function bind() {
   });
   on("partner", () => { renderRuler(); renderTime(); writeHash(); });
   on("goto-lab", (tab) => { setLabTab(tab === "rerun-stability" ? "rerun" : tab, { stability: tab === "rerun-stability" }); setWorkspace("lab"); });
-  on("goto", ({ ws, key, partner, focus, tab }) => {
+  on("goto", ({ ws, key, partner, focus, tab, question, qtab }) => {
     if (key) state.selectedKey = key;
     if (partner) state.partnerKey = partner;
-    if (focus) focusGraph(focus);
-    if (tab) setLabTab(tab);
+    if (focus) { focusGraph(focus); if (ws === "graph" && !tab) setLedgerTab("graph"); }
+    if (tab && ws === "lab") setLabTab(tab);
+    if (tab && ws === "graph") setLedgerTab(tab === "ledger" ? "claims" : tab);
+    if (qtab) setQualityTab(qtab);
+    if (question) setPlannerQuestion(question);
     renderRuler();
     setWorkspace(ws);
   });
   on("run", (params) => runAnalysis(params));
+  on("open-sequence", (id) => { openSequence(id); setWorkspace("time"); });
+  on("pair-viewed", async ({ a, b, compatible }) => {
+    if (!state.session) return;
+    const key = `${a}|${b}`;
+    await S.update(compatible ? "pair.view_matched" : "pair.view", `Compared ${a} with ${b}${compatible ? " (wavelength-matched)" : ""}`,
+      (x) => { if (!x.examined.includes(key)) x.examined = [...x.examined, key].slice(-500); return x; }, key);
+  });
+  on("sequence-viewed", (id) => S.log("sequence.view", `Sequence ${id} opened`, id));
+  on("session-changed", () => { renderSessionBox(); if (state.ws === "command") renderCommand(); });
   on("ask", (q) => { setCopilotOpen(true, false); ask(q); });
   on("open-record", async (d) => {
     if (!d.bundle_available) { toast("The data bundle for this record is not available on this machine."); return; }
     if (state.targetId !== d.target_id) await loadTarget(d.target_id);
     try {
       const r = await api.investigation(d.investigation_id);
-      state.inv = r; state.model = deriveModel(r.record); state.discovery = null;
+      state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null;
       state.context = sanitizeContext(d.context);   // restored as saved (untrusted, so only known fields); nothing is filled in
       resetCopilot();
       $("#thread").append(el("p", { class: "faint" }, `Reopened “${d.name}”, saved ${d.saved_at}. Earlier conversation:`));
@@ -198,10 +233,11 @@ function bind() {
   });
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("#palette").hidden ? openPalette() : closePalette(); return; }
+    if (!$("#sessions").hidden) { if (e.key === "Escape") { e.preventDefault(); closeSessions(); } return; }
     if (!$("#palette").hidden || !$("#help").hidden) return;
     if (e.key === "Escape" && $("#app").classList.contains("copilot-open-narrow")) { setCopilotOpen(false); return; }
     if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
-    if (e.altKey && /^[1-7]$/.test(e.key)) { e.preventDefault(); setWorkspace(WS_ORDER[+e.key - 1]); return; }
+    if (e.altKey && /^[1-9]$/.test(e.key)) { const v = visibleWs(); if (v[+e.key - 1]) { e.preventDefault(); setWorkspace(v[+e.key - 1]); } return; }
     if (e.key === "/" ) { e.preventDefault(); openPalette(); return; }
     if (e.key === "?") { e.preventDefault(); openHelp(); return; }
     if (state.ws === "explorer" && (e.key === "ArrowRight" || e.key === "ArrowLeft")) { e.preventDefault(); stepSelection(e.key === "ArrowRight" ? 1 : -1); }
@@ -213,11 +249,12 @@ function bind() {
   $("#palette-btn").addEventListener("click", openPalette);
   $("#help-btn").addEventListener("click", openHelp);
   bindPalette(paletteCommands);
-  on("context-changed", () => renderLoop());
+  on("context-changed", () => { renderLoop(); S.syncSessionFromContext(); });
 }
 
 function paletteCommands() {
-  const cmds = WS_ORDER.map((ws, i) => ({ group: "Workspace", label: WS_LABEL[ws], hint: `Alt+${i + 1}`, run: () => setWorkspace(ws) }));
+  const vis = visibleWs();
+  const cmds = Object.keys(WS_LABEL).map((ws) => ({ group: "Workspace", label: WS_LABEL[ws], hint: vis.includes(ws) && vis.indexOf(ws) < 9 ? `Alt+${vis.indexOf(ws) + 1}` : `${minLevel(ws)} level`, run: () => setWorkspace(ws) }));
   for (const t of state.targets) cmds.push({ group: "Target", label: t.name, hint: t.kind === "synthetic" ? "synthetic" : t.kind ? "archive" : "no data yet",
                                               run: () => loadTarget(t.target_id) });
   cmds.push(...observationCommands((key) => { state.selectedKey = key; setWorkspace("explorer"); }));
@@ -231,7 +268,17 @@ function paletteCommands() {
     { group: "Action", label: "Ask the copilot", run: () => { setCopilotOpen(true); $("#ask-input").focus(); } },
     ...["explore", "investigate", "research"].map((l) => ({ group: "View", label: `Level: ${l[0].toUpperCase() + l.slice(1)}`,
       run: () => { setLevel(l); RENDER[state.ws](); } })),
-    { group: "Help", label: "Glossary and keyboard shortcuts", hint: "?", run: openHelp });
+    { group: "Help", label: "Glossary and keyboard shortcuts", hint: "?", run: openHelp },
+    { group: "Session", label: "Research sessions…", hint: state.session ? state.session.name : "none yet", run: openSessions },
+    { group: "Session", label: "Plan an investigation", hint: "PLAN-1", run: () => setWorkspace("planner") },
+    { group: "Session", label: "Add a notebook block", run: () => { setWorkspace("notebook"); setTimeout(() => $("#nb-type")?.focus(), 50); } },
+    { group: "Action", label: "Data-quality checks", hint: "DQ-1", disabled: !inv, run: () => { setQualityTab("checks"); setWorkspace("quality"); } },
+    { group: "Action", label: "Compatibility matrix", hint: "COMPAT-1", disabled: !inv, run: () => { setQualityTab("matrix"); setWorkspace("quality"); } },
+    { group: "Action", label: "Multi-epoch sequences", hint: "SEQ-1", disabled: !inv, run: () => { setQualityTab("coverage"); setWorkspace("quality"); } },
+    { group: "Action", label: "Contradiction inspector", hint: "LEDGER-1", disabled: !inv, run: () => { setLedgerTab("contradictions"); setWorkspace("graph"); } },
+    { group: "Action", label: "Research opportunities", hint: "RADAR-1", disabled: !inv, run: () => setWorkspace("radar") },
+    { group: "Action", label: "Run an experiment", hint: "EXP-1", disabled: !state.target, run: () => setWorkspace("experiments") },
+    { group: "Action", label: "Archive connectors", hint: "ACQ-2", run: () => { setQualityTab("connectors"); setWorkspace("quality"); } });
   return cmds;
 }
 
@@ -240,6 +287,9 @@ async function init() {
   try { lvl = localStorage.getItem("skytrace.level") || lvl; } catch { /* storage may be unavailable */ }
   setLevel(lvl, false);
   bind();
+  bindSessions();
+  setHooks({ runAnalysis, loadTarget: (tid) => loadTarget(tid) });
+  setTargetLoader(async (tid) => { if (tid !== state.targetId) await loadTarget(tid); if (!state.inv && state.target) await runAnalysis(undefined, { quiet: true }); });
   try {
     [state.status, { targets: state.targets }] = await Promise.all([api.status(), api.targets()]);
   } catch (e) {
@@ -247,6 +297,8 @@ async function init() {
     return;
   }
   if (STATIC) $("#preview-note").hidden = false;
+  await S.restoreSession();
+  renderSessionBox();
   const sel = $("#target-select");
   const real = state.targets.filter((t) => t.real_target), syn = state.targets.filter((t) => !t.real_target);
   sel.append(el("optgroup", { label: "Challenge targets (archive data)" }, ...real.map((t) => el("option", { value: t.target_id }, `${t.name}${t.kind ? "" : " — no data yet"}`))),
@@ -254,11 +306,11 @@ async function init() {
   const h = readHash();
   const withData = state.targets.find((t) => t.kind === "archive" && t.verified) || state.targets.find((t) => t.kind);
   const tid = state.targets.some((t) => t.target_id === h.target) ? h.target : withData?.target_id || state.targets[0]?.target_id;
-  state.ws = RENDER[h.ws] ? h.ws : "explorer";
+  state.ws = RENDER[h.ws] ? h.ws : "command";
   setWorkspace(state.ws, { push: false });
   await loadTarget(tid, { keepSelection: h.obs, push: false });
   if (h.b) state.partnerKey = h.b;
-  if (state.ws !== "explorer") RENDER[state.ws]();
+  RENDER[state.ws]();
   renderLoop();
 }
 

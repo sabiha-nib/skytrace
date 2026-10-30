@@ -15,3 +15,4 @@ data/records/
 dist/
 data/verification_report.json
 data/observation_index.json
+data/sessions/

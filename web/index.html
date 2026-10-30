@@ -41,13 +41,28 @@
   </section>
 
   <nav class="nav" aria-label="Workspaces">
-    <button data-ws="discovery">Discovery Engine</button>
-    <button data-ws="explorer" aria-current="page">Sky Explorer</button>
-    <button data-ws="time">Time Machine</button>
-    <button data-ws="lab">Discovery Lab</button>
-    <button data-ws="arena">Hypothesis Arena</button>
-    <button data-ws="graph">Evidence Graph</button>
-    <button data-ws="records">Investigations</button>
+    <div class="session-box" id="session-box"></div>
+    <div class="nav-group"><h3 class="nav-h">Observe</h3>
+      <button data-ws="command" aria-current="page">Command Center</button>
+      <button data-ws="explorer">Sky Explorer</button>
+      <button data-ws="time">Time Machine</button>
+      <button data-ws="quality" data-min-level="investigate">Data Quality</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Investigate</h3>
+      <button data-ws="planner" data-min-level="investigate">Investigation Planner</button>
+      <button data-ws="discovery" data-min-level="investigate">Discovery Engine</button>
+      <button data-ws="lab">Discovery Lab</button>
+      <button data-ws="arena" data-min-level="investigate">Hypothesis Arena</button>
+      <button data-ws="experiments" data-min-level="research">Experiment Studio</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Verify</h3>
+      <button data-ws="graph" data-min-level="investigate">Evidence Ledger</button>
+      <button data-ws="radar" data-min-level="investigate">Discovery Radar</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Record</h3>
+      <button data-ws="notebook">Research Notebook</button>
+      <button data-ws="records">Vault &amp; Reports</button>
+    </div>
     <div class="nav-foot" id="nav-foot"></div>
   </nav>
 
@@ -59,13 +74,49 @@
     <div id="global-banner"></div>
     <nav class="loop" id="loop" aria-label="Discovery loop"></nav>
 
+    <section class="workspace active" id="ws-command" aria-labelledby="ws-command-title">
+      <h2 class="ws-title" id="ws-command-title">Observatory Command Center</h2>
+      <p class="ws-sub">The state of this research session at a glance: target, question, coverage, data quality, analysis, explanations, evidence gaps, recent activity and what to do next. Every value comes from the stored session or the recorded analysis.</p>
+      <div id="command-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-planner" aria-labelledby="ws-planner-title">
+      <h2 class="ws-title" id="ws-planner-title">Adaptive Investigation Planner</h2>
+      <p class="ws-sub">Turn a research question into a plan of registered analyses: what evidence exists, which steps can run, what blocks the others, and what each result says. Steps that re-run analyses wait for your confirmation; nothing is simulated.</p>
+      <div id="planner-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-experiments" aria-labelledby="ws-experiments-title">
+      <h2 class="ws-title" id="ws-experiments-title">Scientific Experiment Studio</h2>
+      <p class="ws-sub">Define bounded experiments — parameter, sensitivity, reproducibility, method comparison, negative control, robustness — with stated criteria, and automate multi-step workflows. An experiment that ran is not, by itself, a valid experiment.</p>
+      <div id="experiments-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-quality" aria-labelledby="ws-quality-title">
+      <h2 class="ws-title" id="ws-quality-title">Data Quality Observatory</h2>
+      <p class="ws-sub">Named checks with explicit outcomes — valid under the tested rules, invalid, incompatible, not available, not checked — the observation compatibility matrix, metadata, coverage, and the archive connectors. There is no overall quality score.</p>
+      <div id="quality-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-radar" aria-labelledby="ws-radar-title">
+      <h2 class="ws-title" id="ws-radar-title">Discovery Radar</h2>
+      <p class="ws-sub">Research opportunities: what might be worth examining next, why, on what evidence, with which method, and what it cannot establish. These are recommendations, not detections.</p>
+      <div id="radar-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-notebook" aria-labelledby="ws-notebook-title">
+      <h2 class="ws-title" id="ws-notebook-title">Research Notebook</h2>
+      <p class="ws-sub">Structured notes kept with the session: text you write, and blocks that reference observations, measurements, claims, explanations, experiments and figures by identifier. Referenced values are read from the record, never typed; your interpretations stay labelled as yours.</p>
+      <div id="notebook-body"></div>
+    </section>
+
     <section class="workspace" id="ws-discovery" aria-labelledby="ws-discovery-title">
       <h2 class="ws-title" id="ws-discovery-title">Discovery Engine</h2>
       <p class="ws-sub">What this investigation can establish, what it cannot, and what to do next: evidence inventory, research questions with test plans, review, and next steps, all derived from the recorded analysis.</p>
       <div id="discovery-body"></div>
     </section>
 
-    <section class="workspace active" id="ws-explorer" aria-labelledby="ws-explorer-title">
+    <section class="workspace" id="ws-explorer" aria-labelledby="ws-explorer-title">
       <h2 class="ws-title" id="ws-explorer-title">Sky Explorer</h2>
       <p class="ws-sub">Inspect every archive image that covers the target, with its date, detector, wavelength and provenance.</p>
       <div id="explorer-body"></div>
@@ -90,13 +141,13 @@
     </section>
 
     <section class="workspace" id="ws-graph" aria-labelledby="ws-graph-title">
-      <h2 class="ws-title" id="ws-graph-title">Evidence Graph</h2>
+      <h2 class="ws-title" id="ws-graph-title">Evidence Ledger</h2>
       <p class="ws-sub">Every node is a recorded fact (an observation, a measurement, a method, a comparison, a claim or a limitation) or a competing explanation with the results of its recorded tests. Select a claim to trace it back to its observations.</p>
       <div id="graph-body"></div>
     </section>
 
     <section class="workspace" id="ws-records" aria-labelledby="ws-records-title">
-      <h2 class="ws-title" id="ws-records-title">Investigations</h2>
+      <h2 class="ws-title" id="ws-records-title">Vault &amp; Reports</h2>
       <p class="ws-sub">The investigation vault and report studio: save an investigation with its parameters, data checksums, results, research question, your hypotheses and the copilot conversation; search, tag, compare, reopen or replay it; export the report, record, evidence graph or a reproducibility package.</p>
       <div id="records-body"></div>
     </section>
@@ -126,6 +177,12 @@
     <input id="palette-input" type="text" role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" placeholder="Search targets, observations, workspaces and actions…" autocomplete="off">
     <ul id="palette-list" role="listbox" aria-label="Results"></ul>
     <p class="faint">↑↓ to move · Enter to run · Esc to close</p>
+  </div>
+</div>
+<div class="overlay" id="sessions" hidden>
+  <div class="dialog sessions" role="dialog" aria-modal="true" aria-labelledby="sessions-title">
+    <header><h2 id="sessions-title">Research sessions</h2><button class="btn small ghost" id="sessions-close" type="button">Close</button></header>
+    <div id="sessions-body"></div>
   </div>
 </div>
 <div class="overlay" id="help" hidden>

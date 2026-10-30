@@ -105,3 +105,8 @@ export async function copyText(text, selectEl) {
     toast("Copy was blocked here; the text is selected so you can copy it.");
   }
 }
+
+// Render tokens: an async renderer that awaits data checks it is still the latest call before writing to the page,
+// so overlapping renders (e.g. a re-render triggered while data were loading) never duplicate content.
+const TOKENS = {};
+export function renderToken(name) { const t = (TOKENS[name] = (TOKENS[name] || 0) + 1); return () => TOKENS[name] === t; }

@@ -51,6 +51,11 @@ QUESTIONS = {   # one canonical question per local-assistant intent; the answer 
 }
 
 
+EXPERIMENTS = [{"template": "sensitivity"}, {"template": "reproducibility"}, {"template": "method_comparison"},
+               {"template": "negative_control", "question": "variability"}, {"template": "negative_control", "question": "motion"},
+               {"template": "robustness"}]
+
+
 def free_port() -> int:
     s = socket.socket()
     s.bind(("127.0.0.1", 0))
@@ -125,7 +130,8 @@ def main() -> int:
     copy_web()
     port = free_port()
     rec_dir = tempfile.mkdtemp(prefix="skytrace-build-records-")
-    env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": rec_dir, "META_API_KEY": "", "MODEL_API_KEY": ""}
+    env = {**os.environ, "OFFLINE": "1", "SKYTRACE_RECORDS_DIR": rec_dir, "SKYTRACE_SESSIONS_DIR": rec_dir + "/sessions",
+           "META_API_KEY": "", "MODEL_API_KEY": ""}
     proc = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], env=env, cwd=ROOT,
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     base = f"http://127.0.0.1:{port}"
@@ -153,6 +159,10 @@ def main() -> int:
         targets = ok(get("/api/targets")).json()
         write("targets.json", targets)
         write("capabilities.json", preview_caps(ok(get("/api/capabilities")).json()))
+        write("specs.json", ok(get("/api/specs")).json())
+        con = ok(get("/api/connectors")).json()
+        con["preview_note"] = "static preview: request previews and acquisition need the full application; verdicts are from the last environment diagnosis"
+        write("connectors.json", con)
 
         n_files = 0
         for t in targets["targets"]:
@@ -176,6 +186,7 @@ def main() -> int:
                 write(f"t/{tid}/run/{iid}/meta.json", {k: v for k, v in s.items() if k != "record"})
                 write(f"t/{tid}/run/{iid}/graph.json", ok(get(f"/api/investigations/{iid}/graph")).json())
                 write(f"t/{tid}/run/{iid}/report.md", ok(get(f"/api/investigations/{iid}/report.md")).text)
+                write(f"t/{tid}/run/{iid}/research.json", ok(get(f"/api/investigations/{iid}/research")).json())
                 disc = ok(get(f"/api/investigations/{iid}/discovery")).json()
                 disc["capabilities"] = preview_caps(disc["capabilities"])
                 write(f"t/{tid}/run/{iid}/discovery.json", disc)
@@ -189,6 +200,12 @@ def main() -> int:
                 print(f"  {tid}: {label} -> {iid}")
             write(f"t/{tid}/runs.json", runs)
             write(f"t/{tid}/stability.json", ok(post(f"/api/targets/{tid}/stability", {"params": {}})).json())
+            exps = {}
+            for cfg in EXPERIMENTS:                     # the standard experiments, executed by the server at build time
+                key = cfg["template"] + (f":{cfg['question']}" if "question" in cfg else "")
+                exps[key] = ok(post("/api/experiments", {"target_id": tid, **cfg})).json()
+                print(f"  {tid}: experiment {key} -> {exps[key]['evaluation'].get('passed')}")
+            write(f"t/{tid}/experiments.json", exps)
     finally:
         proc.terminate()
         proc.wait(10)

@@ -7,10 +7,15 @@ import { api } from "./api.js";
 import { compatible, compatibilityReason, emit, state } from "./state.js";
 import { ImageViewer, decodeFrame } from "./viewer.js";
 import { markersFor, overlayControls, stretchControls } from "./explorer.js";
-import { $, clear, detSwatch, el, fmt, fmtDate, shortKey } from "./util.js";
+import { $, clear, detSwatch, download, el, fmt, fmtDate, shortKey, toast } from "./util.js";
+import { getResearch } from "./state.js";
+import { buildFigure, figureCard } from "./figurestudio.js";
 
 let viewer = null, viewerB = null;
 let mode = "blink", timer = null, interval = 700, playing = true, pairData = null, tok = 0;
+
+export function setTimeMode(m) { mode = m; }
+export function openSequence(id) { mode = "sequence"; state.sequence = { id, index: 0 }; }
 
 export function renderTime() {
   const body = $("#time-body");
@@ -22,6 +27,7 @@ export function renderTime() {
       el("p", {}, "The Time Machine needs the wavelength at the target in every image to decide which pairs can be compared. Use Run analysis at the top.")));
     return;
   }
+  if (mode === "sequence") { renderSequence(body); return; }
   if (!state.selectedKey) { body.append(el("p", { class: "empty" }, "Select an observation (in the Sky Explorer or on the wavelength ruler) to use as A.")); return; }
   if (!state.partnerKey || state.partnerKey === state.selectedKey) {
     // default B: the most distant wavelength-matched partner in time, so a change (if any) is most visible
@@ -64,7 +70,8 @@ function modeBar() {
   return el("div", { class: "controls" },
     el("div", { class: "segmented", role: "group", "aria-label": "Comparison mode" },
       btn("blink", "Blink"), btn("fade", "Fade"), btn("side", "Side by side"),
-      btn("diff", "Difference", !ok, ok ? "B − A after subtracting each image's median" : "Only for wavelength-matched pairs: a difference between wavelengths shows the spectrum, not a change")),
+      btn("diff", "Difference", !ok, ok ? "B − A after subtracting each image's median" : "Only for wavelength-matched pairs: a difference between wavelengths shows the spectrum, not a change"),
+      btn("sequence", "Multi-epoch sequence", false, "Step through every exposure of a compatible sequence (SEQ-1)")),
     mode === "blink" ? [play, el("label", {}, "Interval", speed)] : null,
     mode === "fade" ? el("label", {}, "A", fade, "B") : null);
 }
@@ -102,6 +109,7 @@ async function loadPair() {
     pairData = await api.pair(state.targetId, A, B, state.inv?.investigation_id);
   } catch (e) { viewer.empty(`Could not load the pair: ${e.message}`); return; }
   if (t !== tok) return;
+  emit("pair-viewed", { a: A, b: B, compatible: !!pairData.comparison?.compatible_for_photometry });
   const fa = decodeFrame(pairData.a), fb = decodeFrame(pairData.b);
   const mA = markersFor(A, pairData.a);
   const mB = [];
@@ -159,7 +167,7 @@ function start() {
   if (mode !== "blink" || !viewer) return;
   timer = setInterval(() => { viewer.opts.index = (viewer.opts.index + 1) % 2; viewer.render(); }, interval);
 }
-export function stop() { if (timer) clearInterval(timer); timer = null; }
+export function stop() { if (timer) clearInterval(timer); timer = null; stopSeq(); }
 
 export function toggleBlink() {
   if (mode !== "blink") return;
@@ -180,4 +188,101 @@ function registrationCard(g) {
       el("dt", {}, "B relative to A"), el("dd", {}, `rotation ${fmt(r.rotation_deg, 3)}°, scale ratio ${fmt(r.scale_ratio, 5)}`),
       el("dt", {}, "Target pixel"), el("dd", {}, `(${fmt(r.target_pixel_in_a[0], 1)}, ${fmt(r.target_pixel_in_a[1], 1)}) in A ↦ (${fmt(r.same_sky_point_in_b[0], 1)}, ${fmt(r.same_sky_point_in_b[1], 1)}) in B; shift (${fmt(r.shift_px[0], 1)}, ${fmt(r.shift_px[1], 1)}) px`)),
     el("p", { class: "faint" }, `${g.note}. A residual RMS comparable to the motion over the baseline would make a position change ambiguous; the Hypothesis Arena tests this (T-REG).`));
+}
+
+
+// ------------------------------------------------------------------ multi-epoch sequences (SEQ-1)
+// Frames are the observed exposures of one compatible sequence, each registered onto the first frame's grid with the
+// plate solutions. Playback steps between observed frames only; nothing is interpolated, and the interface states how
+// many visits the frames come from.
+let seqTimer = null, seqFrames = null, seqDiff = false, seqTok = 0, seqSpeed = 900;
+
+function stopSeq() { if (seqTimer) clearInterval(seqTimer); seqTimer = null; }
+
+async function renderSequence(body) {
+  stopSeq();
+  const head = el("div", { class: "controls" }, modeBarSeq());
+  body.append(head);
+  let r;
+  try { r = await getResearch(); } catch (e) { body.append(el("p", { class: "empty" }, e.message)); return; }
+  if (state.ws !== "time" || mode !== "sequence") return;
+  const seqs = r.compat.sequences;
+  if (!seqs.length) { body.append(el("p", { class: "empty" }, "No compatible sequence: no set of exposures is wavelength-matched pairwise in this run.")); return; }
+  let cur = seqs.find((x) => x.id === state.sequence?.id) || seqs.find((x) => x.members.includes(state.selectedKey)) || seqs.find((x) => x.n_visits >= 2) || seqs[0];
+  if (state.sequence?.id !== cur.id) state.sequence = { id: cur.id, index: 0 };
+  const sel = el("select", { id: "seq-select", "aria-label": "Sequence" }, ...seqs.map((x) => el("option", { value: x.id, selected: x.id === cur.id || null }, `${x.id} · D${x.detector} · ${x.n_frames} frames · ${x.n_visits} visit(s)`)));
+  sel.addEventListener("change", () => { state.sequence = { id: sel.value, index: 0 }; seqFrames = null; renderTime(); });
+  head.append(el("label", {}, "Sequence ", sel));
+  const host = el("div");
+  viewer = new ImageViewer(host, { label: "Sequence view" });
+  viewer.empty("Registering the frames…");
+  const info = el("div", { class: "card", id: "seq-info", "aria-live": "polite" });
+  const list = el("ol", { class: "seq-frames" });
+  const note = el("p", { class: cur.n_visits <= 2 ? "banner warn seq-note" : "banner seq-note" }, el("strong", {}, cur.n_visits <= 2 ? `Only ${cur.n_visits} visit(s). ` : `${cur.n_visits} visits. `),
+    `${cur.n_frames} observed exposures; nothing between them was observed, and nothing is interpolated. ${cur.rule}.`);
+  const exp = el("button", { class: "btn small", type: "button", id: "seq-export" }, "Export sequence record (JSON)");
+  exp.addEventListener("click", async () => {
+    const rec = { method: r.compat.sequence_method, sequence: cur, investigation: state.inv.record.content_hash, target: state.targetId, synthetic: !!state.model.synthetic,
+      frames: cur.members.map((k) => { const o = r.compat.observations.find((x) => x.key === k) || {}; return { key: k, t_mid_iso: o.t_mid_iso, visit: o.visit, wavelength_um: o.wavelength_um, file: o.file, sha256: o.sha256 }; }),
+      registration: "each frame resampled onto the first frame's pixel grid with Gaia-referenced plate solutions (display only)", exported_at: new Date().toISOString() };
+    if (await download(`skytrace-${cur.id}.json`, JSON.stringify(rec, null, 1), "application/json")) toast("Sequence record exported");
+  });
+  body.append(note, el("div", { class: "tm-layout" }, el("div", {}, host, seqControls(cur), el("div", { class: "controls" }, ...stretchControls(() => viewer.opts.stretch, (s) => { Object.assign(viewer.opts.stretch, s); viewer._rescale(); viewer.render(); })), info),
+    el("div", {}, el("div", { class: "card" }, el("h3", {}, "Frames (source observations)"), list, exp), fluxCard(cur, r))));
+  const t = ++seqTok;
+  try {
+    const ref = cur.members[0];
+    const pairs = [];
+    for (const m of cur.members.slice(1)) pairs.push(await api.pair(state.targetId, ref, m, state.inv.investigation_id));
+    if (t !== seqTok) return;
+    seqFrames = [{ key: ref, frame: decodeFrame(pairs[0].a), meta: pairs[0].a }, ...pairs.map((p, i) => ({ key: cur.members[i + 1], frame: decodeFrame(p.b), meta: p.b, comparison: p.comparison }))];
+  } catch (e) { viewer.empty(`Could not register the sequence: ${e.message}`); return; }
+  emit("sequence-viewed", cur.id);
+  const show = () => {
+    const i = state.sequence.index % seqFrames.length;
+    const f = seqFrames[i], o = r.compat.observations.find((x) => x.key === f.key) || {}, m = state.model.measurements[f.key] || {};
+    if (seqDiff && i > 0) viewer.set({ frames: [seqFrames[0].frame, f.frame], mode: "diff", index: 0, markers: [[], []], captions: [[`frame ${i + 1} − frame 1 (median-subtracted)`, "warm: brighter · cool: fainter"]] });
+    else viewer.set({ frames: [seqFrames[0].frame, f.frame], mode: "blink", index: i === 0 ? 0 : 1, shared: true, markers: [[], []],
+      captions: [[`frame 1 · ${fmtDate(seqFrames[0].meta.observation.t_mid_iso)}`, ""], [`frame ${i + 1} of ${seqFrames.length} · ${fmtDate(f.meta.observation.t_mid_iso)}`, f.meta.wavelength_at_target_um != null ? `λ ${fmt(f.meta.wavelength_at_target_um, 4)} µm` : ""]] });
+    list.querySelectorAll("li").forEach((li, k) => li.setAttribute("aria-current", k === i ? "true" : "false"));
+    info.replaceChildren(el("h3", {}, `Frame ${i + 1} of ${seqFrames.length}`), el("dl", { class: "kv compact" },
+      el("dt", {}, "Observation"), el("dd", { class: "mono" }, f.key), el("dt", {}, "Time"), el("dd", {}, `${o.t_mid_iso || "—"} (visit ${o.visit + 1})`),
+      el("dt", {}, "Wavelength"), el("dd", {}, o.wavelength_um != null ? `${o.wavelength_um.toFixed(4)} µm` : "not recorded"),
+      el("dt", {}, "Flux"), el("dd", {}, m.photometry?.status === "ok" ? `${m.photometry.flux_ujy.toFixed(0)} ± ${m.photometry.flux_err_ujy.toFixed(0)} µJy` : "not measured"),
+      el("dt", {}, "Since frame 1"), el("dd", {}, f.comparison ? `${fmt(f.comparison.delta_t_days, 1)} days; ${f.comparison.flux ? `z = ${fmt(f.comparison.flux.z, 1)} (raw, a significance, not a probability)` : f.comparison.flux_note || ""}` : "—"),
+      el("dt", {}, "File"), el("dd", { class: "mono wrap" }, `${o.file || "—"} · SHA-256 ${o.sha256?.slice(0, 16) || "—"}…`)));
+  };
+  list.replaceChildren(...seqFrames.map((f, k) => { const b = el("button", { type: "button", class: "linklike" }, `${k + 1}. ${shortKey(f.key)} · ${fmtDate(f.meta.observation.t_mid_iso)}`); b.addEventListener("click", () => { state.sequence.index = k; show(); }); return el("li", {}, b); }));
+  seqShow = show;
+  show();
+}
+let seqShow = () => {};
+
+function modeBarSeq() {
+  const b = el("button", { class: "btn small", type: "button" }, "Back to pair comparison");
+  b.addEventListener("click", () => { stopSeq(); mode = "blink"; renderTime(); });
+  return b;
+}
+
+function seqControls(cur) {
+  const prev = el("button", { class: "btn small", type: "button", "aria-label": "Previous frame" }, "◀ Prev");
+  const next = el("button", { class: "btn small", type: "button", "aria-label": "Next frame" }, "Next ▶");
+  const play = el("button", { class: "btn small", type: "button", "aria-pressed": "false", id: "seq-play" }, "Play");
+  const step = (d) => { if (!seqFrames) return; state.sequence.index = (state.sequence.index + d + seqFrames.length) % seqFrames.length; seqShow(); };
+  prev.addEventListener("click", () => step(-1));
+  next.addEventListener("click", () => step(1));
+  play.addEventListener("click", () => {
+    if (seqTimer) { stopSeq(); play.textContent = "Play"; play.setAttribute("aria-pressed", "false"); return; }
+    seqTimer = setInterval(() => step(1), seqSpeed); play.textContent = "Pause"; play.setAttribute("aria-pressed", "true");
+  });
+  const speed = el("input", { type: "range", min: "300", max: "2500", step: "100", value: seqSpeed, "aria-label": "Frame interval (ms)" });
+  speed.addEventListener("input", () => { seqSpeed = +speed.value; if (seqTimer) { stopSeq(); seqTimer = setInterval(() => step(1), seqSpeed); } });
+  const diff = el("input", { type: "checkbox", checked: seqDiff || null, id: "seq-diff" });
+  diff.addEventListener("change", () => { seqDiff = diff.checked; seqShow(); });
+  return el("div", { class: "controls" }, prev, play, next, el("label", {}, "Interval", speed), el("label", { title: "Each frame minus the first frame; the sequence is wavelength-matched, so a difference is meaningful" }, diff, "Difference from frame 1"),
+    el("span", { class: "faint" }, `${cur.n_frames} frames · shared display scale`));
+}
+
+function fluxCard(cur, r) {
+  try { return figureCard(buildFigure(`flux:${cur.id}`, r)); } catch (e) { return el("div", { class: "card" }, el("p", { class: "muted" }, `No flux chart: ${e.message}`)); }
 }

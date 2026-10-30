@@ -10,6 +10,9 @@
 import { pairComparison } from "./compare.js";
 import { registerPair } from "./register.js";
 import { verifyRecordText } from "./hash.js";
+import { plan as planLocal } from "../planner.js";
+import { validate as validateWorkflowLocal } from "../workflows.js";
+import { finalize, logEvent, newSession, nowIso, verify as verifySession, validate as validateSession } from "../sessioncore.js";
 
 const BASE = "data/";
 const cache = new Map();
@@ -18,6 +21,8 @@ const runTarget = new Map();        // iid -> tid
 const records = new Map();          // iid -> parsed record
 const imagesByTarget = new Map();   // tid -> promise of {key: image payload}
 const STORE_KEY = "skytrace.preview.records.v1";
+const SESSION_KEY = "skytrace.preview.sessions.v1";
+let memorySessions = null;
 let memoryStore = null;             // used when browser storage is unavailable
 
 export class PreviewLimit extends Error {}
@@ -124,6 +129,29 @@ async function saveFor(iid, name, notes, transcript, imported = false, extra = {
   return { record_id: entry.record_id, name: entry.name, saved_at: entry.saved_at, stored_in: where };
 }
 
+// ------------------------------------------------------------------ research sessions in browser storage
+function loadSessions() {
+  if (memorySessions) return memorySessions;
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "[]"); } catch { memorySessions = []; return memorySessions; }
+}
+function storeSessions(list) {
+  if (memorySessions) { memorySessions = list; return "memory"; }
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(list)); return "browser"; } catch { memorySessions = list; return "memory"; }
+}
+async function putSession(s) {
+  const spec = await getJSON("specs.json");
+  const errs = validateSession(spec.session_schema, s);
+  if (errs.length) throw new Error("invalid session: " + errs.slice(0, 5).join("; "));
+  const f = await finalize(s);
+  const list = loadSessions().filter((x) => x.session_id !== f.session_id);
+  list.unshift(f);
+  storeSessions(list);
+  return f;
+}
+const sessionSummary = (s) => ({ session_id: s.session_id, name: s.name, target_id: s.target_id, modified_at: s.modified_at, created_at: s.created_at,
+  question: s.question.text, n_runs: s.runs.length, n_notes: s.notebook.length, n_hypotheses: s.hypotheses.length, content_hash: s.content_hash,
+  run_hashes: s.runs.map((r) => r.content_hash), methods: [...new Set(s.history.map((h) => h.kind.split(".")[0]))].sort() });
+
 export const staticApi = {
   isStatic: true,
   status: () => getJSON("status.json"),
@@ -218,6 +246,74 @@ export const staticApi = {
     return res;
   },
   async deleteRecord(id) { store(load().filter((r) => r.record_id !== id)); return { deleted: id }; },
+  // ---- Phase 6 (precomputed by the server at build time, or computed by parity-tested browser ports)
+  specs: () => getJSON("specs.json"),
+  research: (iid) => getJSON(`t/${runTarget.get(iid)}/run/${iid}/research.json`),
+  async plan(question, facts) {
+    const spec = await getJSON("specs.json");
+    return planLocal(spec.planner, question, { ...facts, server: false, static: true, network: false });
+  },
+  async experiment(tid, cfg) {
+    if (cfg.configs) throw new PreviewLimit("custom parameter sets need the local server (python run.py); this preview has the standard experiments precomputed.");
+    const all = await getJSON(`t/${tid}/experiments.json`);
+    const key = cfg.template + (cfg.question ? `:${cfg.question}` : "");
+    if (!all[key]) throw new PreviewLimit(`the ${cfg.template} experiment is not precomputed in this preview`);
+    return { ...all[key], recorded_at_build: true };
+  },
+  async provenance() { throw new PreviewLimit("provenance verification re-reads the stored files and re-runs the analysis: it needs the local server (python run.py)."); },
+  connectors: () => getJSON("connectors.json"),
+  async connectorPreview() { throw new PreviewLimit("request previews are built by the server's acquisition code; run python run.py to preview a query."); },
+  async validateWorkflow(workflow) {
+    const spec = await getJSON("specs.json");
+    const errors = validateWorkflowLocal(spec, workflow);
+    return { valid: !errors.length, errors };
+  },
+  async sessions() {
+    const spec = await getJSON("specs.json");
+    const out = [];
+    for (const s of loadSessions()) {
+      const v = await verifySession(spec.session_schema, s);
+      out.push({ ...sessionSummary(s), integrity: v.hash_ok ? "ok" : !v.valid ? "invalid" : "hash mismatch" });
+    }
+    return { sessions: out, unreadable: [], storage: memorySessions ? "memory" : "browser" };
+  },
+  async createSession(name, tid) { return putSession(await newSession(name, tid ?? null)); },
+  async session(sid) {
+    const s = loadSessions().find((x) => x.session_id === sid);
+    if (!s) throw new Error("unknown session");
+    const spec = await getJSON("specs.json");
+    return { ...s, _verification: await verifySession(spec.session_schema, s) };
+  },
+  async saveSession(s) {
+    const { _verification, ...rest } = s;
+    return putSession(rest);
+  },
+  async deleteSession(sid) { storeSessions(loadSessions().filter((x) => x.session_id !== sid)); return { deleted: sid }; },
+  async importSession(s) {
+    const spec = await getJSON("specs.json");
+    const v = await verifySession(spec.session_schema, s);
+    if (!v.valid) throw new Error("not a valid research session: " + v.errors.slice(0, 5).join("; "));
+    if (v.hash_ok === false) throw new Error("the session's content hash does not match: it was modified or is incomplete");
+    let x = { ...s };
+    if (loadSessions().some((y) => y.session_id === x.session_id)) x.session_id = (await newSession("x")).session_id;
+    x = logEvent(x, "session.import", v.hash_ok ? "Imported (content hash verified)" : "Imported (no hash was stated)");
+    return { ...(await putSession(x)), hash_verified: !!v.hash_ok };
+  },
+  async sessionFromRecord(rid) {
+    const d = load().find((r) => r.record_id === rid);
+    if (!d) throw new Error("unknown record");
+    const t = nowIso();
+    let s = await newSession(d.name || "Imported investigation", d.target_id);
+    s.runs = [{ investigation_id: d.investigation_id, content_hash: d.content_hash, label: "saved investigation", attached_at: t,
+                params: Object.fromEntries(Object.entries(d.parameters || {}).filter(([k, v]) => ["number", "boolean"].includes(typeof v) && /^[a-z_]{1,40}$/.test(k))) }];
+    s.active_hash = d.content_hash;
+    const c = d.context || {};
+    if (typeof c.question === "string") s.question = { id: c.question, text: String(c.question_text || "").slice(0, 500) };
+    s.hypotheses = (c.hypotheses || []).filter((h) => h && typeof h.statement === "string" && h.statement.trim()).slice(0, 50)
+      .map((h, i) => ({ id: String(h.id || `U${i}`).slice(0, 40), statement: h.statement.slice(0, 1000), tests: (h.tests || []).filter((x) => typeof x === "string").slice(0, 30), kind: "interpretation", created_at: String(h.created_at || t).slice(0, 40) }));
+    s = logEvent(s, "session.migrate", `Converted from saved investigation “${d.name || ""}” (v0.5 record)`, rid);
+    return putSession(s);
+  },
   async importRecord(text, name) {
     let rec;
     try { rec = JSON.parse(text); } catch { throw new Error("the file is not JSON"); }

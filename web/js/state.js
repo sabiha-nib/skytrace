@@ -20,7 +20,26 @@ export const state = {
   discovery: null,          // {iid, data}: DISC-1 report for the current investigation
   stability: null,          // {target, result}: last STAB-1 result
   level: "investigate",     // explore | investigate | research (views of the same state)
+  session: null,            // the active research session (SESSION-1); see session.js
+  research: null,           // {iid, data}: COMPAT-1, DQ-1, LEDGER-1, RADAR-1 for the current investigation
+  specs: null,              // schemas, planner spec, missions, templates (served by the server or the preview)
+  plan: null,               // the plan on the planner canvas (also stored in the session)
+  sequence: null,           // {id, index} the multi-epoch sequence open in the Time Machine
 };
+
+/** Specification documents (fetched once). */
+export async function getSpecs() {
+  if (!state.specs) state.specs = await api.specs();
+  return state.specs;
+}
+
+/** COMPAT-1 / DQ-1 / LEDGER-1 / RADAR-1 for the current investigation (fetched once per investigation). */
+export async function getResearch() {
+  if (!state.inv) return null;
+  const iid = state.inv.investigation_id;
+  if (state.research?.iid !== iid) state.research = { iid, data: await api.research(iid) };
+  return state.research.data;
+}
 
 export function emptyContext() { return { question: null, question_text: "", hypotheses: [] }; }
 

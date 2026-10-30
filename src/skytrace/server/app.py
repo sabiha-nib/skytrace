@@ -660,5 +660,7 @@ routes = [
     Route("/api/records/{rid}/replay", records_replay, methods=["POST"]),
     Mount("/static", StaticFiles(directory=str(WEB)), name="static"),
 ]
+from . import research as _research  # noqa: E402  (Phase 6 routes; imports this module lazily)
+routes[-1:-1] = _research.routes
 
 app = SecurityHeaders(Starlette(routes=routes, exception_handlers={APIError: api_error, Exception: server_error}))
