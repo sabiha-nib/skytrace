@@ -683,3 +683,9 @@ tr.current th, tr.current td { color: var(--accent); }
 .nav-group + .nav-group { margin-top: 4px; }
 .nav button { padding-top: 5px; padding-bottom: 5px; }
 #ap-objective, #syn-json, #design-truth, #design-schedules { width: 100%; box-sizing: border-box; }
+/* Phase 7 result tables carry long metric names and rule text: let cells wrap instead of hiding columns behind a scroll */
+.cf-table th, .cf-table td, .syn-table th, .syn-table td, #info-table td, #design-result td, #design-result th { white-space: normal; overflow-wrap: break-word; }
+.cf-table th:first-child, .cf-table td:first-child { min-width: 14ch; }
+pre.wrap { white-space: pre-wrap; overflow-wrap: break-word; }
+#horizon-body td, #counterfactual-body td, #synthetic-body td, #adversarial-body td, #autopilot-body td, #atlas-body td, #knowledge-body td, #review-body td,
+#horizon-body th, #counterfactual-body th, #synthetic-body th, #adversarial-body th, #autopilot-body th, #atlas-body th, #knowledge-body th, #review-body th { white-space: normal; overflow-wrap: break-word; }

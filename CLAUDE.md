@@ -12,7 +12,8 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
 - Meta check: `python scripts/meta_smoke_test.py` (needs `META_API_KEY` or `MODEL_API_KEY`)
 - Static preview: `python scripts/build_static.py` (`--web-only` to re-copy the interface) → `dist/preview/`
 - Docs generated from code: `python scripts/feature_catalogue.py` (0.5) · `python scripts/phase6_catalogue.py` (0.6) ·
-  `python scripts/gen_discovery_methods.py` · `python scripts/gen_research_methods.py` · `python scripts/measure_performance.py`
+  `python scripts/phase7_catalogue.py` (0.7) · `python scripts/gen_discovery_methods.py` · `python scripts/gen_research_methods.py` ·
+  `python scripts/gen_frontier_methods.py` · `python scripts/measure_performance.py`
 - Release: commit, rebuild the preview, then `python scripts/make_release.py` (never overwrites an earlier version)
 
 ## Architecture (see docs/ARCHITECTURE.md)
@@ -25,6 +26,10 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
   `schema.py` SCHEMA-1, both ported to JS), `capabilities.py` CAPREG-2 (ACTIONS), `planner.py` PLAN-1, `compat.py` COMPAT-1/SEQ-1,
   `quality.py` DQ-1, `ledger.py` LEDGER-1, `radar.py` RADAR-1, `experiments.py` EXP-1, `missions.py` MISSION-1,
   `workflows.py` WF-1, `connectors.py` ACQ-2; routes in `server/research.py`. Browser: executor, notebook, figure studio, KG.
+- v0.7 frontier (no probabilities, no scores, no model calls): `counterfactual.py` CF-1 (isolated scenarios, exact re-assessment),
+  `synthobs.py` SYNOBS-1/OBSDES-1 (data/synthlab, fixed stamp), `adversarial.py` ASL-1, `infogain.py` INFO-1, `repro.py` REPRO-1,
+  `review.py` REVIEW-1, `twin.py` TWIN-1, `possibility.py` SPE-1/HORIZON-1, CAPREG-3 permissions; routes in `server/frontier.py`;
+  session-dependent rules in `web/js/frontiercore.js` (parity-tested).
 - `server/app.py` (Starlette) + `web/` (ES modules, no build, strict CSP, no external requests).
 
 ## Rules
@@ -35,6 +40,8 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
 - Browser ports of Python logic (hash, pair comparison, registration, overall rule, intent routing, canon, schema, session,
   planner, missions, workflows) must keep their parity tests.
 - Plans, workflows, radar items and missions execute only registered ACTIONS; nothing expensive runs without confirmation.
-- Synthetic data: `fixtures/synthetic/`, `SYNTHETIC = T`, origin `synthetic`, SYN-* names. Never in `data/bundles/`.
+- Synthetic data: `fixtures/synthetic/` (fixtures) or `data/synthlab/` (Synthetic Observatory), `SYNTHETIC = T`, origin `synthetic`,
+  SYN-* names. Never in `data/bundles/`. Agreement on generated data never validates real-data performance.
+- A counterfactual never modifies its baseline; a challenge needs a rule; import is not reproduction; no 3-D from 2-D sky positions.
 - Keys only from the environment; never in code, logs, records or the browser.
 - A gate passes only when its acceptance checks were executed and recorded (docs/TEST_REPORT.md).

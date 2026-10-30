@@ -40,8 +40,8 @@ export async function renderAutopilot() {
   const rows = plan.steps.map((st) => {
     const perm = sp.permission[st.action];
     const allowed = L.allows.includes(perm) && level !== "plan";
-    const verdict = st.status === "blocked" ? `blocked: ${st.note}` : perm === "network" ? "never authorized here (network)" : !allowed ? `skipped at this level (needs ${perm})` :
-      st.status === "completed" ? "already done" : "will run";
+    const verdict = st.status === "blocked" ? `blocked: ${st.note}` : st.status === "completed" ? "already done" : perm === "network" ? "never authorized here (network)" :
+      level === "plan" ? "not run: the plan-only level runs nothing" : !allowed ? `skipped at this level (needs ${perm} permission)` : "will run";
     return { st, perm, allowed: allowed && st.status !== "blocked" && st.status !== "completed", verdict };
   });
   const auth = el("input", { type: "checkbox", id: "ap-auth" });

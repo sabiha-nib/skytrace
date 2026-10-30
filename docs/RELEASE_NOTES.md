@@ -1,5 +1,48 @@
 # Release notes
 
+## 0.7.0 — 2026-10-31 · the frontier laboratory
+
+Skytrace can now ask "what if", generate and test against known answers, challenge its own interpretation, and say which
+research is possible next. None of this measures anything new, invents probabilities or calls a model. Bundled data are still
+synthetic. Real-data acquisition, the Meta model, multi-agent research and semantic search are still blocked in the build
+environment.
+
+**New**
+* **Counterfactual Universe Lab** (CF-1): one stated change against a named baseline. The change can be an analysis parameter,
+  excluded observations, a threshold, photometric error scale or PAIRDIFF-1 for brightness. You get a side-by-side comparison
+  with value labels (observed, derived, simulated, assumed, hypothetical), an explanation, session lineage and JSON export. The
+  baseline is recomputed and hash-checked. The original run and bundle are never modified. Nine prepared scenarios are included.
+* **Synthetic Observatory** (SYNOBS-1): bounded, seeded scenarios generated as SYNTHETIC bundles in `data/synthlab/`. They are
+  reproducible to the byte and analysed by the unchanged pipeline. Each run compares ground truth, the stated expected rule and
+  the output, gives a verdict and lists failure behaviour. Six templates, including a deliberate blend failure case.
+* **Observation Design Lab** (OBSDES-1): compare up to three hypothetical schedules with the same truth and export a planning
+  brief. No telescope is scheduled.
+* **Adversarial Science Lab** (ASL-1): rule-based challenges in eight modes with fixed severities. Each states issue, evidence,
+  rule, why it matters, verification and status, and you can acknowledge one with a note. **Test ranking** (INFO-1) orders open
+  tests by feasibility and the explanations they bear on; no numerical information gain is computed. A **causality workbench**
+  separates model-derived dependencies, assumption-based explanations and user-proposed relationships, and warns about causal
+  language in your notes.
+* **Discovery Horizon** (SPE-1, HORIZON-1): six investigation layers and research-opportunity cards with all nine fields, a
+  feasibility class and a stated ranking reason. Includes an opportunity map, tracking, export and plan hand-off.
+* **Review Room** (REVIEW-1): five software reviewers (methods, evidence, data, reproducibility, interpretation) whose findings
+  cite the record, with Markdown export. **Reproducibility challenge** (REPRO-1): eleven checks and four verdicts, plus
+  re-execution; import never counts. **Discovery story**: ten chapters written only from recorded outcomes, where inconclusive
+  results stay inconclusive.
+* **Astro-twins** (TWIN-1): hashed computational records of an analysis, target, scenario and session (observation twins in the
+  API), with integrity checked in both languages and structural comparison.
+* **Research Autopilot** (CAPREG-3): permission classes for every action and five levels. Plans run only after authorization,
+  can be cancelled and are recorded in the session. Network access is never granted.
+* **Cosmic Atlas**: sky map, field view, galactic coordinates and angular separations. Distance appears only from a recorded
+  parallax.
+* **Knowledge Atlas**: exact multi-word search across everything stored, with the source of each hit.
+* Navigation in eight research modes. Session fields `scenarios`, `synthetic`, `causal`, `autopilot` (0.6 sessions stay valid).
+* Generated documentation: [FRONTIER_METHODS.md](FRONTIER_METHODS.md), the [Phase 7 catalogue](PHASE7_CATALOGUE.md) (406
+  distinct concepts in 40 domains), the [Phase 7 audit](PHASE7_AUDIT.md) and the [multi-agent design](MULTI_AGENT_DESIGN.md)
+  (implementation blocked).
+
+**Unchanged**: the pipeline and its records. The same inputs give the same content hash as 0.6.1. Every earlier workspace and
+test is unchanged, and earlier release artifacts are kept.
+
 ## 0.6.1 — 2026-10-30 · top-bar fix
 
 * **Fixed**: between 861 and 1180 px wide, the top bar did not wrap and pushed *Run analysis*, *Copilot* and the status

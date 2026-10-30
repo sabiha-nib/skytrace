@@ -1,4 +1,4 @@
-# Requirement traceability (v0.6.0, 2026-10-30)
+# Requirement traceability (v0.7.0, 2026-10-31)
 
 `IMPLEMENTED` means the code exists and its deterministic tests pass. `VERIFIED` means it is also confirmed on real data or a live service. `BLOCKED` names the missing access. Hackathon submission requirements were retired when the project moved to Meta.
 
@@ -101,3 +101,35 @@ Section numbers refer to the Phase 6 brief. Tests named `s1`–`s10`, `h2` are i
 | P6.23 | Tests for every Phase 6 area; BLOCKED reported as blocked; none removed | `tests/` | see TEST_REPORT v0.6.0 | IMPLEMENTED | live tests BLOCKED |
 | P6.24 | Release: metadata, docs, methods generated from code, new version only, commit, no push | `scripts/gen_research_methods.py`, `make_release.py` | release run | see TEST_REPORT | not pushed |
 | P6.25 | Hosted preview, tested as rendered | `dist/preview/`, hosted artifact | see TEST_REPORT | see TEST_REPORT | |
+
+## Phase 7 (v0.7)
+
+Section numbers follow the Phase 7 brief. Tests named `t1`–`t8` are in `tests/e2e/test_controls.py` and run in server and static mode.
+
+| ID | Requirement | Location | Test | Status | Evidence / blocker |
+|---|---|---|---|---|---|
+| P7.01 | Audit the real repository first; record the baseline | `docs/PHASE7_AUDIT.md` | baseline at `fb03e93`: verify 18/18, 269/2, e2e 73 | DONE | version was 0.6.1, not 0.5.0 as the brief assumed |
+| P7.02 | Scientific Possibility Engine, six layers, from recorded values | `possibility.py` (SPE-1), `horizonui.js` | `test_frontier.py::test_possibility_layers_and_horizon_cards`, e2e `t1` | IMPLEMENTED |  |
+| P7.03 | Counterfactual Universe Lab: isolated, baseline identified, five value labels, comparison, lineage, export | `counterfactual.py` (CF-1), `counterfactualui.js`, `POST /api/counterfactuals` | `test_frontier.py::test_counterfactuals_are_isolated_and_labelled`, `::test_reassessment_without_change_reproduces_the_record`, `::test_counterfactual_validation_refuses`, API, e2e `t2` | IMPLEMENTED | original never modified (tested by hash and object equality) |
+| P7.04 | ASTRO-TWIN: five twin kinds, versioning, comparison, provenance, integrity, export, restoration | `twin.py` (TWIN-1), `frontiercore.js`, `knowledgeui.js` | `test_frontier.py::test_twins_integrity_and_comparison`, parity, e2e `t7` | IMPLEMENTED (versioning and restoration DEFERRED) | twins are computational records, labelled so |
+| P7.05 | Discovery Horizon: cards with all nine fields, opportunity map, no invented counts | `possibility.py` (HORIZON-1), `horizonui.js` | `test_frontier.py::test_possibility_layers_and_horizon_cards`, `::test_browser_overlays_match_python`, e2e `t1` | IMPLEMENTED | ranking is a stated convention |
+| P7.06 | Adversarial Science Lab: modes; issue, evidence, rule, severity, why, verification, status; no unproven flaw | `adversarial.py` (ASL-1), `adversarialui.js` | `test_frontier.py::test_adversarial_rules_and_statuses`, e2e `t3` | IMPLEMENTED |  |
+| P7.07 | Synthetic Observatory: generator version, parameters, seed, IDs, truth, assumptions, limitations, comparison, reproducible seeds, never replaces real data | `synthobs.py` (SYNOBS-1), `synthobsui.js`, `POST /api/synthetic` | `test_frontier.py::test_synthetic_scenarios_are_labelled_deterministic_and_known_answer`, `::test_synthetic_validation_and_design_refusals`, API, e2e `t4` | IMPLEMENTED | `data/synthlab/` only |
+| P7.08 | Observation Design Lab: hypothetical only, no telescope scheduling | `synthobs.design` (OBSDES-1) | `test_frontier.py::test_observation_design_compares_schedules`, e2e `t4` | IMPLEMENTED |  |
+| P7.09 | INFOGAIN: no numeric gain without probabilities; qualitative ranking | `infogain.py` (INFO-1) | `test_frontier.py::test_information_analysis_has_no_probabilities`, e2e `t3` | IMPLEMENTED | `probability_model` is null |
+| P7.10 | Causality Workbench: four relationship labels; no causation from correlation | `adversarialui.js` (causal tab), `review.py` causal words | e2e `t3`, `test_frontier.py::test_review_findings_cite_sources` | IMPLEMENTED (empirically supported: none exist; temporal-order checks DEFERRED) |  |
+| P7.11 | AUTOPILOT: permission levels, approval, recorded, cancel, capability validation, imported workflows never auto-run | `capabilities.py` (CAPREG-3), `autopilotui.js`, `executor.js` | `test_frontier.py::test_registry_permissions_cover_every_action`, `::test_executor_implements_every_registered_action`, e2e `t5` | IMPLEMENTED | no level grants network |
+| P7.12 | COSMIC ATLAS: angular / projected / physical / unknown distance; nothing 3-D from 2-D | `atlasui.js`, `frontiercore.js` | `test_frontier.py::test_browser_twin_and_coordinates_match_python`, e2e `t6` | IMPLEMENTED | distance only from recorded parallax |
+| P7.13 | KNOWLEDGE ATLAS: structured search; no fabricated semantic similarity | `knowledgeui.js` | e2e `t7` | IMPLEMENTED; semantic indexing **BLOCKED** | no embedding model reachable |
+| P7.14 | REVIEW ROOM: software roles; findings cite records | `review.py` (REVIEW-1), `reviewui.js` | `test_frontier.py::test_review_findings_cite_sources`, e2e `t8` | IMPLEMENTED |  |
+| P7.15 | DISCOVERY STORY: evidence-bound; inconclusive stays inconclusive | `reviewui.js` (story) | e2e `t8` | IMPLEMENTED |  |
+| P7.16 | REPRODUCIBILITY CHALLENGE: import ≠ reproduction | `repro.py` (REPRO-1), `POST …/reproduce` | `test_frontier.py::test_reproducibility_verdicts_and_tamper`, API, e2e `t8` | IMPLEMENTED |  |
+| P7.17 | Multi-agent research: design only unless a provider is verified; no simulated conversations | `docs/MULTI_AGENT_DESIGN.md` | — | **BLOCKED** (design documented) | Meta API 403, no key |
+| P7.18 | Interaction and visualization: units, provenance, simulated values labelled | Phase 7 UI modules | e2e `t1`–`t8` (labels asserted) | IMPLEMENTED |  |
+| P7.19 | Catalogue ≥ 400 distinct concepts in 40 domains, deduplicated, five statuses | `scripts/phase7_catalogue.py` → `docs/PHASE7_CATALOGUE.md` | `test_phase7_catalogue.py` | IMPLEMENTED | 406 distinct; 36 merged; 78 cite Phase 6 |
+| P7.20 | Eight research-mode navigation | `web/index.html`, `main.js` | e2e `test_y_accessible_names`, `test_j_levels`, `test_r_new_workspaces_narrow` | IMPLEMENTED |  |
+| P7.21 | Architecture: no unrelated rewrite; deterministic engines; session-dependent rules parity-tested | `server/frontier.py`, `frontiercore.js` | `test_frontier.py::test_browser_overlays_match_python` | IMPLEMENTED |  |
+| P7.22 | Performance measured | `scripts/measure_performance.py` → `docs/performance.json` | see TEST_REPORT v0.7.0 | see TEST_REPORT |  |
+| P7.23 | Security: validated inputs, permission boundaries, no keys in the browser, no automatic external access | `server/frontier.py`, `capabilities.py` | API tests, `test_frontier.py::test_registry_permissions_cover_every_action`, e2e `test_z_no_external_requests_no_errors` | IMPLEMENTED |  |
+| P7.24 | Validation tests for every Phase 7 area; none removed | `tests/` | see TEST_REPORT v0.7.0 | IMPLEMENTED | live tests BLOCKED |
+| P7.25 | Release: version, docs, methods generated from code, new version only, commit, no push; hosted preview opened where possible | `make_release.py`, `gen_frontier_methods.py` | see TEST_REPORT v0.7.0 | see TEST_REPORT | not pushed |

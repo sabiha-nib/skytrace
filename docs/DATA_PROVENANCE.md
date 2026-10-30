@@ -77,3 +77,21 @@ files were produced by the server at build time and are listed in `PREVIEW_MANIF
   question; they are labelled `[draft]` in exports until accepted.
 * **Connectors** (ACQ-2) record nothing from the network in this environment: the previews are built by the acquisition code
   with a recorder in place of the transport, and say so. Every service was refused by the proxy (`data/environment_report.json`).
+
+## Frontier laboratory (v0.7)
+
+* **Counterfactual scenarios** (CF-1) name their baseline by content hash. The baseline is recomputed from its parameters and
+  refused if the hash differs. Each scenario has its own `scenario_hash` over the canonical scenario. Every compared value is
+  labelled observed, derived, simulated, assumed or hypothetical. Exclusions act on a copy of the bundle index, logged as
+  selection rejection `counterfactual_exclusion`; no bundle file is touched. A scenario twin (TWIN-1) lists the baseline hash it
+  derives from.
+* **Synthetic Observatory bundles** (SYNOBS-1) are written to `data/synthlab/syn-lab-<hash12>/` (git-ignored; set with
+  `SKYTRACE_SYNTHLAB_DIR`). They are never written to `data/bundles/` or `fixtures/`. Files carry `SYNTHETIC = T`, origin
+  `synthetic`, target names `SYN-LAB-…`, the generator version, scenario, seed and ground truth. The provenance stamp is fixed
+  (`2026-01-01T00:00:00+00:00`) so that output is byte-reproducible. It is not the time of generation, and the documentation says
+  so. A cached bundle is reused only after its checksums verify.
+* **Frontier reports** (SPE-1, HORIZON-1, ASL-1, INFO-1, REVIEW-1, REPRO-1, TWIN-1) carry the record's content hash and are
+  cached by it, plus the digest of a stability result when one is used. Challenges and review findings cite record fields
+  (`events[step].data…`, ledger claims, hypothesis tests) or session items.
+* **Session additions**: `scenarios`, `synthetic`, `causal` (labelled user-proposed) and `autopilot` runs (level, steps,
+  statuses, errors). Each is appended to the session history with a hash-verified save.

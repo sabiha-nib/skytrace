@@ -108,6 +108,51 @@ Verify (Data Quality, Evidence Ledger, Discovery Radar) · Record (Notebook, Vau
 `data-min-level`; opening a deeper workspace raises the level and says so. Render tokens (`util.renderToken`) discard stale
 asynchronous renders so a fast series of events never duplicates a panel.
 
+## Phase 7 additions (v0.7): the frontier laboratory
+
+```
+ browser                                                         server (server/frontier.py)
+ ┌────────────────────────────────────────────────────────┐     ┌──────────────────────────────────────────────┐
+ │ state.getFrontier(iid, stability) ───────────────────────┼────►│ GET/POST /api/investigations/{iid}/frontier  │
+ │   frontiercore.js (session rules, parity-tested):       │◄────│   SPE-1 layers + HORIZON-1 cards, ASL-1,     │
+ │   overlayHorizon · overlayChallenges · overlayReview ·  │     │   INFO-1, REVIEW-1, REPRO-1 (no replay),     │
+ │   twinCompare · investigationTwin · coordinates         │     │   TWIN-1 analysis + target twins;            │
+ │ horizonui · adversarialui · reviewui · knowledgeui ·    │     │   cached by content hash (+ stability)       │
+ │ atlasui                                                 │     ├──────────────────────────────────────────────┤
+ │ counterfactualui ─────────────────────────────────────────┼────►│ POST /api/counterfactuals (CF-1; baseline    │
+ │ synthobsui ───────────────────────────────────────────────┼────►│   recomputed + hash-checked; scenario twin)  │
+ │ reviewui (re-execute) ────────────────────────────────────┼────►│ POST /api/synthetic (SYNOBS-1, data/synthlab)│
+ │ autopilotui ── executor.js (registered ACTIONS only,    │     │ POST /api/observation-design (OBSDES-1)      │
+ │   permission class ≤ level, after authorization)        │     │ POST /api/investigations/{iid}/reproduce     │
+ └────────────────────────────────────────────────────────┘     └──────────────────────────────────────────────┘
+   static preview: frontier.json per run, reproduce.json + counterfactuals.json (default run), synthetic.json and design.json,
+   looked up by canonical keys (SKY-CANON-1); anything not recorded is refused with a reason
+```
+
+| Piece | Module | Server | Interface | Static preview |
+|---|---|---|---|---|
+| Counterfactual Universe Lab (CF-1) | `counterfactual.py`; `assess.thresholds_with` | `POST /api/counterfactuals` | `counterfactualui.js` | nine prepared scenarios on the default run |
+| Synthetic Observatory (SYNOBS-1) | `synthobs.py` (uses `synthetic.py` with a fixed stamp) | `POST /api/synthetic` | `synthobsui.js` | six templates |
+| Observation Design Lab (OBSDES-1) | `synthobs.design` | `POST /api/observation-design` | `synthobsui.js` | one comparison |
+| Adversarial Science Lab (ASL-1) | `adversarial.py` | in `/frontier` | `adversarialui.js` + `overlayChallenges` | `frontier.json` |
+| Information analysis (INFO-1) | `infogain.py` | in `/frontier` | `adversarialui.js` (ranking tab) | `frontier.json` |
+| Causality workbench | — (data flow, HYPO-1 explanations, session `causal`) | — | `adversarialui.js` (causal tab) | same |
+| Reproducibility challenge (REPRO-1) | `repro.py` (uses PROVCHECK-1) | in `/frontier` (no replay); `POST …/reproduce` (replay) | `reviewui.js` | default run's replay recorded |
+| Review Room (REVIEW-1) | `review.py` | in `/frontier` | `reviewui.js` + `overlayReview` | `frontier.json` |
+| Discovery story | — (recorded outcomes only) | — | `reviewui.js` | same |
+| Astro-twins (TWIN-1) | `twin.py` | in `/frontier`; scenario twin in `/counterfactuals` | `knowledgeui.js` + `investigationTwin`, `twinCompare` | same |
+| Possibility engine, horizon (SPE-1, HORIZON-1) | `possibility.py` | in `/frontier` | `horizonui.js` + `overlayHorizon` | `frontier.json` |
+| Autopilot (CAPREG-3 levels) | `capabilities.py` `PERMISSION`, `AUTOPILOT_LEVELS` | `/api/specs` | `autopilotui.js`, `executor.js` | browser planner + executor |
+| Cosmic Atlas | — (bundle `target.json`, reference stars) | target detail includes `stars` | `atlasui.js` + `angularSeparationDeg`, `icrsToGalactic` | same |
+| Knowledge Atlas | — | — | `knowledgeui.js` (exact search) | same |
+
+Navigation is grouped in eight research modes: Observatory (Command Center, Sky Explorer, Time Machine, Cosmic Atlas) · Discover
+(Discovery Horizon, Discovery Engine, Discovery Radar) · Investigate (Discovery Lab, Hypothesis Arena, Evidence Ledger) · Experiment
+(Counterfactual Lab, Experiment Studio, Synthetic Observatory) · Understand (Data Quality, Adversarial Lab) · Orchestrate
+(Investigation Planner, Research Autopilot) · Knowledge (Research Notebook, Knowledge Atlas, Vault & Reports) · Publish (Review & Story). The session gained optional `scenarios`, `synthetic`, `causal` and `autopilot`
+fields. Sessions written by 0.6 still validate. Synthetic Observatory bundles live in `data/synthlab/` (or `SKYTRACE_SYNTHLAB_DIR`),
+never in `data/bundles/` or `fixtures/`. Methods: [FRONTIER_METHODS.md](FRONTIER_METHODS.md).
+
 ## Layers and their rules
 
 | Layer | Code | May | May not |

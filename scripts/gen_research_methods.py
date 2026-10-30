@@ -1,5 +1,5 @@
 """Write docs/RESEARCH_METHODS.md: the Phase 6 methods (SESSION-1, PLAN-1, COMPAT-1, SEQ-1, DQ-1, LEDGER-1, RADAR-1,
-EXP-1, MISSION-1, WF-1, ACQ-2, CAPREG-2) and the browser-side FIG-2, KG-1 and NOTE-1.
+EXP-1, MISSION-1, WF-1, ACQ-2, the capability registry) and the browser-side FIG-2, KG-1 and NOTE-1.
 
     python scripts/gen_research_methods.py [--no-experiments]
 
@@ -72,7 +72,9 @@ def main() -> int:
 
     # ------------------------------------------------------------------ CAPREG-2
     reg = capabilities.registry()
-    out += ["## CAPREG-2 — capability registry and actions", "",
+    out += [f"## Capability registry and actions ({reg['version']})", "",
+            "Introduced in Phase 6 as CAPREG-2; Phase 7 (CAPREG-3) added six actions and a permission class per action, documented in "
+            "`FRONTIER_METHODS.md`. The table below is the current registry.", "",
             f"Registry version `{reg['version']}`: {len(reg['capabilities'])} capabilities and {len(capabilities.ACTIONS)} executable actions. "
             "The planner, workflows, Discovery Radar and missions execute only these actions (the copilot's plan tool proposes them and "
             "executes none); an action names its capabilities, "

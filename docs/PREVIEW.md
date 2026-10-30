@@ -16,7 +16,7 @@ stability perturbations (record, summary, evidence graph, report, discovery repo
 quality, ledger, radar), the reproducibility package — the server-built zip carried as base64 with its SHA-256, checked in the browser before it is offered — and the
 local assistant's answer to each question type with the question it was recorded for), the stability result, the standard
 experiments per target, the specifications (planner table, missions, templates, schemas, citations), the connector registry and
-the capability registry as the preview sees it. `PREVIEW_MANIFEST.json` lists every file with its SHA-256 and the commit it was built from.
+the capability registry as the preview sees it, and for Phase 7: the frontier report for every run (`frontier.json`), the default run's reproducibility audit with replay (`reproduce.json`), nine prepared counterfactual scenarios (`counterfactuals.json`), the six Synthetic Observatory templates (`synthetic.json`) and one schedule comparison (`design.json`). `PREVIEW_MANIFEST.json` lists every file with its SHA-256 and the commit it was built from.
 
 `index.html` is for local use; `artifact.html` is the same page as body content for hosts that wrap pages in their
 own document. The `<meta name="skytrace-mode" content="static">` tag switches `web/js/api.js` to the static backend
@@ -43,6 +43,11 @@ own document. The `<meta name="skytrace-mode" content="static">` tag switches `w
 | Notebook, figures, knowledge graph, missions | browser | browser (same code) |
 | Connectors | registry and request previews (nothing sent) | registry only; previews refused |
 | Copilot 2.0 | 16 tools, labelled sources, drafts, plan hand-off | recorded answers per question type; the answer says which question was recorded when yours differs |
+| Discovery Horizon, Adversarial Lab, Review Room | computed by the server; session rules applied in the browser | recorded per run at build time (`frontier.json`); session rules in the browser (same code) |
+| Counterfactual Lab | any valid scenario within the bounds | the nine prepared scenarios on the default run; edited scenarios refused with a reason |
+| Synthetic Observatory, Observation Design Lab | generates and analyses any valid scenario (written to `data/synthlab/`) | the six templates and one recorded schedule comparison; edited scenarios refused |
+| Reproducibility challenge | audit and re-execution | audit for every run; the recorded re-execution of the default run |
+| Autopilot, Cosmic Atlas, Knowledge Atlas, twins, story | browser over server data | browser (same code) over recorded data |
 
 Every screen of the static preview says it is a preview of precomputed results.
 

@@ -10,12 +10,14 @@ A session (`skytrace.research_session/1`) holds the question, attached runs (by 
 
 * Size limit: 1,000,000 bytes of canonical text.
 * Notebook block types (13): heading, paragraph, observation, measurement, evidence, hypothesis, experiment, figure, warning, parameters, citation, question, conclusion.
-* Reference kinds: observation, measurement, claim, graph_node, hypothesis, user_hypothesis, experiment, figure, run, dataset, pair, test.
+* Reference kinds: observation, measurement, claim, graph_node, hypothesis, user_hypothesis, experiment, figure, run, dataset, pair, test, challenge, scenario, opportunity, twin.
 * Plan-step statuses: suggested, ready, running, completed, blocked, failed, needs_review.
 
-## CAPREG-2 — capability registry and actions
+## Capability registry and actions (CAPREG-3)
 
-Registry version `CAPREG-2`: 25 capabilities and 14 executable actions. The planner, workflows, Discovery Radar and missions execute only these actions (the copilot's plan tool proposes them and executes none); an action names its capabilities, preconditions, outputs, whether it needs confirmation, its cost, and where it can run in the static preview (`browser`: recomputed in the page; `precomputed`: recorded at build time; `unavailable`: refused with a reason).
+Introduced in Phase 6 as CAPREG-2; Phase 7 (CAPREG-3) added six actions and a permission class per action, documented in `FRONTIER_METHODS.md`. The table below is the current registry.
+
+Registry version `CAPREG-3`: 33 capabilities and 20 executable actions. The planner, workflows, Discovery Radar and missions execute only these actions (the copilot's plan tool proposes them and executes none); an action names its capabilities, preconditions, outputs, whether it needs confirmation, its cost, and where it can run in the static preview (`browser`: recomputed in the page; `precomputed`: recorded at build time; `unavailable`: refused with a reason).
 
 | Action | Title | Capabilities | Preconditions | Confirm | Cost | Static preview |
 |---|---|---|---|---|---|---|
@@ -33,6 +35,12 @@ Registry version `CAPREG-2`: 25 capabilities and 14 executable actions. The plan
 | `run_experiment` | Run an experiment | experiments | has_target_data, server_or_precomputed | yes | up to 8 analyses | precomputed |
 | `build_package` | Build the reproducibility package | package | has_run | no | instant | precomputed |
 | `acquire_data` | Acquire archive observations | archive | network | yes | minutes; downloads files | unavailable |
+| `run_counterfactual` | Run a counterfactual scenario | counterfactual | has_target_data, server_or_precomputed | yes | seconds (re-assessment) to ~10 s (re-run) | precomputed |
+| `challenge_interpretation` | Challenge the interpretation | adversarial | has_run | no | instant | precomputed |
+| `rank_tests` | Rank the open tests | information | has_run | no | instant | precomputed |
+| `review_investigation` | Run the Review Room | review | has_run | no | instant | precomputed |
+| `reproduce` | Run the Reproducibility Challenge (re-execute) | reproducibility | has_run, server | yes | a few seconds (re-executes the pipeline) | precomputed |
+| `run_synthetic` | Generate and analyse a synthetic scenario | synthetic_observatory | server_or_precomputed | yes | about 5 s (writes a synthetic bundle, runs the analysis) | precomputed |
 
 ## PLAN-1 — Adaptive Investigation Planner
 
@@ -44,17 +52,19 @@ A question is matched against ordered ASCII rules (first match wins) to an inten
 | 2 | discovery | `\b(new (object\|planet\|discovery\|companion)\|is this a (new )?discovery\|planet x\|discovered)\b` |
 | 3 | distance | `\b(how far\|distance to\|how distant)\b` |
 | 4 | capabilities | `\b(what can (you\|skytrace)\|which (methods\|tools\|capabilities)\|capabilities)\b` |
-| 5 | report | `\b(report\|write.?up\|summari[sz]e\|package\|export)\b` |
-| 6 | reproducibility | `\b(reproduc\w*\|replay\|repeat\w*\|same result)\b` |
-| 7 | provenance | `\b(provenance\|integrity\|checksums?\|tamper\w*\|traced?)\b` |
-| 8 | quality | `\b(quality\|usable\|rejected\|excluded\|flags?\|flagged\|bad data)\b` |
-| 9 | uncertainty | `\b(uncertaint\w*\|error budget\|how certain\|how precise\|error bars?)\b` |
-| 10 | sensitivity | `\b(sensitiv\w*\|robust\w*\|parameters?\|stable\|stability\|fragile)\b` |
-| 11 | explanations | `\b(explanations?\|alternatives?\|hypothes\w*\|artefacts?\|artifacts?\|caused by\|could it be)\b` |
-| 12 | change | `\b(chang\w*\|differ\w*\|vary\|varies\|variab\w*)\b` |
-| 13 | brightness | `\b(bright\w*\|dim\w*\|fad\w*\|flux\w*\|magnitude)\b` |
-| 14 | motion | `\b(mov\w*\|motion\|proper\|position\w*\|shift\w*\|drift\w*)\b` |
-| 15 | coverage | `\b(coverage\|gaps?\|timeline\|sequences?\|how many (epochs\|visits\|observations)\|when was)\b` |
+| 5 | challenge | `\b(challenge\w*\|weakness\w*\|what could be wrong\|critique\|devil'?s advocate\|stress.?test)\b` |
+| 6 | counterfactual | `\b(what if\|counterfactual\w*\|suppose\|had been\|were different)\b` |
+| 7 | report | `\b(report\|write.?up\|summari[sz]e\|package\|export)\b` |
+| 8 | reproducibility | `\b(reproduc\w*\|replay\|repeat\w*\|same result)\b` |
+| 9 | provenance | `\b(provenance\|integrity\|checksums?\|tamper\w*\|traced?)\b` |
+| 10 | quality | `\b(quality\|usable\|rejected\|excluded\|flags?\|flagged\|bad data)\b` |
+| 11 | uncertainty | `\b(uncertaint\w*\|error budget\|how certain\|how precise\|error bars?)\b` |
+| 12 | sensitivity | `\b(sensitiv\w*\|robust\w*\|parameters?\|stable\|stability\|fragile)\b` |
+| 13 | explanations | `\b(explanations?\|alternatives?\|hypothes\w*\|artefacts?\|artifacts?\|caused by\|could it be)\b` |
+| 14 | change | `\b(chang\w*\|differ\w*\|vary\|varies\|variab\w*)\b` |
+| 15 | brightness | `\b(bright\w*\|dim\w*\|fad\w*\|flux\w*\|magnitude)\b` |
+| 16 | motion | `\b(mov\w*\|motion\|proper\|position\w*\|shift\w*\|drift\w*)\b` |
+| 17 | coverage | `\b(coverage\|gaps?\|timeline\|sequences?\|how many (epochs\|visits\|observations)\|when was)\b` |
 
 | Template | Steps (id: action; *optional*; ← depends) |
 |---|---|
@@ -63,11 +73,13 @@ A question is matched against ordered ASCII rules (first match wins) to an inten
 | motion | analysis: `run_analysis`; quality: `check_quality` ← analysis; pair: `compare_pair` *optional* ← analysis (needs a pair); tests: `evaluate_hypotheses` ← analysis; uncertainty: `decompose_uncertainty` ← analysis; stability: `run_stability` *optional* ← analysis |
 | quality | analysis: `run_analysis`; quality: `check_quality` ← analysis; ledger: `inspect_ledger` *optional* ← analysis |
 | provenance | analysis: `run_analysis`; provenance: `verify_provenance` ← analysis; quality: `check_quality` ← analysis |
-| reproducibility | analysis: `run_analysis`; repeat: `run_experiment` ← analysis; provenance: `verify_provenance` *optional* ← analysis; package: `build_package` ← analysis |
+| reproducibility | analysis: `run_analysis`; repeat: `run_experiment` ← analysis; provenance: `verify_provenance` *optional* ← analysis; audit: `reproduce` *optional* ← analysis; package: `build_package` ← analysis |
 | sensitivity | analysis: `run_analysis`; stability: `run_stability` ← analysis; uncertainty: `decompose_uncertainty` *optional* ← analysis |
 | uncertainty | analysis: `run_analysis`; uncertainty: `decompose_uncertainty` ← analysis; stability: `run_stability` *optional* ← analysis |
 | explanations | analysis: `run_analysis`; tests: `evaluate_hypotheses` ← analysis; ledger: `inspect_ledger` ← analysis; pair: `compare_pair` *optional* ← analysis (needs a pair) |
 | coverage | analysis: `run_analysis`; sequences: `build_sequences` ← analysis; radar: `scan_radar` *optional* ← analysis |
+| challenge | analysis: `run_analysis`; challenge: `challenge_interpretation` ← analysis; ranking: `rank_tests` ← analysis; review: `review_investigation` ← analysis; repro: `reproduce` *optional* ← analysis |
+| counterfactual | analysis: `run_analysis`; scenario: `run_counterfactual` ← analysis; challenge: `challenge_interpretation` *optional* ← analysis |
 | report | analysis: `run_analysis`; ledger: `inspect_ledger` ← analysis; package: `build_package` ← analysis |
 
 Questions the registered methods cannot answer are refused with the reason and what would be needed:
@@ -85,10 +97,12 @@ Plans for the planner's example questions (server facts, a loaded run, no pair s
 | Could this source have changed between the two recorded observation epochs? | change | analysis (completed), quality (ready), pair (blocked), inspect (blocked), tests (ready), uncertainty (ready), stability (suggested), radar (suggested) |
 | Does the target move? | motion | analysis (completed), quality (ready), tests (ready), uncertainty (ready), stability (suggested) |
 | How much of the data is usable? | quality | analysis (completed), quality (ready), ledger (suggested) |
-| Can this result be reproduced? | reproducibility | analysis (completed), repeat (ready), provenance (suggested), package (ready) |
+| Can this result be reproduced? | reproducibility | analysis (completed), repeat (ready), provenance (suggested), audit (suggested), package (ready) |
 | Which explanations remain viable? | explanations | analysis (completed), tests (ready), ledger (ready) |
 | What are the uncertainties made of? | uncertainty | analysis (completed), uncertainty (ready), stability (suggested) |
 | Which analysis choices change the result? | change | analysis (completed), quality (ready), tests (ready), uncertainty (ready), stability (suggested), radar (suggested) |
+| Challenge my interpretation of the brightness change. | challenge | analysis (completed), challenge (ready), ranking (ready), review (ready), repro (suggested) |
+| What if the detection threshold were stricter? | counterfactual | analysis (completed), scenario (ready), challenge (suggested) |
 
 ## COMPAT-1 and SEQ-1 — observation compatibility and sequences
 

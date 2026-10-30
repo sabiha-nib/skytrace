@@ -19,7 +19,22 @@ The static preview says on every screen that it is a preview of precomputed resu
 an explanation; pair comparisons, image registration and record-hash checks run in the browser with code that is
 tested for parity with the Python implementation.
 
-## Status (v0.6.0, 2026-10-30)
+## Status (v0.7.0, 2026-10-31)
+
+Phase 7 added a frontier laboratory on top of the research system. It includes:
+
+- counterfactual scenarios that never touch the original run
+- a Synthetic Observatory with ground truth, reproducible to the byte, and a hypothetical Observation Design Lab
+- an Adversarial Science Lab whose challenges come only from documented rules, with test ranking and a causality workbench
+- a Discovery Horizon of research opportunities
+- a Review Room with a reproducibility challenge and an evidence-bound story
+- a permission-levelled autopilot
+- a Cosmic Atlas that stays angular
+- exact knowledge search and astro-twins (hashed computational records)
+
+See [docs/PHASE7_AUDIT.md](docs/PHASE7_AUDIT.md), [docs/FRONTIER_METHODS.md](docs/FRONTIER_METHODS.md) and the
+[Phase 7 catalogue](docs/PHASE7_CATALOGUE.md). Multi-agent research and semantic search are blocked: no model provider is
+reachable ([design](docs/MULTI_AGENT_DESIGN.md)).
 
 Phase 6 turned the discovery environment into a research operating system: a persistent, validated and hashed research
 session; one registry of executable actions used by an investigation planner, workflows, a Discovery Radar of research
@@ -39,6 +54,7 @@ Phase 3 (validation): [docs/PHASE3_GATES.md](docs/PHASE3_GATES.md).
 | Part | State |
 |---|---|
 | Application (API + web interface) | Works end to end offline, in both the server and the static-preview mode; every control is exercised by browser tests (counts in [docs/TEST_REPORT.md](docs/TEST_REPORT.md)) |
+| Frontier laboratory (v0.7) | Counterfactual Lab (CF-1), Synthetic Observatory (SYNOBS-1), Observation Design Lab (OBSDES-1), Adversarial Lab (ASL-1), information analysis (INFO-1), Review Room (REVIEW-1), reproducibility challenge (REPRO-1), astro-twins (TWIN-1), Discovery Horizon (SPE-1, HORIZON-1), Research Autopilot (CAPREG-3 permission levels), Cosmic Atlas, Knowledge Atlas |
 | Research operating system (v0.6) | Research sessions (SESSION-1), capability registry with actions (CAPREG-2), Investigation Planner (PLAN-1), Command Center, sequences (SEQ-1), compatibility matrix (COMPAT-1), data quality (DQ-1), evidence ledger (LEDGER-1), Discovery Radar (RADAR-1), Experiment Studio (EXP-1), workflows (WF-1), missions (MISSION-1), notebook, figure studio (FIG-2), knowledge graph (KG-1), connector previews (ACQ-2), Copilot 2.0 |
 | Discovery environment (v0.5) | Discovery Engine (DISC-1), Hypothesis Arena (HYPO-1), Uncertainty Explorer (UNC-1), registration diagnostics (REGDIAG-1), capability registry (CAPREG-1), reproducibility package (PKG-1), vault, report studio, command palette, glossary, three levels of detail |
 | Scientific pipeline | Parallax, Gaia quality cuts, visit-averaged motion fit, reference-calibrated photometry and an error-model check added (`skytrace-analysis/2`). Validated on synthetic data with known truth, including 12 robustness scenarios |
@@ -81,6 +97,33 @@ pytest -m live tests/live -s                # confirms the archive interfaces an
 Each target becomes a bundle in `data/bundles/<target>/`: the original files byte for byte, a manifest with SHA-256 checksums and provenance, the archive search results with the reason for every excluded image, and the real FITS structure as read. Restart Skytrace and the targets appear with their observations. See [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md).
 
 ## What you can do in the app
+
+New in 0.7. Workspaces are grouped in eight research modes: Observatory · Discover · Investigate · Experiment · Understand ·
+Orchestrate · Knowledge · Publish.
+
+- **Discovery Horizon**: the investigation in six layers (what is known, which questions are answerable, how to test them,
+  what can be computed, how the evidence stands, what to do next), and research opportunities from ten rules. Each opportunity
+  card gives the question, what prompted it, the required and available data, the method, the limitations, the feasibility,
+  the expected output and why it ranks where it does. The cards also appear as a map. Any card's question can be handed to the
+  Planner.
+- **Counterfactual Lab**: change one thing against a named baseline: a parameter, excluded observations, a threshold, error scale
+  or a method. Compare every output side by side. Values are labelled observed, derived, simulated, assumed or hypothetical. The
+  original run is never modified.
+- **Adversarial Lab**: challenges raised by documented rules, each with issue, evidence, rule, severity, why it matters, how to
+  verify it and a status. You can acknowledge a challenge with a note. The lab also ranks open tests (no probabilities, so no
+  "information gain") and has a causality workbench that separates data-flow dependencies, assumed causes and your own
+  proposals.
+- **Synthetic Observatory and Observation Design Lab**: generate a labelled synthetic scenario (seeded and reproducible to the
+  byte), run the unchanged pipeline and compare it with ground truth. The templates include a deliberate failure case. You can
+  also compare hypothetical observation schedules and export a planning brief. No telescope is scheduled.
+- **Research Autopilot**: state an objective and get a plan of registered actions. Choose a permission level, authorize the
+  listed steps, then run, cancel and review the recorded run. Network access is never granted.
+- **Cosmic Atlas**: sky map, field view of the reference stars, equatorial and galactic coordinates, and angular separations. A
+  distance appears only from a recorded parallax.
+- **Knowledge Atlas and twins**: exact search across records, sessions, notes, hypotheses, opportunities, challenges and methods.
+  Twins of the analysis, target and session can be integrity-checked and compared.
+- **Review & Story**: five software reviewers whose findings cite the record; a reproducibility challenge (eleven checks, four
+  verdicts, re-execution); and a ten-chapter story written only from recorded outcomes.
 
 New in 0.6 (workspaces grouped Observe · Investigate · Verify · Record):
 
@@ -136,18 +179,20 @@ A `Dockerfile` is included. It has **not been built here**, because the build en
 ```
 run.py                       start the app (no install needed)
 src/skytrace/                Python package: archive/ (data layer), science/ (deterministic), ai/ (copilot), server/ (API),
-                             research OS readers (session, planner, compat, quality, ledger, radar, experiments, missions, workflows, connectors)
+                             research OS readers (session, planner, compat, quality, ledger, radar, experiments, missions, workflows, connectors),
+                             frontier (counterfactual, synthobs, adversarial, infogain, repro, review, twin, possibility)
 web/                         interface (HTML, CSS, ES modules)
 config/targets.json          the five challenge targets
 fixtures/synthetic/          SYNTHETIC bundles (generated by src/skytrace/synthetic.py; scripts/make_synthetic_fixtures.py)
 data/bundles/                real archive bundles (created by scripts/acquire_targets.py)
 data/sessions/               research sessions saved by the server (git-ignored)
+data/synthlab/               Synthetic Observatory scenarios (git-ignored, regenerated on demand)
 scripts/                     diagnose environment, acquire, index, verify bundles, analyse, verify provenance, smoke-test Meta, verify, release
 tests/                       unit/, integration/ (API), robustness/ (synthetic variants), e2e/ (browser), live/ (real services)
 docs/                        architecture, methods, provenance, limitations, reproducibility, AI use, test report
 ```
 
-Documentation: [Architecture](docs/ARCHITECTURE.md) · [Scientific methods](docs/SCIENTIFIC_METHODS.md) · [Discovery methods](docs/DISCOVERY_METHODS.md) · [Research methods](docs/RESEARCH_METHODS.md) · [Feature catalogue (0.5)](docs/FEATURE_CATALOGUE.md) · [Phase 6 catalogue](docs/PHASE6_CATALOGUE.md) · Phase 6: [Audit](docs/PHASE6_AUDIT.md) · [Preview](docs/PREVIEW.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Release notes](docs/RELEASE_NOTES.md) · Phase 5: [Audit](docs/PHASE5_AUDIT.md) · [Data provenance](docs/DATA_PROVENANCE.md) · [Limitations](docs/LIMITATIONS.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Model integration](docs/MODEL_INTEGRATION.md) · [AI use](docs/AI_USE.md) · [Test report](docs/TEST_REPORT.md) · [Requirement traceability](docs/REQUIREMENT_TRACEABILITY.md) · Phase 3: [Gates](docs/PHASE3_GATES.md) · [Environment](docs/ENVIRONMENT_REPORT.md) · [FITS/WCS validation](docs/FITS_WCS_VALIDATION.md) · [Calibration audit](docs/CALIBRATION_AUDIT.md) · [Assessment engine](docs/ASSESSMENT_ENGINE.md) · [Copilot tools](docs/COPILOT_TOOLS.md)
+Documentation: [Architecture](docs/ARCHITECTURE.md) · Phase 7: [Audit](docs/PHASE7_AUDIT.md) · [Frontier methods](docs/FRONTIER_METHODS.md) · [Catalogue](docs/PHASE7_CATALOGUE.md) · [Multi-agent design](docs/MULTI_AGENT_DESIGN.md) · [Scientific methods](docs/SCIENTIFIC_METHODS.md) · [Discovery methods](docs/DISCOVERY_METHODS.md) · [Research methods](docs/RESEARCH_METHODS.md) · [Feature catalogue (0.5)](docs/FEATURE_CATALOGUE.md) · [Phase 6 catalogue](docs/PHASE6_CATALOGUE.md) · Phase 6: [Audit](docs/PHASE6_AUDIT.md) · [Preview](docs/PREVIEW.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Release notes](docs/RELEASE_NOTES.md) · Phase 5: [Audit](docs/PHASE5_AUDIT.md) · [Data provenance](docs/DATA_PROVENANCE.md) · [Limitations](docs/LIMITATIONS.md) · [Reproducibility](docs/REPRODUCIBILITY.md) · [Model integration](docs/MODEL_INTEGRATION.md) · [AI use](docs/AI_USE.md) · [Test report](docs/TEST_REPORT.md) · [Requirement traceability](docs/REQUIREMENT_TRACEABILITY.md) · Phase 3: [Gates](docs/PHASE3_GATES.md) · [Environment](docs/ENVIRONMENT_REPORT.md) · [FITS/WCS validation](docs/FITS_WCS_VALIDATION.md) · [Calibration audit](docs/CALIBRATION_AUDIT.md) · [Assessment engine](docs/ASSESSMENT_ENGINE.md) · [Copilot tools](docs/COPILOT_TOOLS.md)
 
 ## Data credits
 

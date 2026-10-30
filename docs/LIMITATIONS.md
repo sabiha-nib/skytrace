@@ -70,6 +70,49 @@
 - **Catalogue.** 64 Phase 6 concepts are deferred, 1 blocked (dependency audit: PyPI/OSV refused) and 5 out of scope; see
   [PHASE6_CATALOGUE.md](PHASE6_CATALOGUE.md). Group assignments are the developer's judgement.
 
+## Frontier laboratory (v0.7)
+
+- **Everything frontier runs on synthetic data here.** Counterfactuals, challenges, reviews, twins and horizon cards use the two
+  synthetic fixtures. Synthetic Observatory scenarios are generated. Nothing in 0.7 has run on a real SPHEREx observation.
+- **Counterfactuals are bounded.** There are five kinds (parameter, exclusion, threshold, error scale, method), one change per
+  scenario. Threshold bounds are 2–10 σ (catalogue consistency 1–5), the error factor is (1, 5] and at most 40 observation keys
+  can be excluded. Error scaling affects photometry only. The only method substitution is PAIRDIFF-1 for brightness. A scenario
+  says what would follow under the stated change. It is not an alternative observation, and its "simulated" and "assumed" values
+  are labelled as such.
+- **The synthetic generator is simple.** It uses a Gaussian PSF, a constant sky, Gaussian noise with a simple signal-dependent term,
+  three detector positions and up to six passes. Agreement with ground truth tests the software against its own generator. It does not establish completeness,
+  false-positive rates or performance on real data, and no completeness curve is computed. The noise model in the Observation
+  Design Lab is illustrative. Schedules are hypothetical and say nothing about SPHEREx availability or instrument performance.
+- **Challenges come from a fixed rule set.** ASL-1 checks the documented rules (H, M, E, Q, S, B, R and A families) and nothing
+  else. A missing challenge does not mean the analysis is free of problems. Severity is per rule, not a measure of importance in
+  context. Acknowledging a challenge records your note; it does not resolve the challenge.
+- **No information gain is computed.** HYPO-1 statuses are rules, not probabilities, so INFO-1 orders tests by feasibility and by
+  the explanations they bear on. The order is a convention.
+- **The causality workbench does not test causation.** It lists data-flow dependencies (model-derived), competing explanations
+  (assumption-based) and your proposals (user-proposed). It does not check temporal order, compare causal models or draw causal
+  diagrams.
+- **The reproducibility verdict is local.** "Reproduced" means re-executed here with an identical content hash. It says nothing
+  about another machine or platform. In the static preview only the default run's replay is recorded.
+- **Review Room roles are rule sets.** The five reviewers apply fixed checks. They do not read prose for meaning, beyond flagging a
+  fixed list of causal or discovery words in your notes.
+- **Twins are records.** A twin is a hashed computational record, not a physical model. Twins are version 1 only: there is no
+  twin history and no restoring the application from a twin. Observation twins exist in the Python API but are not shown in the
+  interface.
+- **The autopilot is the planner plus permissions.** Objectives match PLAN-1's fixed rules. A failed run stops and is not resumed.
+  Batch levels exist in the registry, but the autopilot runs one plan at a time.
+- **The atlas is angular.** It shows positions, angular separations, galactic coordinates and a field view. A distance appears only
+  from a recorded parallax, labelled as inferred. No physical separation and no 3-D view is computed. There are no footprint maps
+  or spatial filters.
+- **Knowledge search is exact.** It is multi-word substring matching over stored items. Semantic indexing is BLOCKED because no
+  embedding model is reachable.
+- **Multi-agent research is BLOCKED.** No model provider is verified. See [MULTI_AGENT_DESIGN.md](MULTI_AGENT_DESIGN.md).
+- **The story reports, it does not interpret.** Chapters come from recorded outcomes and statements. It has no figures, no
+  hypothesis histories and no slide export.
+- **Static preview.** Edited counterfactuals, synthetic scenarios and schedules are refused with a reason. Only prepared ones are
+  recorded.
+- **Catalogue.** 74 Phase 7 concepts are deferred, 6 blocked and 4 out of scope. See [PHASE7_CATALOGUE.md](PHASE7_CATALOGUE.md).
+  Group assignments are the developer's judgement.
+
 ## Product
 
 - Single-user: no accounts, and saved investigations are visible to anyone who can reach the server.

@@ -29,3 +29,13 @@
 | Connector preview refused in the static preview | previews are built by the server's acquisition code | run the full application (no network is used by a preview) |
 | Copilot answer says it was recorded for a different question | static preview: one recorded answer per question type | ask in the full application for an answer to your exact wording |
 | Two tabs show different session contents | sessions are single-writer; the last save wins | use one tab per session, or branch the session |
+| Counterfactual refused: "baseline … does not match" | the stated baseline run's content hash no longer recomputes (bundle or software changed) | re-run the baseline, then build the scenario again |
+| Counterfactual refused with a bound | a threshold, error factor or exclusion is outside the stated bounds | the message names the bound; the Counterfactual Lab lists them |
+| Static preview: "this scenario is not precomputed in the preview" | only the nine prepared scenarios on the default run are recorded | use a prepared scenario, or run the full application |
+| Synthetic scenario refused | a field is outside its bound (2–6 passes, positions A/B/C, …) | the message names the field; start from a template |
+| Synthetic verdict "not determinable" | the pipeline refused the exposures (for example blended) or had too few | expected for the failure-case template; *Failure behaviour* lists the refusals |
+| `data/synthlab/` grows | each new scenario writes a bundle | only the 24 most recent are kept (older ones are pruned); deleting the folder is safe (scenarios regenerate) |
+| Autopilot will not run | the authorization box is not ticked, or the level does not allow the plan's permission classes | tick the authorization; steps the level does not allow are named and skipped |
+| Reproducibility verdict "replayable, not replayed here" | only the audit ran | press *Re-execute and audit* (full application) to replay |
+| Atlas shows "distance unknown" | no parallax is recorded for the target | expected; no distance is inferred from sky position |
+| Knowledge search finds nothing for a related word | search is exact, multi-word substring matching | search for the words the item actually uses |

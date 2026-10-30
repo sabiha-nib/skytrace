@@ -77,3 +77,20 @@ full application, then *Replay*.
   `docs/RESEARCH_METHODS.md`.
 * **Plans and workflows** are data: a stored plan keeps each step's action and inputs, and a workflow is a declarative JSON file
   (`skytrace.workflow/1`) that validates identically in Python and the browser, so either can be re-run later.
+
+## Reproducibility challenge and synthetic scenarios (v0.7)
+
+* **REPRO-1** (Review Room → Reproducibility) runs eleven checks: inputs identifiable, files available, checksums, method
+  versions, parameters, dependencies, environment, record integrity, replay, figures and limitations. It gives one of four
+  verdicts. *Reproduced* needs a re-execution here that gives the identical content hash. *Replayable, not replayed here* means
+  nothing failed but no replay ran. *Not reproducible as recorded* means a replay or integrity check failed. *Incomplete* means
+  inputs or metadata are missing. Importing a record only proves that it parses, and is never counted. A tampered record fails
+  R8 (`tests/unit/test_frontier.py::test_reproducibility_verdicts_and_tamper`).
+* **Synthetic scenarios** are reproducible to the byte. The same scenario and seed give identical files and the same record hash
+  (`test_synthetic_scenarios_are_labelled_deterministic_and_known_answer`). An exported validation report carries the scenario,
+  seed, generator version and record hash, so anyone can regenerate it with `POST /api/synthetic`.
+* **Counterfactuals** are reproducible from their export: the baseline content hash, the scenario (kind and change) and the
+  scenario hash. Re-assessment with no change reproduces the recorded outcomes exactly, so a difference is attributable to the
+  stated change alone.
+* `python scripts/gen_frontier_methods.py` re-runs the prepared counterfactuals, the synthetic templates, a schedule
+  comparison and every frontier method on both fixtures, and writes the results into `docs/FRONTIER_METHODS.md`.

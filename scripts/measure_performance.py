@@ -60,6 +60,8 @@ def page_timings(base: str, mode: str) -> dict:
         b = p.chromium.launch()
         loads, ready, disc, arena, unc = [], [], [], [], []
         p6 = {k: [] for k in ("command_center", "planner_plan", "data_quality", "evidence_ledger", "discovery_radar", "notebook", "experiment_studio")}
+        p7 = {k: [] for k in ("discovery_horizon", "adversarial_lab", "review_room", "counterfactual_preset", "synthetic_template", "autopilot_plan",
+                              "cosmic_atlas", "knowledge_atlas")}
         for _ in range(N):
             ctx = b.new_context(viewport={"width": 1440, "height": 900})
             pg = ctx.new_page()
@@ -88,6 +90,28 @@ def page_timings(base: str, mode: str) -> dict:
             p6["discovery_radar"].append(timed(lambda: (pg.click(".nav button[data-ws=radar]"), pg.locator(".radar-item").first.wait_for(timeout=60000))))
             p6["notebook"].append(timed(lambda: (pg.click(".nav button[data-ws=notebook]"), pg.locator("#nb-search").wait_for(timeout=60000))))
             p6["experiment_studio"].append(timed(lambda: (pg.click(".nav button[data-ws=experiments]"), pg.locator("[data-template]").first.wait_for(timeout=60000))))
+            # Phase 7 workspaces. The horizon is opened first: it fetches the frontier report (computed by the server on first request
+            # for a record, then cached by content hash), which the adversarial lab and review room reuse.
+            p7["discovery_horizon"].append(timed(lambda: (pg.click(".nav button[data-ws=horizon]"), pg.locator(".horizon-card").first.wait_for(timeout=120000))))
+            p7["adversarial_lab"].append(timed(lambda: (pg.click(".nav button[data-ws=adversarial]"), pg.locator(".asl-item").first.wait_for(timeout=60000))))
+            p7["review_room"].append(timed(lambda: (pg.click(".nav button[data-ws=review]"), pg.locator(".review-list li").first.wait_for(timeout=60000))))
+            pg.click(".nav button[data-ws=counterfactual]")
+            p7["counterfactual_preset"].append(timed(lambda: (pg.locator(".cf-preset", has_text="Stricter brightness threshold").click(),
+                                                              pg.locator(".cf-result").first.wait_for(timeout=180000))))
+            pg.click(".nav button[data-ws=synthetic]")
+            pg.locator("#syn-run").wait_for(timeout=60000)
+
+            def syn():
+                pg.click("#syn-run")
+                if mode == "server":
+                    pg.click("#syn-run")          # confirmation
+                pg.locator(".syn-result").first.wait_for(timeout=300000)
+            p7["synthetic_template"].append(timed(syn))
+            pg.click(".nav button[data-ws=autopilot]")
+            pg.locator("#ap-objective").fill("Challenge my interpretation of the brightness change.")
+            p7["autopilot_plan"].append(timed(lambda: (pg.click("#ap-propose"), pg.locator("#ap-steps tbody tr").first.wait_for(timeout=60000))))
+            p7["cosmic_atlas"].append(timed(lambda: (pg.click(".nav button[data-ws=atlas]"), pg.locator("#atlas-table tbody tr").first.wait_for(timeout=60000))))
+            p7["knowledge_atlas"].append(timed(lambda: (pg.click(".nav button[data-ws=knowledge]"), pg.locator("#ka-search").wait_for(timeout=60000))))
             ctx.close()
         b.close()
     out["page_load_s"] = med(loads)
@@ -97,6 +121,13 @@ def page_timings(base: str, mode: str) -> dict:
     out["hypothesis_arena_render_s"] = med(arena)
     out["uncertainty_tab_render_s"] = med(unc)
     out["phase6_first_render_s"] = {k: med(v) for k, v in p6.items()}
+    out["phase7_render_s"] = {k: med(v) for k, v in p7.items()}
+    out["phase7_render_first_iteration_s"] = {k: round(v[0], 3) for k, v in p7.items()}
+    out["phase7_note"] = ("median over runs, from click to first rendered element. Every iteration re-runs the default analysis, whose content "
+                          "hash is the same, so the frontier report is computed once and then served from the server's cache (the uncached "
+                          "cost is server_api.*.frontier_report_first_call_s). synthetic_template includes verifying or writing the "
+                          "scenario's files and running the full analysis on them; counterfactual_preset is a threshold re-assessment"
+                          if mode == "server" else "median over runs; the preview serves results recorded at build time")
     return out
 
 
@@ -130,11 +161,20 @@ def main() -> int:
                 r2 = requests.post(base + f"api/targets/{tid}/analyze", json={"params": {"aperture_radius_px": 2.0 + 0.1 * (len(rr) + 1)}}, proxies=NOPROXY, timeout=600)
                 iid2 = r2.json()["investigation_id"]
                 rr.append(timed(lambda: requests.get(base + f"api/investigations/{iid2}/research", proxies=NOPROXY).raise_for_status()))
+            fr = []
+            for _ in range(N):                      # frontier report: first call per record (new parameters → new content hash)
+                r3 = requests.post(base + f"api/targets/{tid}/analyze", json={"params": {"aperture_radius_px": 2.5 + 0.1 * (len(fr) + 1)}}, proxies=NOPROXY, timeout=600)
+                iid3 = r3.json()["investigation_id"]
+                fr.append(timed(lambda: requests.get(base + f"api/investigations/{iid3}/frontier", proxies=NOPROXY, timeout=600).raise_for_status()))
+            cfx = timed(lambda: requests.post(base + "api/counterfactuals", json={"target_id": tid, "baseline_investigation_id": iid,
+                        "scenario": {"kind": "exclusion", "change": {"detectors": [1]}}}, proxies=NOPROXY, timeout=900).raise_for_status())
+            rep = timed(lambda: requests.post(base + f"api/investigations/{iid}/reproduce", json={}, proxies=NOPROXY, timeout=900).raise_for_status())
             pl = [timed(lambda: requests.post(base + "api/plan", json={"question": "Did the source change in brightness?", "facts": {"has_target_data": True, "has_run": True}},
                                               proxies=NOPROXY).raise_for_status()) for _ in range(N)]
             api[tid] = {"analysis_s": med(an), "discovery_report_s": med(di), "evidence_graph_s": med(gr),
                         "package_zip_s": med(pk), "package_zip_bytes": size, "stability_check_s": round(st, 3),
-                        "research_report_first_call_s": med(rr), "plan_s": med(pl)}
+                        "research_report_first_call_s": med(rr), "plan_s": med(pl),
+                        "frontier_report_first_call_s": med(fr), "counterfactual_exclusion_s": round(cfx, 3), "reproduce_with_replay_s": round(rep, 3)}
         res["server_api"] = api
         res["server_page"] = page_timings(base, "server")
     finally:
