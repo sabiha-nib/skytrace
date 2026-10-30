@@ -1,11 +1,11 @@
 # Copilot tools and the evidence guard (TOOLS-2, GUARD-3)
 
 Source: `src/skytrace/ai/tools.py`, `src/skytrace/ai/guard.py`, `src/skytrace/ai/copilot.py`.
-Tests: `tests/unit/test_tool_contracts.py`, `tests/unit/test_report_ai.py`.
+Tests: `tests/unit/test_tool_contracts.py`, `tests/unit/test_report_ai.py`, `tests/unit/test_copilot2.py`.
 
 ## Contract
 
-All 12 tools are **read-only**: they read one finished, hashed investigation record and its bundle's
+All 16 tools are **read-only**: they read one finished, hashed investigation record and its bundle's
 discovery index, manifest and inspection data. They never fetch data, write files, run code or
 reach the network (`test_tools_have_no_side_effects` checks file modification times; the envelope
 test runs with sockets disabled).
@@ -47,8 +47,26 @@ Error codes: `unknown_tool`, `invalid_arguments`, `not_found`, `not_compatible`,
 | `get_evidence_graph` | focus (≤ 200 chars) | graph counts and claims, or edges around one node |
 | `get_analysis_provenance` | — | parameters, method versions, software, content hash, data origins, sources |
 | `generate_investigation_summary` | — | the three ASSESS-2 outcomes with evidence, criteria, limitations; pair rejection codes |
-| `list_capabilities` | — | the CAPREG-1 registry: each capability's methods, outputs, limitations and whether it runs here |
+| `list_capabilities` | — | the CAPREG-2 registry: each capability's methods, outputs, limitations and whether it runs here |
 | `validate_claim_provenance` | claim* (3–600 chars); evidence_ids* (1–8) | whether a draft claim passes the guard against the cited outputs |
+| `plan_investigation` (0.6) | question* (3–500 chars) | a PLAN-1 plan of registered actions with statuses; **executes nothing** |
+| `get_data_quality` (0.6) | — | DQ-1 checks with outcome, counts and rule; no overall score; file hashes are reported as *not checked* through the copilot |
+| `get_evidence_ledger` (0.6) | — | LEDGER-1 claims with support counts and flags, contradictions found by rules C1–C4, completeness gaps |
+| `get_hypothesis_tests` (0.6) | — | HYPO-1 explanations with rule-based test statuses; no probabilities |
+
+## Copilot 2.0 (v0.6)
+
+* **Answer sources.** Every answer names its source: *deterministic local logic over recorded investigation data* (the local
+  assistant), *verified external model* (only when a Meta model answered and GUARD-3 passed it; values still come from the
+  recorded data through the tools), or *recorded at build time* (static preview). Your questions are labelled *user-authored content*.
+* **New local intents** (routing in `ai/local.py`, ported to `web/js/static/backend.js`, parity-tested): `draft` (a notebook draft of
+  the outcomes), `plan`, `quality`, `missing` (evidence ledger), `hypotheses`. Their answers pass the same guard as model answers
+  (`test_copilot2.py` checks every new intent on both fixtures).
+* **Add to notebook as draft** inserts the answer and its limitations as *assistant draft* blocks, labelled with the source and
+  the question; they stay labelled until you accept them.
+* **Plan this question in the Planner** hands the exact question to the Planner; the copilot never executes a plan.
+* **Static preview.** Answers are those the local assistant gave at build time for one stored question per intent. When your
+  wording differs, the answer says which question was recorded.
 
 ## Guard (GUARD-3)
 

@@ -624,3 +624,8 @@ ol.plain { list-style: decimal; padding-left: 20px; }
 }
 .grid-2 > .card + .card, .cc-grid > .card + .card { margin-top: 0; }
 .grid-2 + .card, .grid-2 + .grid-2 { margin-top: 14px; }
+
+/* Copilot 2.0: answer actions and the recorded-question note in the static preview */
+.msg .ans-actions { margin-top: 8px; gap: 6px; flex-wrap: wrap; }
+.msg .recorded-q { font-size: 12px; margin: 0 0 6px; }
+.msg.user .mode { color: var(--muted); }

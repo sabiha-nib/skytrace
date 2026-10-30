@@ -57,7 +57,7 @@ def test_tools_validate_and_record():
            tools.call_tool(s, "list_target_observations", {"limit": 10_000})]
     assert not any(c.ok for c in bad) and all("error" in c.output for c in bad)
     assert len(s.calls) == 6 and set(s.outputs()) == {ok.id}
-    assert {t["function"]["name"] for t in tools.tool_specs()} == set(tools.TOOLS) and len(tools.TOOLS) == 12
+    assert {t["function"]["name"] for t in tools.tool_specs()} == set(tools.TOOLS) and len(tools.TOOLS) == 16
 
 
 def test_compare_refuses_flux_for_incompatible_pair():

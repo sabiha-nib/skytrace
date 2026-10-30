@@ -93,7 +93,9 @@ def test_js_intent_routing_matches_python():
     qs = list(QUESTIONS.values()) + [
         "What can you do?", "Which tools do you have?", "Is the registration good enough?", "Which pairs match in wavelength?",
         "Why was D3 rejected?", "How does it compare with Gaia?", "What is the largest error?", "What should I follow up?",
-        "Which observations support this?", "Did it get brighter?", "Tell me about this target", "proper motion?", "", "flagged frames"]
+        "Which observations support this?", "Did it get brighter?", "Tell me about this target", "proper motion?", "", "flagged frames",
+        "Draft a paragraph", "plan the motion check", "What steps would confirm it?", "how do I check the calibration?",
+        "data quality?", "any contradictions?", "Which hypotheses survive?", "alternative explanation for the dimming", "NOTEBOOK"]
     r = subprocess.run([NODE, str(ROOT / "tests/js/intent_parity.mjs"), str(ROOT / "web/js/static/backend.js"), json.dumps(qs)],
                        capture_output=True, text=True, timeout=60, check=True)
     assert json.loads(r.stdout) == [_intent(q) for q in qs]

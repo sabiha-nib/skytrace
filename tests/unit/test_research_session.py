@@ -146,3 +146,20 @@ def test_browser_matches_python(tmp_path):
     py_sessions = [session.verify(s) for s in job["sessions"]]
     for a, b in zip(js["sessions"], py_sessions):
         assert a == b
+
+
+def test_version_histories_are_kept_bounded_and_hashed():
+    """Hypothesis and note edits keep earlier wording (≤ 20 versions); every change alters the content hash."""
+    s = session.new("versions")
+    t = s["created_at"]
+    s["hypotheses"] = [{"id": "h1", "statement": "It dimmed.", "tests": [], "kind": "interpretation", "created_at": t,
+                        "versions": [{"at": t, "text": "It changed."}]}]
+    s["notebook"] = [{"id": "n1", "type": "paragraph", "text": "v2", "author": "user", "created_at": t, "modified_at": t,
+                      "versions": [{"at": t, "text": "v1"}]}]
+    s = session.finalize(s)
+    assert session.validate(s) == [] and session.verify(s)["hash_ok"]
+    h1 = s["content_hash"]
+    s["hypotheses"][0]["versions"].append({"at": t, "text": "It brightened."})
+    assert session.finalize(s)["content_hash"] != h1
+    s["notebook"][0]["versions"] = [{"at": t, "text": str(i)} for i in range(21)]
+    assert any("versions" in e for e in session.validate(s))

@@ -23,7 +23,12 @@ scripts/acquire_targets.py ─┤ archive/acquire.py (selection SEL-1, resume, i
         capabilities.py (CAPREG-1) · discovery.py (DISC-1) · hypotheses.py (HYPO-1) · uncertainty.py (UNC-1)
         view.registration_diagnostics (REGDIAG-1) · package.py (PKG-1)
                             ▼
-   view.InvestigationView + evidence_graph  ◄── ai/tools.py (12 read-only tools) ◄── ai/copilot.py ──► Meta Model API
+   v0.6 research OS readers (deterministic, no network, no model, no scores):
+        compat.py (COMPAT-1, SEQ-1) · quality.py (DQ-1) · ledger.py (LEDGER-1) · radar.py (RADAR-1)
+        planner.py (PLAN-1) · experiments.py (EXP-1: re-runs analysis.run) · missions.py · workflows.py · connectors.py (ACQ-2)
+        session.py (SESSION-1) over canon.py (SKY-CANON-1) + schema.py (SCHEMA-1)      ── all served by server/research.py
+                            ▼
+   view.InvestigationView + evidence_graph  ◄── ai/tools.py (16 read-only tools) ◄── ai/copilot.py ──► Meta Model API
                             │                                ai/guard.py (GUARD-3)     ai/local.py (fallback)
                             ▼
    server/app.py (Starlette): JSON API + static web/        ──►  browser (web/js: no build, no CDN, strict CSP)
@@ -60,6 +65,49 @@ The levels (Explore / Investigate / Research) are CSS views over the same state:
 User hypotheses are interpretations: they can cite recorded tests by id, and their overall line uses the published
 rule; they never enter the evidence matrix, the graph or the record's content hash.
 
+## Phase 6 additions (v0.6): the research operating system
+
+```
+ browser                                                         server (server/research.py)
+ ┌────────────────────────────────────────────────────────┐     ┌────────────────────────────────────────────┐
+ │ session.js ── sessioncore.js (validate, verify, hash)   │ PUT │ /api/sessions, /api/sessions/{sid}         │
+ │   state.session: question, runs, hypotheses, notebook,  │────►│ session.validate + verify; data/sessions/  │
+ │   plans, experiments, missions, workflows, history      │     │ import refuses hash mismatch, never        │
+ │        ▲                                                │     │ overwrites an id; unreadable files kept    │
+ │        │ S.update(kind, summary, fn) → logEvent         │     ├────────────────────────────────────────────┤
+ │ executor.js ── runs one registered ACTION ───────────────┼────►│ /api/plan (server forces its own facts)    │
+ │   ▲ plannerui · experimentsui (workflows) · radarui ·   │     │ /api/experiments (EXP-1, bounded)          │
+ │   │ commandcenter (missions)                            │     │ /api/investigations/{id}/research          │
+ │ qualityui · ledgerui · notebook · figurestudio · kg ·   │◄────│   COMPAT-1 + DQ-1 + LEDGER-1 + RADAR-1,    │
+ │ timemachine (sequences) · copilot (16 tools, labels)    │     │   cached by record content hash            │
+ └────────────────────────────────────────────────────────┘     │ /api/specs (planner table, missions,       │
+   static preview: web/js/static/backend.js serves recorded       │   templates, schemas, citations)           │
+   research.json / experiments.json / specs.json; sessions in     │ /api/connectors (+ preview: nothing sent)  │
+   localStorage; plans by the browser planner; refusals named     │ /api/workflows/validate                    │
+                                                                  └────────────────────────────────────────────┘
+```
+
+| Piece | Server | Interface | Static preview |
+|---|---|---|---|
+| Research session (SESSION-1) | `GET/POST /api/sessions`, `GET/PUT/DELETE /api/sessions/{sid}`, `POST /api/sessions/import`, `POST /api/sessions/from-record/{rid}` | `session.js`, `sessioncore.js`, `sessionsui.js` | browser storage `skytrace.preview.sessions.v1`, same validation and hash in JS |
+| Capability registry + ACTIONS (CAPREG-2) | `GET /api/capabilities`, `/api/specs` | `executor.js` | `specs.json` |
+| Planner (PLAN-1) | `POST /api/plan` | `plannerui.js`, browser port `planner.js` | browser planner over the same rule table |
+| Compatibility, sequences, coverage (COMPAT-1, SEQ-1) | in `/research` | `qualityui.js`, `timemachine.js` | `research.json` |
+| Data quality (DQ-1) | in `/research` | `qualityui.js` | `research.json` |
+| Evidence ledger (LEDGER-1) | in `/research` | `ledgerui.js` | `research.json` |
+| Discovery Radar (RADAR-1) | in `/research` | `radarui.js` | `research.json` |
+| Experiments (EXP-1) | `POST /api/experiments` | `experimentsui.js` | `experiments.json` (standard set recorded at build time; custom parameters refused) |
+| Workflows (WF-1) | `POST /api/workflows/validate` | `experimentsui.js`, port `workflows.js` | browser validation |
+| Missions (MISSION-1) | in `/api/specs` | `commandcenter.js`, port `missions.js` | same |
+| Connectors (ACQ-2) | `GET /api/connectors`, `POST /api/connectors/{cid}/preview` | `qualityui.js` | registry recorded; previews refused (need the server's builders) |
+| Notebook (NOTE-1), figures (FIG-2), knowledge graph (KG-1) | — | `notebook.js`, `figurestudio.js`, `kg.js` | same |
+| Copilot 2.0 | 16 tools (`ai/tools.py`), 15 local intents (`ai/local.py`) | `copilot.js` | `ask.json` per intent with the recorded question |
+
+Workspaces are grouped Observe (Command Center, Explorer, Time Machine) · Investigate (Planner, Lab, Experiment Studio) ·
+Verify (Data Quality, Evidence Ledger, Discovery Radar) · Record (Notebook, Vault/Report Studio). Levels gate visibility through
+`data-min-level`; opening a deeper workspace raises the level and says so. Render tokens (`util.renderToken`) discard stale
+asynchronous renders so a fast series of events never duplicates a panel.
+
 ## Layers and their rules
 
 | Layer | Code | May | May not |
@@ -81,6 +129,6 @@ rule; they never enter the evidence matrix, the graph or the record's content ha
 ## Request flow for one copilot question
 
 1. `POST /api/investigations/{id}/ask` → `copilot.ask` builds a `ToolSession` over the stored record.
-2. With a Meta key and `OFFLINE` unset, the model receives the system rules, a compact context (target, kind, outcome categories) and 12 tool schemas. It calls tools; each call is validated by pydantic and recorded.
+2. With a Meta key and `OFFLINE` unset, the model receives the system rules, a compact context (target, kind, outcome categories) and 16 tool schemas. It calls tools; each call is validated by pydantic and recorded.
 3. The final JSON answer goes through `guard.check` against the outputs of the tools actually called. On failure, one repair round runs. A second failure withholds the draft and returns the local assistant's grounded answer instead.
 4. Without a key, offline, or on any API error, the local assistant answers through the same tools and the same guard. The response always states which mode produced it.

@@ -26,6 +26,11 @@ def _f(x, nd=1):
 def _intent(q: str) -> str:
     ql = q.lower()
     rules = [("capabilities", r"what can you|capabilit|which tools|what questions can|able to do|what can skytrace"),
+             ("draft", r"\bdraft\b|notebook|write (?:a|up|me) (?:a )?(?:note|summary|paragraph)"),
+             ("plan", r"\bplan\b|how (?:would|should|could|do) i (?:test|check|find out|establish)|what steps|step[- ]by[- ]step"),
+             ("quality", r"data quality|quality check|integrity|corrupt|data problem"),
+             ("missing", r"missing|what evidence|evidence gap|contradict|incomplete|ledger"),
+             ("hypotheses", r"hypothes|explanation|viable|alternative"),
              ("alignment", r"align|registr|plate|astrometric frame"), ("compat", r"compatib|wavelength|match"),
              ("excluded", r"exclud|reject|why was|flag"), ("gaia", r"gaia|catalog|proper motion|motion"),
              ("uncertainty", r"uncertain|error bar|limitation|largest"), ("next", r"next|should i|investigate|follow"),
@@ -61,6 +66,54 @@ def answer(question: str, s: ToolSession) -> dict:
             lines.append("Not available here: " + "; ".join(not_here) + ".")
         lines.append("Each one names its method versions, outputs and limitations in the capability registry.")
         follow.append("Which explanations remain viable?")
+    elif intent == "plan":
+        c = call_tool(s, "plan_investigation", {"question": question[:500]})
+        o = c.output
+        if not o.get("answerable"):
+            lines.append(f"PLAN-1 cannot plan this question with registered actions: {o['explanation']}")
+        else:
+            lines.append(f"Proposed plan ({o['method']}, intent \u201c{o['intent']}\u201d): {o['explanation']}")
+            for i, st in enumerate(o["steps"], 1):
+                lines.append(f"{i}. {st['title']} [{st['status']}{', needs confirmation' if st['confirm'] else ''}"
+                             f"{', optional' if st['optional'] else ''}]{': ' + st['note'] if st['note'] else ''}.")
+            lines.append("Nothing was executed; open the Investigation Planner to run the steps.")
+        claims.append({"text": "proposed plan (nothing executed)", "kind": "measurement", "value": None, "unit": "", "evidence": [c.id]})
+        follow.append("Which evidence is still missing?")
+    elif intent == "quality":
+        c = call_tool(s, "get_data_quality", {})
+        o = c.output
+        lines.append(f"Data-quality checks ({o['method']}): " + ", ".join(f"{v} {k.replace('_', ' ')}" for k, v in o["summary"].items() if v) + ". There is no overall score.")
+        for ch in o["checks"]:
+            if ch["outcome"] != "valid":
+                lines.append(f"{ch['name']} ({ch['id']}): {ch['outcome'].replace('_', ' ')}; rule: {ch['rule']}.")
+        claims.append({"text": "checks with outcome valid", "kind": "measurement", "value": o["summary"].get("valid", 0), "unit": "checks", "evidence": [c.id]})
+        lims.append(o["note"])
+        follow.append("Which evidence is still missing?")
+    elif intent == "missing":
+        c = call_tool(s, "get_evidence_ledger", {})
+        o = c.output
+        for cl in o["claims"]:
+            sup = cl["support"]
+            lines.append(f"{cl['id']} ({cl['category'].replace('_', ' ')}): {sup['direct']} direct evidence item(s), {sup['comparisons']} comparison(s), "
+                         f"{len(sup['detectors'])} detector(s)" + (f"; flags: {'; '.join(cl['flags'])}" if cl["flags"] else "") + ".")
+        lines.append(f"Completeness gaps ({o['method']}): " + ("; ".join(f"{k.replace('_', ' ')}: {v}" for k, v in o["completeness"].items()) or "none recorded") + ".")
+        lines.append(f"{o['n_contradictions']} contradiction(s) found by fixed rules" + (": " + "; ".join(f"{x['rule']} {x['detail']}" for x in o["contradictions"][:3]) if o["contradictions"] else "") + ".")
+        claims.append({"text": "contradictions found", "kind": "measurement", "value": o["n_contradictions"], "unit": "", "evidence": [c.id]})
+        follow.append("Which explanations remain viable?")
+    elif intent == "hypotheses":
+        c = call_tool(s, "get_hypothesis_tests", {})
+        o = c.output
+        for q in o["questions"]:
+            lines.append(f"{q['question'].replace('_', ' ').capitalize()}: " + "; ".join(f"{h['id']} {h['overall']}" for h in q["hypotheses"]) + ".")
+        lines.append(f"Overall rule: {o['overall_rule']}. {o['note'][:1].upper() + o['note'][1:]}.")
+        claims.append({"text": "rule-based statuses of the competing explanations", "kind": "measurement", "value": None, "unit": "", "evidence": [c.id]})
+        follow.append("Which evidence is still missing?")
+    elif intent == "draft":
+        lines.append("Draft note for your notebook (not yet accepted; review before keeping):")
+        for o in outcomes.values():
+            lines.append(f"{o['question'].replace('_', ' ').capitalize()} — {o['category'].replace('_', ' ')}: {o['statement']}")
+        lines.append("Use \u201cAdd to notebook as draft\u201d to insert it as an assistant-draft block.")
+        follow.append("What is the largest remaining uncertainty?")
     elif intent in ("gaia", "alignment"):
         c = call_tool(s, "get_astrometric_validation", {})
         o = c.output

@@ -34,3 +34,9 @@ def test_text_tokens_meet_aa_on_every_surface():
 def test_primary_button_text_contrast():
     t = tokens()
     assert ratio(t["accent-ink"], t["accent"]) >= 4.5
+
+
+def test_reduced_motion_disables_animation():
+    css = (ROOT / "web" / "css" / "app.css").read_text()
+    blocks = re.findall(r"@media \(prefers-reduced-motion: reduce\) \{(.*?)\n\}", css, re.S)
+    assert blocks and any("animation" in b and ("none" in b or "0s" in b or "0.01ms" in b) for b in blocks)

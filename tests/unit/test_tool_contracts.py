@@ -27,6 +27,10 @@ def valid_args(v):
         "list_capabilities": {},
         "generate_investigation_summary": {},
         "validate_claim_provenance": {"claim": "In these synthetic data the motion outcome is recorded.", "evidence_ids": ["t1"]},
+        "plan_investigation": {"question": "Did the source change in brightness between the epochs?"},
+        "get_data_quality": {},
+        "get_evidence_ledger": {},
+        "get_hypothesis_tests": {},
     }
 
 

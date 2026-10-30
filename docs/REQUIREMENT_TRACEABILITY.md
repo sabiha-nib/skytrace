@@ -1,4 +1,4 @@
-# Requirement traceability (v0.5.0, 2026-10-30)
+# Requirement traceability (v0.6.0, 2026-10-30)
 
 `IMPLEMENTED` means the code exists and its deterministic tests pass. `VERIFIED` means it is also confirmed on real data or a live service. `BLOCKED` names the missing access. Hackathon submission requirements were retired when the project moved to Meta.
 
@@ -23,7 +23,7 @@
 | R15 | Method comparison / sensitivity | Lab › Re-run & compare; MOMENT-1 cross-check | e2e `test_05` | IMPLEMENTED | |
 | R16 | Investigation history | event log; saved records with transcript | e2e `test_08` | IMPLEMENTED | |
 | R17 | Meta Model API integration | `ai/meta_client.py`, `ai/copilot.py` | scripted client | **BLOCKED** live | no key, no route |
-| R18 | 12 read-only tools, guard, budgets, audit, local fallback | `ai/` | 40 tests | IMPLEMENTED | |
+| R18 | Read-only tools (12 in 0.5, 16 in 0.6), guard, budgets, audit, local fallback | `ai/` | `test_tool_contracts.py`, `test_report_ai.py`, `test_copilot2.py` | IMPLEMENTED | |
 | R19 | Offline mode with sockets blocked | `archive/net.py`, server design | `test_offline_workflow.py`, e2e `test_09` | IMPLEMENTED | |
 | R20 | Live/cache/fixture/synthetic labels | `provenance.py`, UI pills/banners/watermark | unit, e2e `test_02` | IMPLEMENTED | |
 | R21 | Interactive UI, responsive, keyboard, CSP | `web/` | e2e incl. mobile | IMPLEMENTED | |
@@ -69,3 +69,35 @@
 | P5.16 | Security: untrusted imports, no secrets in frontend, no telemetry | `state.sanitizeContext`, import preview, verify.py secret scan | e2e, verify.py | IMPLEMENTED | |
 | P5.17 | New release without overwriting 0.4.0 | `scripts/make_release.py` (refuses to overwrite) | release run | see TEST_REPORT | |
 
+
+## Phase 6 (v0.6)
+
+Section numbers refer to the Phase 6 brief. Tests named `s1`–`s10`, `h2` are in `tests/e2e/test_controls.py` and run in server and static mode.
+
+| ID | Requirement | Location | Test | Status | Evidence / blocker |
+|---|---|---|---|---|---|
+| P6.01 | Audit the 0.5 repository first; preserve what works | `docs/PHASE6_AUDIT.md` | baseline `verify.py --e2e` 18/18 | DONE | no 0.5 test removed |
+| P6.02 | Persistent, integrity-checked research session; versioned schema; migration | `session.py`, `canon.py`, `schema.py`, `web/js/session*.js`, `server/research.py` | `test_research_session.py` (7, incl. parity), e2e `s2`, `s9` | IMPLEMENTED | old records migrate; never discarded |
+| P6.03 | Unified capability registry with actions used by planner, copilot, workflows, missions | `capabilities.py` (CAPREG-2), `web/js/executor.js` | `test_registry_actions_and_capabilities_are_consistent` | IMPLEMENTED | |
+| P6.04 | Adaptive Investigation Planner: deterministic, validated, statuses, confirmation, no simulation | `planner.py`, `planner.js`, `plannerui.js` | `test_planner_known_plans`, parity, e2e `s2` | IMPLEMENTED | rule-based; no model intent used (no key) |
+| P6.05 | Observatory Command Center with real values only | `commandcenter.js` | e2e `s1` | IMPLEMENTED | |
+| P6.06 | Multi-epoch discovery: never interpolate; say when only two epochs | `compat.py` (SEQ-1), `timemachine.js` | `test_sequences_are_cliques…`, e2e `s3` | IMPLEMENTED | |
+| P6.07 | Experiment Studio (parameter, sensitivity, method comparison, reproducibility, negative control, robustness); validity note | `experiments.py`, `experimentsui.js` | `test_experiment_validation_and_negative_control`, API, e2e `s8` | IMPLEMENTED | custom parameters need the server |
+| P6.08 | Compatibility matrix with explicit rules; metadata diff; duplicates | `compat.py`, `qualityui.js` | `test_matrix_is_the_logged_decisions`, `test_duplicate_files_are_detected`, e2e `s3` | IMPLEMENTED | |
+| P6.09 | Evidence Ledger: claims, contradictions, provenance, methods, completeness, history; one item ≠ full support | `ledger.py`, `ledgerui.js` | `test_ledger_counts_support_and_flags_conflicts`, e2e `s6` | IMPLEMENTED | |
+| P6.10 | Knowledge graph only from stored relationships; empty state | `kg.js`, `records.js` | e2e `test_p_vault_and_studio` | IMPLEMENTED | |
+| P6.11 | Visualization Studio with titles, units, provenance, export; PDF only if valid | `figurestudio.js` | e2e `s10` (SVG parses) | IMPLEMENTED | no PDF offered |
+| P6.12 | Research Notebook: blocks, provenance links, authorship, export to package | `notebook.js`, `zipstore.js` | `test_zipstore_output_is_valid_and_deterministic`, e2e `s7`, `h2` | IMPLEMENTED | |
+| P6.13 | Data Quality Observatory: five outcomes, no universal score | `quality.py`, `qualityui.js` | `test_quality_outcomes_and_injected_defects`, e2e `s3` | IMPLEMENTED | |
+| P6.14 | Connectors: testable boundary, never claim success | `connectors.py`, `archive/net.py` | `test_connector_previews_match_acquisition_and_send_nothing`, `test_retry_after_is_honoured_and_bounded`, e2e `s4` | IMPLEMENTED; live use **BLOCKED** | proxy 403 |
+| P6.15 | Copilot 2.0: registry-only, validated plans, answer-source labels | `ai/tools.py`, `ai/local.py`, `copilot.js` | `test_copilot2.py`, `test_tool_contracts.py`, intent parity, e2e `h2` | IMPLEMENTED; Meta model **BLOCKED** | |
+| P6.16 | Discovery Radar: opportunities with what / why / evidence / data / method / cannot / can-run-now | `radar.py`, `radarui.js` | `test_radar_items_are_explained_and_ranked_by_the_stated_rule`, e2e `s5` | IMPLEMENTED | |
+| P6.17 | Missions without gamification | `missions.py`, `missions.js`, `commandcenter.js` | `test_missions_read_completion_from_the_session`, e2e `s1` | IMPLEMENTED | task order not enforced |
+| P6.18 | Research automation: workflows, batch, per-item records, cancel, retry, export/import, bounds | `workflows.py`, `workflows.js`, `experimentsui.js` | `test_workflow_validation`, parity, e2e `s8` (cancel/retry in server mode) | IMPLEMENTED | |
+| P6.19 | Catalogue ≥ 300 distinct concepts in the brief's 30 domains, statuses, no synonyms | `scripts/phase6_catalogue.py` → `docs/PHASE6_CATALOGUE.md` | `test_phase6_catalogue.py` | IMPLEMENTED | 309 distinct; 15 merged |
+| P6.20 | Prioritisation (Foundation / High Impact / Signature / Frontier) with the §20 fields | same | same | IMPLEMENTED | |
+| P6.21 | UI: levels alter visibility only; empty states and disabled actions explain; real loading; responsive | `main.js`, CSS | e2e `test_j_levels`, `test_r_new_workspaces_narrow`, `test_y_accessible_names`, `test_z_no_external_requests_no_errors` | IMPLEMENTED | |
+| P6.22 | Versioned schemas, migration, never discard records | `session.py` (`skytrace.research_session/1`), `workflows.py` (`skytrace.workflow/1`) | `test_migration_from_v05_saved_record` | IMPLEMENTED | |
+| P6.23 | Tests for every Phase 6 area; BLOCKED reported as blocked; none removed | `tests/` | see TEST_REPORT v0.6.0 | IMPLEMENTED | live tests BLOCKED |
+| P6.24 | Release: metadata, docs, methods generated from code, new version only, commit, no push | `scripts/gen_research_methods.py`, `make_release.py` | release run | see TEST_REPORT | not pushed |
+| P6.25 | Hosted preview, tested as rendered | `dist/preview/`, hosted artifact | see TEST_REPORT | see TEST_REPORT | |

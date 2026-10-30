@@ -48,6 +48,11 @@ QUESTIONS = {   # one canonical question per local-assistant intent; the answer 
     "support": "Which observations support the outcome?",
     "changed": "What changed?",
     "summary": "Summarise this investigation.",
+    "draft": "Draft a notebook note for this investigation.",
+    "plan": "How would I test whether the source changed in brightness?",
+    "quality": "Are there any data quality problems?",
+    "missing": "Which evidence is still missing?",
+    "hypotheses": "Which explanations remain viable?",
 }
 
 
@@ -193,7 +198,7 @@ def main() -> int:
                 pkg = ok(get(f"/api/investigations/{iid}/package.zip")).content   # hosts serve no .zip: carried as base64 JSON
                 write(f"t/{tid}/run/{iid}/package.json", {"method": "PKG-1", "bytes": len(pkg), "sha256": hashlib.sha256(pkg).hexdigest(),
                                                           "base64": base64.b64encode(pkg).decode()})
-                write(f"t/{tid}/run/{iid}/ask.json", {intent: ok(post(f"/api/investigations/{iid}/ask", {"question": q})).json()
+                write(f"t/{tid}/run/{iid}/ask.json", {intent: {**ok(post(f"/api/investigations/{iid}/ask", {"question": q})).json(), "recorded_question": q}
                                                       for intent, q in QUESTIONS.items()})
                 runs.append({"iid": iid, "label": label, "params": params, "default": not params,
                              "content_hash": s["record"]["content_hash"]})

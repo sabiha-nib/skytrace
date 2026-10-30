@@ -70,6 +70,10 @@ class GraphArgs(_Args):
     focus: str | None = Field(None, max_length=200, description="node id, e.g. claim:motion or meas:<key>")
 
 
+class PlanArgs(_Args):
+    question: str = Field(..., min_length=3, max_length=500, description="the research question to plan")
+
+
 class ClaimArgs(_Args):
     claim: str = Field(..., min_length=3, max_length=600)
     evidence_ids: list[str] = Field(..., min_length=1, max_length=8)
@@ -293,6 +297,45 @@ def t_validate(s: ToolSession, a: ClaimArgs) -> dict:
             "problems": ([f"evidence id {m} was not produced in this session" for m in missing] + [p["detail"] for p in res.problems])}
 
 
+def t_plan(s: ToolSession, a: PlanArgs) -> dict:
+    """PLAN-1 over registered actions; it proposes steps, it executes nothing."""
+    from .. import planner
+    facts = {"has_target_data": True, "has_run": True, "run_hash": s.view.r.get("content_hash"), "pair": None,
+             "server": bool(s.availability.get("server", True)), "static": False, "network": s.availability.get("network"), "targets": []}
+    p = planner.plan(a.question, facts)
+    return {"method": p["method"], "intent": p["intent"]["kind"], "answerable": p["answerable"], "explanation": p["explanation"],
+            "steps": [{k: x[k] for k in ("id", "action", "title", "status", "note", "confirm", "optional")} for x in p["steps"]],
+            "note": "a proposed plan of registered actions; nothing was executed"}
+
+
+def t_quality_checks(s: ToolSession, _: NoArgs) -> dict:
+    from .. import quality
+    q = quality.checks(s.view.r, s.view.manifest, s.view.discovery, None)
+    return {"method": q["method"], "synthetic": s.view.is_synthetic(), "summary": q["summary"],
+            "checks": [{"id": c["id"], "name": c["name"], "outcome": c["outcome"], "counts": c["counts"], "rule": c["rule"]} for c in q["checks"]],
+            "note": q["note"]}
+
+
+def t_ledger(s: ToolSession, _: NoArgs) -> dict:
+    from .. import ledger
+    L = ledger.build(s.view.r, evidence_graph(s.view, s.target_id), s.view.discovery)
+    return {"method": L["method"], "synthetic": s.view.is_synthetic(),
+            "claims": [{"id": c["id"], "category": c["category"], "support": {k: c["support"][k] for k in ("direct", "comparisons", "observations", "detectors")},
+                        "flags": c["flags"]} for c in L["claims"]],
+            "contradictions": [{k: x[k] for k in ("rule", "kind", "detail")} for x in L["contradictions"][:10]],
+            "n_contradictions": len(L["contradictions"]), "completeness": L["completeness"]["counts"]}
+
+
+def t_hypotheses(s: ToolSession, _: NoArgs) -> dict:
+    from .. import hypotheses
+    h = hypotheses.evaluate(s.view.r)
+    return {"method": h["method"], "overall_rule": h["overall_rule"], "synthetic": s.view.is_synthetic(),
+            "questions": [{"question": q["question"], "hypotheses": [{"id": x["id"], "statement": x["statement"], "overall": x["overall"],
+                                                                     "tests": [{k: t[k] for k in ("id", "status", "rule")} for t in x["tests"]]}
+                                                                    for x in q["hypotheses"]]} for q in h["questions"]],
+            "note": "statuses come from stated rules; none is a probability"}
+
+
 TOOLS: dict[str, tuple[type[_Args], Callable[[ToolSession, Any], dict], str]] = {
     "list_target_observations": (ListObsArgs, t_list, "List the target's archive images with inclusion, measurement status and wavelength at the target."),
     "get_observation_metadata": (KeyArgs, t_meta, "Archive metadata, file checksum, provenance and product structure for one observation."),
@@ -306,6 +349,10 @@ TOOLS: dict[str, tuple[type[_Args], Callable[[ToolSession, Any], dict], str]] = 
     "generate_investigation_summary": (NoArgs, t_summary, "The deterministic outcomes (motion, variability, data quality) with evidence, criteria and limitations."),
     "list_capabilities": (NoArgs, t_caps, "What SKYTRACE can actually do: registered capabilities with methods, outputs, limitations and whether each runs here."),
     "validate_claim_provenance": (ClaimArgs, t_validate, "Check a draft claim against evidence ids from earlier tool calls in this session."),
+    "plan_investigation": (PlanArgs, t_plan, "Propose a plan of registered actions for a research question (PLAN-1); executes nothing."),
+    "get_data_quality": (NoArgs, t_quality_checks, "Data-quality checks (DQ-1) with their outcomes; there is no overall score."),
+    "get_evidence_ledger": (NoArgs, t_ledger, "Evidence ledger (LEDGER-1): support counted per claim, contradictions found by fixed rules, completeness gaps."),
+    "get_hypothesis_tests": (NoArgs, t_hypotheses, "Competing explanations and their rule-based tests (HYPO-1); no probabilities."),
 }
 
 

@@ -3,6 +3,7 @@
 import { api } from "./api.js";
 import { emit, state } from "./state.js";
 import * as S from "./session.js";
+import { finalize, logEvent, nowIso, rid } from "./sessioncore.js";
 import { $, clear, download, el, fmtDate, toast } from "./util.js";
 
 let opener = null;
@@ -90,6 +91,21 @@ async function renderSessionsBody() {
     await S.flush();
     if (await download(`skytrace-session-${state.session.session_id}.json`, JSON.stringify(state.session, null, 1), "application/json")) toast("Session exported");
   });
+  // Branch: an independent copy under a new id, so an alternative line of work never alters the original. The copy
+  // keeps the full history and records where it came from; it is saved through the same verified import path.
+  const branch = el("button", { class: "btn small", type: "button", id: "session-branch", disabled: !cur || null,
+                                title: "Copy the active session under a new id; the original stays unchanged" }, "Branch session");
+  branch.addEventListener("click", async () => {
+    try {
+      await S.flush();
+      const src = state.session;
+      const b = await finalize(logEvent({ ...structuredClone(src), session_id: rid(6), name: `Branch of ${src.name}`.slice(0, 120), created_at: nowIso() },
+        "session.branch", `Branched from session ${src.session_id} (content hash ${String(src.content_hash).slice(0, 12)}…)`, src.session_id));
+      const r = await api.importSession(b);
+      await S.openSession(r.session_id);
+      toast(`Branched into “${r.name}”; the original session is unchanged`, 6000); renderSessionsBody();
+    } catch (e) { toast(`Branch failed: ${e.message}`, 7000); }
+  });
   const rows = list.sessions.map((x) => {
     const open = el("button", { class: "btn small", type: "button", disabled: x.session_id === cur?.session_id || null }, x.session_id === cur?.session_id ? "Active" : "Open");
     open.addEventListener("click", async () => { await S.openSession(x.session_id); toast(`Opened “${x.name}”`); renderSessionsBody(); });
@@ -109,7 +125,7 @@ async function renderSessionsBody() {
     el("p", { class: "muted" }, list.storage === "server" ? "Sessions are stored on the Skytrace server (data/sessions/), validated and hash-checked on every save."
       : "Static preview: sessions are stored in this browser only. Export a session to keep it or move it to the full application."),
     el("div", { class: "controls" }, name, create, file, pick),
-    cur ? el("div", { class: "controls" }, rename, doRename, exp) : null,
+    cur ? el("div", { class: "controls" }, rename, doRename, exp, branch) : null,
     list.sessions.length ? el("div", { class: "table-wrap" }, el("table", {}, el("thead", {}, el("tr", {}, ...["Session", "Target", "Runs · notes · hypotheses", "Modified", "Integrity", ""].map((h) => el("th", { scope: "col" }, h)))), el("tbody", {}, ...rows)))
       : el("p", { class: "muted" }, "No sessions yet."),
     list.unreadable?.length ? el("p", { class: "status-rejected" }, `Unreadable session files (kept, not deleted): ${list.unreadable.join(", ")}`) : null);

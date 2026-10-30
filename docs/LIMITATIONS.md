@@ -39,9 +39,40 @@
 - Accessibility was checked by automated tests (accessible names, dialog semantics, contrast of every text token, focus
   return, keyboard paths). No screen-reader session with assistive technology has been run.
 
+## Research operating system (v0.6)
+
+- **Planning is rule-based.** PLAN-1 matches questions with a fixed table; a question phrased outside it is reported as
+  unplannable, and a question that matches the wrong rule gets the wrong template (the intent is shown so this is visible).
+  No language model has proposed an intent in this environment (no key; the API is refused).
+- **Sessions are single-writer.** Two browser tabs editing one session overwrite each other (last save wins); there is no
+  merge. Branching makes an independent copy; nothing is merged back. In the static preview sessions live in this browser's
+  storage only and can be lost if site data is cleared — export to keep them.
+- **Sequences and playback show recorded frames only.** With two visits a sequence is a pair, and the interface says so;
+  nothing is interpolated, and no motion between frames is implied.
+- **Data-quality outcomes are per check.** `valid` means valid under the tested rule, not that the data are good for every
+  purpose; `not checked` (e.g. file hashes through the copilot) and `not available` are not passes. There is no overall score
+  on purpose.
+- **The ledger counts, it does not weigh.** Support counts say how many items link to a claim, not how strong they are. Only
+  the four contradiction rules C1–C4 are checked.
+- **Radar order is a convention.** RADAR-1 ranks by a stated signal order with runnable items first; it is not an estimate of
+  scientific value.
+- **Experiments say what ran, not what is true.** A met criterion means the stated criterion held for the tried settings.
+  Negative controls need a *different* fixture without the effect: with two fixtures, syn-var-1 has no motion control and
+  syn-hpm-1 no variability control (reported as not available). Robustness covers six bound settings only.
+- **Missions do not enforce task order.** Tasks are listed in a recommended order; each is checked independently.
+- **Connectors are previews.** All four services are refused here; previews show the exact request the acquisition code
+  would send. No archive response has been received in this release.
+- **Knowledge graph.** KG-1 links only saved records and sessions in this installation (or browser), by five stored-fact rules.
+- **Figures.** FIG-2 exports SVG only; no PDF writer was available that could be validated, so none is offered. Axis ranges are
+  set by the data.
+- **Static preview.** Copilot answers are recorded for one question per intent; when your wording differs the answer says which
+  question was recorded. Custom experiments, provenance re-runs and connector previews need the local server.
+- **Catalogue.** 64 Phase 6 concepts are deferred, 1 blocked (dependency audit: PyPI/OSV refused) and 5 out of scope; see
+  [PHASE6_CATALOGUE.md](PHASE6_CATALOGUE.md). Group assignments are the developer's judgement.
+
 ## Product
 
 - Single-user: no accounts, and saved investigations are visible to anyone who can reach the server.
 - Investigations are cached in server memory. A restart forgets unsaved runs, but saved records reopen and replay.
 - The evidence guard is heuristic. It checks numbers, dates, wavelengths, identifiers, uncertainties, sources, tool use, causal and certainty wording, and synthetic labelling against tool outputs. It does not understand meaning, so a sentence that combines correct numbers misleadingly can still pass.
-- The local assistant answers with fixed templates. It routes questions by keywords and cannot answer arbitrary questions.
+- The local assistant answers with fixed templates. It routes questions by keywords (15 intents) and cannot answer arbitrary questions.

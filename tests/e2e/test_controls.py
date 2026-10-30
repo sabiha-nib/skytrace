@@ -270,6 +270,32 @@ def test_h_copilot_controls(app):
         app.locator(".msg.bot .answer").nth(2).wait_for(timeout=60000)
 
 
+def test_h2_copilot_sources_drafts_and_plan(app):
+    """Copilot 2.0: each answer names its source; a draft goes to the notebook as an assistant draft; a plan question
+    hands the exact question to the Planner."""
+    app.fill("#ask-input", "Which evidence is still missing?")
+    app.keyboard.press("Enter")
+    mode = app.locator(".msg.bot .mode", has_text="source: deterministic local logic").last
+    mode.wait_for(timeout=60000)
+    assert app.locator(".msg.user .mode", has_text="user-authored content").count() >= 1
+    assert "contradiction" in app.locator(".msg.bot .answer").last.text_content()
+    app.locator(".msg.bot button", has_text="Add to notebook as draft").last.click()
+    app.locator("#toast", has_text="assistant draft").wait_for()
+    q = "How would I check whether the dimming is real?"
+    app.fill("#ask-input", q)
+    app.keyboard.press("Enter")
+    btn = app.locator(".msg.bot button", has_text="Plan this question in the Planner").last
+    btn.wait_for(timeout=60000)
+    if app.mode == "static":
+        assert app.locator(".msg.bot .recorded-q").last.is_visible()
+    btn.click()
+    app.locator("#ws-planner").wait_for(state="visible")
+    app.locator("#plan-question").wait_for()
+    assert app.locator("#plan-question").input_value() == q
+    app.locator("button[data-ws='notebook']").click()
+    app.locator("#ws-notebook .nb-block", has_text="assistant draft").first.wait_for(timeout=10000)
+
+
 def test_i_narrow_copilot_overlay_and_escape(app):
     app.set_viewport_size({"width": 820, "height": 1000})
     toggle = app.locator("#copilot-toggle")
@@ -554,6 +580,10 @@ def test_s2_planner_plans_runs_and_persists(app):
     app.locator("#command-body h3", has_text="Pending research tasks").wait_for(timeout=30000)
     app.click(".nav button[data-ws=planner]")
     app.locator(".plan-step[data-step=inspect] .step-st", has_text="completed").wait_for(timeout=30000)
+    # planning the same question again stores a new revision; the earlier one is kept in the session
+    app.fill("#plan-question", "Could this source have changed between the two recorded observation epochs?")
+    app.click("#plan-go")
+    app.locator("#plan-canvas .plan-head h3", has_text="revision 2").wait_for(timeout=30000)
 
 
 def test_s3_quality_matrix_metadata_sequences(app):
@@ -702,6 +732,18 @@ def test_s8_experiments_and_workflows(app):
     assert app.locator("#wf-log td.wf-failed").count() == 0
     app.locator("#data-pill", has_text="Synthetic").wait_for()
     pw.expect(app.locator("#target-select")).to_have_value("syn-var-1")
+    # cancellation stops before the next step and keeps completed items; retry runs only what did not complete.
+    # (Server mode: there each analysis takes long enough to cancel; the static preview finishes a run too fast.)
+    if app.mode == "server":
+        app.click("#wf-run")
+        app.click("#wf-run")                                 # confirm
+        pw.expect(app.locator("#wf-cancel")).to_be_enabled(timeout=30000)
+        app.click("#wf-cancel")
+        pw.expect(app.locator("#wf-run")).to_be_enabled(timeout=180000)
+        assert app.locator("#wf-log td.wf-cancelled").count() >= 1
+        app.locator("#wf-log button", has_text="Retry failed or cancelled items").click()
+        app.locator("#wf-log td.wf-completed").nth(3).wait_for(timeout=180000)
+        pw.expect(app.locator("#wf-log td.wf-cancelled")).to_have_count(0, timeout=180000)
 
 
 def test_s9_sessions_dialog_export_import(app, tmp_path):
@@ -721,6 +763,11 @@ def test_s9_sessions_dialog_export_import(app, tmp_path):
     app.locator("#toast", has_text="Import refused").wait_for(timeout=30000)
     assert app.locator("#sessions-body tbody tr").count() >= 2
     app.locator("#sessions-body td.status-ok").first.wait_for()
+    n = app.locator("#sessions-body tbody tr").count()
+    app.click("#session-branch")
+    app.locator("#toast", has_text="original session is unchanged").wait_for(timeout=30000)
+    app.locator("#sessions-body tbody tr").nth(n).wait_for()
+    assert app.locator("#session-btn .session-name").text_content().startswith("Branch of")
     app.keyboard.press("Escape")
     app.locator("#sessions").wait_for(state="hidden")
 
@@ -737,6 +784,8 @@ def test_s10_figure_studio(app):
         app.click("#fig-export-svg")
     svg = Path(d.value.path()).read_text()
     assert "<metadata>" in svg and "SYNTHETIC TEST DATA" in svg and "zhist" in svg
+    import xml.etree.ElementTree as ET
+    assert ET.fromstring(svg).tag.endswith("svg")                 # the exported file parses as SVG
     app.locator("#kg h3", has_text="Knowledge graph").wait_for()
 
 

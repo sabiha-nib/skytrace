@@ -78,8 +78,15 @@ function measurementsOf(rec) {
 
 // ------------------------------------------------------------------ copilot (precomputed local-assistant answers)
 // Same routing as src/skytrace/ai/local.py::_intent; the local assistant's answer depends only on the intent and on
-// observation keys named in the question, so keyless questions get exactly the server's answer.
-const INTENTS = [["capabilities", /what can you|capabilit|which tools|what questions can|able to do|what can skytrace/], ["alignment", /align|registr|plate|astrometric frame/], ["compat", /compatib|wavelength|match/],
+// observation keys named in the question, so keyless questions get exactly the server's answer. The exception is the
+// "plan" intent, whose plan depends on the question's wording: the copilot shows which question was recorded and
+// offers to plan the exact question in the Planner (PLAN-1 runs in the browser).
+const INTENTS = [["capabilities", /what can you|capabilit|which tools|what questions can|able to do|what can skytrace/],
+  ["draft", /\bdraft\b|notebook|write (?:a|up|me) (?:a )?(?:note|summary|paragraph)/],
+  ["plan", /\bplan\b|how (?:would|should|could|do) i (?:test|check|find out|establish)|what steps|step[- ]by[- ]step/],
+  ["quality", /data quality|quality check|integrity|corrupt|data problem/],
+  ["missing", /missing|what evidence|evidence gap|contradict|incomplete|ledger/],
+  ["hypotheses", /hypothes|explanation|viable|alternative/], ["alignment", /align|registr|plate|astrometric frame/], ["compat", /compatib|wavelength|match/],
   ["excluded", /exclud|reject|why was|flag/], ["gaia", /gaia|catalog|proper motion|motion/],
   ["uncertainty", /uncertain|error bar|limitation|largest/], ["next", /next|should i|investigate|follow/],
   ["support", /support|which observations|evidence for/], ["changed", /chang|vary|variab|differ|bright|dim/]];
