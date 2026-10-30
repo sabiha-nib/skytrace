@@ -1,3 +1,76 @@
+# Test report — v0.6.0 (2026-10-30)
+
+Statuses: **PASS** (executed, met), **FAIL** (executed, not met), **BLOCKED** (could not be executed here; the reason is
+named), **NOT RUN** (not attempted).
+
+## Gates (v0.6.0)
+
+| # | Gate | Command / evidence | Status |
+|---|---|---|---|
+| G1 | Unit, integration, robustness, parity tests | `python -m pytest` (via `verify.py`) → **269 passed, 2 skipped** (astropy not installed); baseline at 0.5.0 was 225 passed — no test removed | PASS |
+| G2 | Every control, both modes, desktop/tablet/phone widths | `pytest -m e2e tests/e2e` → **73 passed** (31 control steps × 2 modes + 11-step journey); baseline 51 | PASS |
+| G3 | Browser ports equal Python | adds SKY-CANON-1 (number spelling, key order, refusals), SCHEMA-1, session validation and hash, PLAN-1, MISSION-1, WF-1 and the 15-intent copilot routing to the 0.5 parity set | PASS |
+| G4 | Known-answer and rule tests of the Phase 6 methods | `test_research_os.py` (14: matrix = logged decisions, sequences, duplicates, DQ with injected defects, ledger, radar ranking, planner plans, missions, workflows, experiments incl. negative control, connectors send nothing, Retry-After bound, registry consistency), `test_research_session.py` (7), `test_notebook_package.py`, `test_copilot2.py` (12) | PASS |
+| G5 | Whole-system verification | `python scripts/verify.py --e2e` → **VERIFIED 18/18**, 4 warnings (no astropy, no real bundles, no Meta key, smoke test never run) | PASS |
+| G6 | Static preview integrity | `verify.py`: 157 files match `PREVIEW_MANIFEST.json` | PASS |
+| G7 | Provenance of the fixture investigations | `verify.py`: 10 checks per fixture | PASS |
+| G8 | Catalogue consistency | `test_feature_catalogue.py` (0.5, unchanged) and `test_phase6_catalogue.py`: 300 brief concepts in 30 domains, 309 distinct, synonyms point to counted concepts, every cited file and test function exists, deferred/out-of-scope items cite nothing, generated files current | PASS |
+| G9 | Accessibility (automated) | `test_accessibility.py` (contrast of every text token; reduced motion disables animation); e2e `test_y` (accessible names over all workspaces and the session box), `test_k` (focus return, Alt+1…9), `test_r` (no horizontal scroll in nine workspaces at 820 and 390 px), sessions dialog Escape and focus trap (`s9`) | PASS |
+| G10 | Accessibility with a screen reader | — | NOT RUN |
+| G11 | Performance measured | `python scripts/measure_performance.py` → `docs/performance.json` (below) | PASS |
+| G12 | Real SPHEREx acquisition and live archive tests | `diagnose_environment.py` re-run 2026-10-30: IRSA SIA/TAP, SIMBAD, Gaia, Meta, PyPI, npm → proxy 403. `pytest -m live tests/live` → 2 failed, 2 errors, each `proxy_refused (proxy answered 403 to CONNECT)` | BLOCKED |
+| G13 | Native reader vs astropy on a real SPHEREx file | needs network and astropy (PyPI 403) | BLOCKED |
+| G14 | Live Meta Model API call | no key in the environment; the API host is refused (403) | BLOCKED |
+| G15 | Dockerfile build | base images cannot be pulled | NOT RUN |
+| G16 | Hosted preview opened after republishing | see the release section below | see below |
+| G17 | Release artifacts | `scripts/make_release.py` → see the release section below; 0.4.0 and 0.5.0 artifacts untouched | see below |
+
+## New tests in v0.6
+
+Unit/API: `test_research_session.py` (7, incl. Node parity), `test_research_os.py` (14), `test_notebook_package.py` (1),
+`test_copilot2.py` (12), `test_phase6_catalogue.py` (4), `test_accessibility.py::test_reduced_motion_disables_animation`,
+four new tool-contract cases (one per new tool), intent-routing parity extended to the five new intents,
+`integration/test_api.py::test_phase6_research_planner_sessions_experiments_connectors`. Two assertions changed because the
+facts changed: the registry version (CAPREG-1 → CAPREG-2) and the tool count (12 → 16).
+
+Browser (both modes, `e2e/test_controls.py`): `s1` Command Center, session and mission progress; `s2` planner plans, runs,
+needs-review, refusal, persistence across reload, revision 2; `s3` quality checks, matrix → metadata diff, coverage and
+sequences; `s4` connectors (server: request preview; static: refusal); `s5` radar; `s6` ledger inspectors; `s7` notebook
+blocks, versions, undo, exports; `s8` experiments and workflows (server mode also: cancel, then retry only the rest); `s9`
+sessions export, verified import, tampered import refused, branch; `s10` figure studio (exported SVG parses); `h2` copilot
+source labels, notebook draft, plan hand-off (static: the recorded question is disclosed). `test_k`, `test_r`, `test_y` were
+extended to the new workspaces.
+
+## Performance (v0.6.0; this machine, 2 CPUs, median of 3; `docs/performance.json`)
+
+| Measurement | Server mode | Static preview |
+|---|---:|---:|
+| Page load | 0.221 s | 0.225 s |
+| First result (server: runs the analysis; preview: loads the precomputed run) | 5.191 s | 0.431 s |
+| Command Center first render | 0.096 s | 0.098 s |
+| Planner: plan shown after *Plan* | 0.095 s | 0.076 s |
+| Data Quality first render | 0.052 s | 0.051 s |
+| Evidence Ledger (graph) first render | 0.090 s | 0.084 s |
+| Discovery Radar first render | 0.088 s | 0.096 s |
+| Notebook first render | 0.062 s | 0.061 s |
+| Experiment Studio first render | 0.073 s | 0.046 s |
+| Discovery Engine / Hypothesis Arena / Uncertainty tab | 0.077 / 0.051 / 0.078 s | 0.124 / 0.065 / 0.078 s |
+
+Server API, syn-var-1 / syn-hpm-1: analysis 4.427 / 3.807 s; research report (compatibility, quality, ledger, radar; first,
+uncached call) 0.067 / 0.058 s; plan 0.003 / 0.002 s; discovery report 0.009 / 0.010 s; package 0.058 / 0.058 s;
+stability check 27.3 / 23.7 s. Static preview: 158 files, 16.8 MB. The analysis pipeline is unchanged since 0.5 (2.6 s
+measured then); the slower times were measured on the same 2-CPU container under different load and are not attributed to
+Phase 6, whose readers add the listed milliseconds.
+
+## Screenshots (v0.6)
+
+`docs/screenshots/phase6-command-center.png`, `phase6-command-center-mobile.png`, `phase6-planner.png`,
+`phase6-data-quality.png`, `phase6-compatibility-matrix.png`, `phase6-evidence-ledger.png`, `phase6-claim-inspector.png`,
+`phase6-discovery-radar.png`, `phase6-experiment-studio.png`, `phase6-notebook.png` (from the static preview,
+`python scripts/phase6_screenshots.py`).
+
+---
+
 # Test report — v0.5.0 (2026-10-30)
 
 Statuses: **PASS** (executed, met), **FAIL** (executed, not met), **BLOCKED** (could not be executed here; the reason is

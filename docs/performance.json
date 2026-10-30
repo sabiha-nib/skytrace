@@ -5,36 +5,49 @@
   "cpus": 2
  },
  "runs_per_measurement": 3,
- "measured_at": "2026-10-29T18:09:57Z",
+ "measured_at": "2026-10-30T13:31:48Z",
  "server_api": {
   "syn-var-1": {
-   "analysis_s": 2.603,
-   "discovery_report_s": 0.007,
-   "evidence_graph_s": 0.006,
-   "package_zip_s": 0.034,
-   "package_zip_bytes": 110666,
-   "stability_check_s": 16.246
+   "analysis_s": 4.427,
+   "discovery_report_s": 0.009,
+   "evidence_graph_s": 0.008,
+   "package_zip_s": 0.058,
+   "package_zip_bytes": 117595,
+   "stability_check_s": 27.302,
+   "research_report_first_call_s": 0.067,
+   "plan_s": 0.003
   },
   "syn-hpm-1": {
-   "analysis_s": 2.705,
-   "discovery_report_s": 0.007,
-   "evidence_graph_s": 0.006,
-   "package_zip_s": 0.039,
-   "package_zip_bytes": 113739,
-   "stability_check_s": 15.341
+   "analysis_s": 3.807,
+   "discovery_report_s": 0.01,
+   "evidence_graph_s": 0.011,
+   "package_zip_s": 0.058,
+   "package_zip_bytes": 120666,
+   "stability_check_s": 23.706,
+   "research_report_first_call_s": 0.058,
+   "plan_s": 0.002
   }
  },
  "server_page": {
-  "page_load_s": 0.172,
-  "first_result_s": 3.611,
+  "page_load_s": 0.221,
+  "first_result_s": 5.191,
   "first_result_includes": "running the full analysis on the server",
-  "discovery_engine_first_render_s": 0.078,
-  "hypothesis_arena_render_s": 0.063,
-  "uncertainty_tab_render_s": 0.075
+  "discovery_engine_first_render_s": 0.077,
+  "hypothesis_arena_render_s": 0.051,
+  "uncertainty_tab_render_s": 0.078,
+  "phase6_first_render_s": {
+   "command_center": 0.096,
+   "planner_plan": 0.095,
+   "data_quality": 0.052,
+   "evidence_ledger": 0.09,
+   "discovery_radar": 0.088,
+   "notebook": 0.062,
+   "experiment_studio": 0.073
+  }
  },
  "static_preview": {
-  "files": 122,
-  "bytes": 12912827,
+  "files": 158,
+  "bytes": 16767937,
   "largest_files": [
    [
     1162899,
@@ -59,11 +72,20 @@
   ]
  },
  "static_page": {
-  "page_load_s": 0.151,
-  "first_result_s": 0.286,
+  "page_load_s": 0.225,
+  "first_result_s": 0.431,
   "first_result_includes": "loading the precomputed default run",
-  "discovery_engine_first_render_s": 0.098,
-  "hypothesis_arena_render_s": 0.068,
-  "uncertainty_tab_render_s": 0.072
+  "discovery_engine_first_render_s": 0.124,
+  "hypothesis_arena_render_s": 0.065,
+  "uncertainty_tab_render_s": 0.078,
+  "phase6_first_render_s": {
+   "command_center": 0.098,
+   "planner_plan": 0.076,
+   "data_quality": 0.051,
+   "evidence_ledger": 0.084,
+   "discovery_radar": 0.096,
+   "notebook": 0.061,
+   "experiment_studio": 0.046
+  }
  }
 }
