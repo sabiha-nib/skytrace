@@ -40,9 +40,14 @@ def specs() -> dict:
             "workflow_templates": workflows.TEMPLATES, "action_inputs": {a["id"]: a["inputs"] for a in capabilities.ACTIONS},
             "planner": planner.SPEC, "missions": missions.MISSIONS, "experiment_templates": experiments.TEMPLATES,
             "experiment_max_runs": experiments.MAX_RUNS, "block_types": session.BLOCK_TYPES, "ref_kinds": session.REF_KINDS,
-            "step_status": session.STEP_STATUS, "citations": citations(), "methods": {"session": session.METHOD, "canon": "SKY-CANON-1", "schema": schema.METHOD,
+            "step_status": session.STEP_STATUS, "citations": citations(), "frontier": _frontier_specs(), "methods": {"session": session.METHOD, "canon": "SKY-CANON-1", "schema": schema.METHOD,
                                                            "planner": planner.METHOD, "missions": missions.METHOD, "workflows": workflows.METHOD,
                                                            "experiments": experiments.METHOD}}
+
+
+def _frontier_specs() -> dict:
+    from . import frontier
+    return frontier.specs()
 
 
 def citations() -> list[dict]:

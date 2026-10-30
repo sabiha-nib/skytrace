@@ -64,6 +64,12 @@ const serverApi = {
   deleteSession: (sid) => req(`/api/sessions/${sid}`, { method: "DELETE" }),
   importSession: (s) => req("/api/sessions/import", { method: "POST", body: JSON.stringify({ session: s }) }),
   sessionFromRecord: (rid) => req(`/api/sessions/from-record/${rid}`, { method: "POST", body: "{}" }),
+  // Phase 7
+  frontier: (iid, stability) => req(`/api/investigations/${iid}/frontier`, { method: "POST", body: JSON.stringify(stability ? { stability } : {}) }),
+  reproduce: (iid) => req(`/api/investigations/${iid}/reproduce`, { method: "POST", body: "{}" }),
+  counterfactual: (tid, iid, scenario) => req("/api/counterfactuals", { method: "POST", body: JSON.stringify({ target_id: tid, baseline_investigation_id: iid, scenario }) }),
+  synthetic: (scenario) => req("/api/synthetic", { method: "POST", body: JSON.stringify({ scenario }) }),
+  design: (truth, schedules) => req("/api/observation-design", { method: "POST", body: JSON.stringify({ truth, schedules }) }),
 };
 
 export const api = STATIC ? (await import("./static/backend.js")).staticApi : serverApi;

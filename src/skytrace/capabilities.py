@@ -1,4 +1,4 @@
-"""Capability registry (CAPREG-2, extends CAPREG-1): what SKYTRACE can actually do, in one place.
+"""Capability registry (CAPREG-3, extends CAPREG-1/2; CAPREG-3 adds the Phase 7 capabilities and an action permission class): what SKYTRACE can actually do, in one place.
 
 Every entry names the implemented method versions it relies on, its inputs and accepted parameter ranges, its
 outputs, its limitations, the tests that exercise it, and where it runs. The copilot, the Discovery engine and the
@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from . import analysis
 
-REGISTRY_VERSION = "CAPREG-2"
+REGISTRY_VERSION = "CAPREG-3"
 
 
 def _params(*names):
@@ -163,6 +163,49 @@ CAPABILITIES += [
      "tests": ["tests/unit/test_research_os.py", "tests/unit/test_acquire.py"], "execution": "local"},
 ]
 
+# ------------------------------------------------------------------ CAPREG-3: Phase 7 capabilities
+CAPABILITIES += [
+    {"id": "possibility", "name": "Scientific Possibility Engine and Discovery Horizon", "methods": ["SPE-1", "HORIZON-1"],
+     "inputs": ["record", "discovery report", "research report", "information analysis", "challenges"], "parameters": {},
+     "outputs": ["six inspectable layers", "research opportunity cards with feasibility and stated ranking", "opportunity map"],
+     "limitations": ["identifies opportunities for investigation, never findings", "ranking is a stated order, not a value"],
+     "tests": ["tests/unit/test_frontier.py"], "execution": "local"},
+    {"id": "adversarial", "name": "Adversarial Science Lab", "methods": ["ASL-1"],
+     "inputs": ["record", "hypothesis tests", "quality checks", "ledger", "uncertainty", "stability (optional)"], "parameters": {},
+     "outputs": ["challenges: issue, evidence, rule, severity class, why, verification, status"],
+     "limitations": ["raises a challenge only when a stated rule fires; open does not mean wrong"],
+     "tests": ["tests/unit/test_frontier.py"], "execution": "local"},
+    {"id": "information", "name": "Information analysis (qualitative)", "methods": ["INFO-1"],
+     "inputs": ["hypothesis tests"], "parameters": {},
+     "outputs": ["candidate tests ranked by feasibility and the viable explanations they bear on"],
+     "limitations": ["no probability model exists, so no numerical information gain is computed"],
+     "tests": ["tests/unit/test_frontier.py"], "execution": "local"},
+    {"id": "review", "name": "Review Room", "methods": ["REVIEW-1"],
+     "inputs": ["record", "quality", "ledger", "hypotheses", "uncertainty", "reproducibility audit", "challenges", "session"], "parameters": {},
+     "outputs": ["findings by role, each citing a record, rule or missing prerequisite"],
+     "limitations": ["software rule sets, not human reviewers"], "tests": ["tests/unit/test_frontier.py"], "execution": "local"},
+    {"id": "reproducibility", "name": "Reproducibility Challenge", "methods": ["REPRO-1", "PROVCHECK-1"],
+     "inputs": ["record", "bundle", "session"], "parameters": {},
+     "outputs": ["eleven checks and a verdict by a stated rule"],
+     "limitations": ["re-execution (R9) needs the server", "exact hash equality; does not validate the method itself"],
+     "tests": ["tests/unit/test_frontier.py"], "execution": "server"},
+    {"id": "twins", "name": "Astro-Twins", "methods": ["TWIN-1"],
+     "inputs": ["record", "discovery index", "manifest", "target", "scenario", "session"], "parameters": {},
+     "outputs": ["versioned, hashed records of an observation, target, analysis, scenario or investigation", "structural comparison"],
+     "limitations": ["computational records, not physical models of objects"], "tests": ["tests/unit/test_frontier.py"], "execution": "local"},
+    {"id": "counterfactual", "name": "Counterfactual Universe Lab", "methods": ["CF-1", "ASSESS-2"],
+     "inputs": ["baseline run", "one stated change"], "parameters": {},
+     "outputs": ["baseline and counterfactual outcomes side by side, changed metrics, the change that caused them"],
+     "limitations": ["only bounded, stated changes", "a scenario is not an observation and never alters the original"],
+     "tests": ["tests/unit/test_frontier.py"], "execution": "server"},
+    {"id": "synthetic_observatory", "name": "Synthetic Observatory and Observation Design Lab", "methods": ["SYNOBS-1", "OBSDES-1"],
+     "inputs": ["bounded scenario (motion, brightness by pass, noise, background, gain, reference errors, schedule, seed)"], "parameters": {},
+     "outputs": ["labelled SYNTHETIC bundle", "pipeline output against ground truth", "hypothetical schedule comparison"],
+     "limitations": ["illustrative instrument model, not SPHEREx calibration", "agreement on generated data does not validate real-data performance",
+                     "schedules are hypothetical; no telescope is scheduled"],
+     "tests": ["tests/unit/test_frontier.py"], "execution": "server"},
+]
+
 # Fields every capability declares (CAPREG-2): description, preconditions (facts), dependencies (capabilities),
 # validation status and the data types it applies to.
 _V_KNOWN = "known-answer tests on synthetic fixtures"
@@ -193,9 +236,18 @@ _EXTRA = {
     "missions": ("Guides a sequence of tasks whose completion is read from the session.", [], ["session"], "parity-tested (Python/browser)"),
     "workflows": ("Validates and runs declared multi-step, multi-target workflows.", [], ["planner"], "unit-tested"),
     "connectors": ("Describes and validates archive queries against documented interfaces.", [], [], "unit-tested; live use blocked"),
+    "possibility": ("Lays an investigation out in six layers and lists research opportunities.", ["has_run"], ["discovery", "ledger", "adversarial", "information"], "unit-tested on both fixtures"),
+    "adversarial": ("Challenges the investigation's own interpretation with documented rules.", ["has_run"], ["hypotheses", "quality", "ledger"], "unit-tested on both fixtures"),
+    "information": ("Ranks open tests by how many viable explanations they bear on.", ["has_run"], ["hypotheses"], "unit-tested"),
+    "review": ("Runs five software review roles over the investigation.", ["has_run"], ["quality", "ledger", "reproducibility"], "unit-tested"),
+    "reproducibility": ("Audits whether the investigation can be reproduced, and re-executes it on the server.", ["has_run"], ["provenance"], "tamper and replay tests"),
+    "twins": ("Builds hashed, comparable records of observations, targets, analyses, scenarios and investigations.", ["has_run"], [], "integrity and parity tests"),
+    "counterfactual": ("Re-runs or re-assesses the analysis under one stated change and compares with the baseline.", ["has_target_data", "server_or_precomputed"], ["assessment"], "isolation and reproduction tests"),
+    "synthetic_observatory": ("Generates labelled synthetic scenarios and compares the pipeline with their ground truth.", ["server_or_precomputed"], ["assessment"], "known-answer and determinism tests"),
 }
 _DATA_TYPES = {"archive": ["target name"], "session": ["research session"], "planner": ["research question"],
-               "missions": ["research session"], "workflows": ["workflow document"], "connectors": ["archive query"]}
+               "missions": ["research session"], "workflows": ["workflow document"], "connectors": ["archive query"],
+               "synthetic_observatory": ["synthetic scenario"], "counterfactual": ["investigation record", "synthetic bundle", "archive bundle"]}
 for _c in CAPABILITIES:
     _d, _pre, _deps, _val = _EXTRA[_c["id"]]
     _c.setdefault("description", _d)
@@ -260,6 +312,37 @@ ACTIONS: list[dict] = [
      "preconditions": ["network"], "produces": ["has_target_data"], "confirm": True, "cost": "minutes; downloads files",
      "static": "unavailable", "inputs": {"t": "obj", "f": {"target": [{"t": "str", "min": 1, "max": 64}, True]}, "extra": False}},
 ]
+ACTIONS += [
+    {"id": "run_counterfactual", "capabilities": ["counterfactual"], "title": "Run a counterfactual scenario",
+     "preconditions": ["has_target_data", "server_or_precomputed"], "produces": [], "confirm": True, "cost": "seconds (re-assessment) to ~10 s (re-run)",
+     "static": "precomputed", "inputs": {"t": "obj", "f": {"scenario": [{"t": "json", "max_bytes": 4000, "depth": 4}, True]}, "extra": False}},
+    {"id": "challenge_interpretation", "capabilities": ["adversarial"], "title": "Challenge the interpretation", "preconditions": ["has_run"],
+     "produces": [], "confirm": False, "cost": "instant", "static": "precomputed", "inputs": {"t": "obj", "f": {}, "extra": False}},
+    {"id": "rank_tests", "capabilities": ["information"], "title": "Rank the open tests", "preconditions": ["has_run"],
+     "produces": [], "confirm": False, "cost": "instant", "static": "precomputed", "inputs": {"t": "obj", "f": {}, "extra": False}},
+    {"id": "review_investigation", "capabilities": ["review"], "title": "Run the Review Room", "preconditions": ["has_run"],
+     "produces": [], "confirm": False, "cost": "instant", "static": "precomputed", "inputs": {"t": "obj", "f": {}, "extra": False}},
+    {"id": "reproduce", "capabilities": ["reproducibility"], "title": "Run the Reproducibility Challenge (re-execute)", "preconditions": ["has_run", "server"],
+     "produces": [], "confirm": True, "cost": "a few seconds (re-executes the pipeline)", "static": "precomputed", "inputs": {"t": "obj", "f": {}, "extra": False}},
+    {"id": "run_synthetic", "capabilities": ["synthetic_observatory"], "title": "Generate and analyse a synthetic scenario",
+     "preconditions": ["server_or_precomputed"], "produces": [], "confirm": True, "cost": "about 5 s (writes a synthetic bundle, runs the analysis)",
+     "static": "precomputed", "inputs": {"t": "obj", "f": {"scenario": [{"t": "json", "max_bytes": 4000, "depth": 4}, True]}, "extra": False}},
+]
+# Permission class of each action (Research Autopilot): inspect (reads recorded results), analysis (re-executes or
+# generates locally), export (writes a file for the user), network (contacts external services). Autopilot levels:
+# inspect only < plan only < execute approved local analysis < execute approved batch workflows < export results.
+PERMISSION = {"run_analysis": "analysis", "run_stability": "analysis", "compare_pair": "inspect", "inspect_pair": "inspect",
+              "build_sequences": "inspect", "evaluate_hypotheses": "inspect", "decompose_uncertainty": "inspect", "check_quality": "inspect",
+              "inspect_ledger": "inspect", "scan_radar": "inspect", "verify_provenance": "analysis", "run_experiment": "analysis",
+              "build_package": "export", "acquire_data": "network", "run_counterfactual": "analysis", "challenge_interpretation": "inspect",
+              "rank_tests": "inspect", "review_investigation": "inspect", "reproduce": "analysis", "run_synthetic": "analysis"}
+for _a in ACTIONS:
+    _a["permission"] = PERMISSION[_a["id"]]
+AUTOPILOT_LEVELS = [{"id": "inspect", "name": "Inspect only", "allows": ["inspect"], "plans": False},
+                    {"id": "plan", "name": "Plan only", "allows": ["inspect"], "plans": True},
+                    {"id": "local", "name": "Execute approved local analysis", "allows": ["inspect", "analysis"], "plans": True},
+                    {"id": "batch", "name": "Execute approved batch workflows", "allows": ["inspect", "analysis"], "plans": True, "batch": True},
+                    {"id": "export", "name": "Export results", "allows": ["inspect", "analysis", "export"], "plans": True, "batch": True}]
 ACTION_IDS = {a["id"] for a in ACTIONS}
 
 
@@ -274,7 +357,7 @@ def registry(availability: dict | None = None) -> dict:
                     "availability_note": {"local": "runs wherever the record is present",
                                           "server": "needs the running Skytrace server" + ("" if ok else " (not available here)"),
                                           "network": "needs external services" + (" (blocked here)" if ok is False else "")}[ex]})
-    return {"version": REGISTRY_VERSION, "capabilities": out, "actions": ACTIONS, "facts": FACTS}
+    return {"version": REGISTRY_VERSION, "capabilities": out, "actions": ACTIONS, "facts": FACTS, "autopilot_levels": AUTOPILOT_LEVELS}
 
 
 def method_ids() -> set[str]:

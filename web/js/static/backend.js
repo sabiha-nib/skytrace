@@ -76,6 +76,15 @@ function measurementsOf(rec) {
   return m;
 }
 
+// Scenario keys for the recorded Phase 7 results (the same canonical text build_static.py uses).
+export function cfKey(sc) { return canonKey({ kind: sc.kind, change: sc.change }); }
+export function synKey(sc) { return canonKey({ seed: sc.seed, pm_mas_yr: sc.pm_mas_yr, passes: sc.passes, target_flux_scale: sc.target_flux_scale ?? null }); }
+function canonKey(o) {
+  const enc = (v) => Array.isArray(v) ? "[" + v.map(enc).join(",") + "]" : v && typeof v === "object"
+    ? "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + enc(v[k])).join(",") + "}" : JSON.stringify(v);
+  return enc(o);
+}
+
 // ------------------------------------------------------------------ copilot (precomputed local-assistant answers)
 // Same routing as src/skytrace/ai/local.py::_intent; the local assistant's answer depends only on the intent and on
 // observation keys named in the question, so keyless questions get exactly the server's answer. The exception is the
@@ -266,6 +275,31 @@ export const staticApi = {
     const key = cfg.template + (cfg.question ? `:${cfg.question}` : "");
     if (!all[key]) throw new PreviewLimit(`the ${cfg.template} experiment is not precomputed in this preview`);
     return { ...all[key], recorded_at_build: true };
+  },
+  // Phase 7: recorded by the server at build time
+  frontier: (iid) => getJSON(`t/${runTarget.get(iid)}/run/${iid}/frontier.json`),
+  async reproduce(iid) {
+    const r = await getJSON(`t/${runTarget.get(iid)}/run/${iid}/reproduce.json`).catch(() => null);
+    if (!r) throw new PreviewLimit("the re-execution audit is recorded for the default run only in this preview; run python run.py for others.");
+    return { ...r, recorded_at_build: true };
+  },
+  async counterfactual(tid, iid, scenario) {
+    const runsList = await runs(tid);
+    if (!runsList.find((x) => x.iid === iid)?.default) throw new PreviewLimit("counterfactuals are precomputed against the default run only in this preview.");
+    const all = await getJSON(`t/${tid}/counterfactuals.json`);
+    const hit = all.find((x) => x.key === cfKey(scenario));
+    if (!hit) throw new PreviewLimit("this scenario is not precomputed in the preview; choose one of the listed scenarios or run python run.py.");
+    return { ...hit.result, recorded_at_build: true };
+  },
+  async synthetic(scenario) {
+    const all = await getJSON("synthetic.json");
+    const hit = all.find((x) => x.key === synKey(scenario));
+    if (!hit) throw new PreviewLimit("only the template scenarios are precomputed in the preview; custom scenarios generate files and need python run.py.");
+    return { ...hit.result, recorded_at_build: true };
+  },
+  async design() {
+    const d = await getJSON("design.json");
+    return { ...d, recorded_at_build: true };
   },
   async provenance() { throw new PreviewLimit("provenance verification re-reads the stored files and re-runs the analysis: it needs the local server (python run.py)."); },
   connectors: () => getJSON("connectors.json"),

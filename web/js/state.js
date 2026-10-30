@@ -25,6 +25,7 @@ export const state = {
   specs: null,              // schemas, planner spec, missions, templates (served by the server or the preview)
   plan: null,               // the plan on the planner canvas (also stored in the session)
   sequence: null,           // {id, index} the multi-epoch sequence open in the Time Machine
+  frontier: null,           // {key, data}: SPE-1, HORIZON-1, ASL-1, INFO-1, REVIEW-1, REPRO-1, twins for the current investigation
 };
 
 /** Specification documents (fetched once). */
@@ -39,6 +40,17 @@ export async function getResearch() {
   const iid = state.inv.investigation_id;
   if (state.research?.iid !== iid) state.research = { iid, data: await api.research(iid) };
   return state.research.data;
+}
+
+/** Phase 7 report for the current investigation (fetched once per investigation and stability result). The server
+ *  computes it without session data; frontiercore.js applies the session-specific rules. */
+export async function getFrontier() {
+  if (!state.inv) return null;
+  const iid = state.inv.investigation_id;
+  const st = state.stability?.target === state.targetId ? state.stability.result : null;
+  const key = `${iid}|${st ? "stab" : ""}`;
+  if (state.frontier?.key !== key) state.frontier = { key, data: await api.frontier(iid, st) };
+  return state.frontier.data;
 }
 
 export function emptyContext() { return { question: null, question_text: "", hypotheses: [] }; }

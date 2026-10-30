@@ -65,13 +65,25 @@ def _outcome(question: str, category: str, statement: str, evidence: dict, crite
             "rules": RULES, "threshold_provenance": THRESHOLD_PROVENANCE}
 
 
+def thresholds_with(override: dict | None = None) -> dict:
+    """ASSESS-2 thresholds, optionally with explicit overrides (used only by counterfactual re-assessment, CF-1; the
+    analysis pipeline always uses T unchanged). Unknown keys are refused."""
+    if not override:
+        return T
+    bad = sorted(set(override) - set(T))
+    if bad:
+        raise ValueError(f"unknown threshold(s): {', '.join(bad)}")
+    return {**T, **override}
+
+
 def _finite(v) -> bool:
     return v is not None and isinstance(v, (int, float)) and math.isfinite(v)
 
 
 # ---------------------------------------------------------------------------- motion
 def assess_motion(motion: dict | None, catalogue: dict, n_plate_exposures: int, plate_rms: list[float],
-                  epoch_gaps_yr: list[float], fit_error: str | None = None) -> dict:
+                  epoch_gaps_yr: list[float], fit_error: str | None = None, thresholds: dict | None = None) -> dict:
+    Tt = thresholds_with(thresholds)
     pm_cat = math.hypot(catalogue.get("pmra", 0.0), catalogue.get("pmdec", 0.0))
     plx = (motion or {}).get("parallax") or {}
     lim = [("Annual parallax is removed with EPHEM-AA-LP-1; residual systematic ≤ "
@@ -79,27 +91,27 @@ def assess_motion(motion: dict | None, catalogue: dict, n_plate_exposures: int, 
             "Annual parallax is NOT modelled in this run (bounded by the catalogue parallax)."),
            "Chromatic PSF and distortion differences between wavelengths are absorbed per exposure by the plate solution only to first order.",
            "Gaussian centroids approximate the SPHEREx PSF (0.02 px floor added)."]
-    crit = [f"detection: |pm|/σ ≥ {T['motion_detect_sigma']}",
-            f"consistency: |measured − catalogue| ≤ {T['catalogue_consistency_sigma']}σ per axis (catalogue errors included)",
-            f"registration: median plate RMS < {T['registration_ratio']} × catalogue-predicted shift between visits",
-            f"minimum: {T['min_astrometric_exposures']} exposures with a usable target position and plate solution"]
+    crit = [f"detection: |pm|/σ ≥ {Tt['motion_detect_sigma']}",
+            f"consistency: |measured − catalogue| ≤ {Tt['catalogue_consistency_sigma']}σ per axis (catalogue errors included)",
+            f"registration: median plate RMS < {Tt['registration_ratio']} × catalogue-predicted shift between visits",
+            f"minimum: {Tt['min_astrometric_exposures']} exposures with a usable target position and plate solution"]
     inputs = {"n_plate_exposures": n_plate_exposures, "fit_kind": (motion or {}).get("fit_kind"),
               "catalogue_pm_mas_yr": pm_cat, "catalogue_source": (motion or {}).get("catalogue", {}).get("source")}
     if motion is None:
-        if n_plate_exposures >= T["min_astrometric_exposures"] and fit_error:
+        if n_plate_exposures >= Tt["min_astrometric_exposures"] and fit_error:
             return _outcome("motion", "measurement_failed",
                             f"The motion fit failed ({fit_error}). This is not evidence that the source is static.",
                             {"n_plate_exposures": n_plate_exposures, "error": fit_error}, crit, lim, inputs)
         return _outcome("motion", "insufficient_evidence",
                         f"Only {n_plate_exposures} exposure(s) have a usable target position and plate solution; at least "
-                        f"{T['min_astrometric_exposures']} are needed to measure motion.",
+                        f"{Tt['min_astrometric_exposures']} are needed to measure motion.",
                         {"n_plate_exposures": n_plate_exposures}, crit, lim, inputs)
     fit, cmp = motion["fit"], motion["comparison"]
     px, pe, sx, se = fit["pm_xi_mas_yr"], fit["pm_eta_mas_yr"], fit["sig_xi"], fit["sig_eta"]
     pm = math.hypot(px, pe)
     sig = math.hypot(sx * px, se * pe) / pm if pm > 0 else math.sqrt((sx ** 2 + se ** 2) / 2)
     snr = pm / sig if sig > 0 else 0.0
-    min_det = T["motion_detect_sigma"] * math.sqrt((sx ** 2 + se ** 2) / 2)
+    min_det = Tt["motion_detect_sigma"] * math.sqrt((sx ** 2 + se ** 2) / 2)
     med_rms = median(plate_rms) if plate_rms else float("nan")
     gaps = [g for g in epoch_gaps_yr if g > 0]
     typical_gap = median(gaps) if gaps else 0.0
@@ -111,8 +123,8 @@ def assess_motion(motion: dict | None, catalogue: dict, n_plate_exposures: int, 
           "reduced_chi2": fit["reduced_chi2"]}
     sens = {"min_detectable_pm_mas_yr_5sigma": min_det, "baseline_yr": fit["baseline_yr"],
             "note": "Motion smaller than this would not be detected by this data set."}
-    reg_limited = expected_step > 0 and _finite(med_rms) and med_rms >= T["registration_ratio"] * expected_step
-    if snr < T["motion_detect_sigma"]:
+    reg_limited = expected_step > 0 and _finite(med_rms) and med_rms >= Tt["registration_ratio"] * expected_step
+    if snr < Tt["motion_detect_sigma"]:
         if not cmp["consistent_within_3sigma"] and pm_cat >= min_det:
             if reg_limited:
                 return _outcome("motion", "registration_limited",
@@ -157,7 +169,8 @@ def pair_significance(p: dict, error_scale: float | None = None) -> tuple[float 
 
 
 def assess_variability(flux_pairs: list[dict], spectral_pairs: list[dict], n_pairs_considered: int,
-                       calcheck: dict | None = None) -> dict:
+                       calcheck: dict | None = None, thresholds: dict | None = None) -> dict:
+    Tt = thresholds_with(thresholds)
     calcheck = calcheck or {}
     lim = ["Aperture fluxes are not aperture-corrected; only matched pairs are compared.",
            "Per-pixel errors plus a reference-star calibration term; the CALCHECK scale corrects the error model "
@@ -165,8 +178,8 @@ def assess_variability(flux_pairs: list[dict], spectral_pairs: list[dict], n_pai
            "Unresolved neighbours contribute to every aperture flux."]
     crit = ["wavelength match: rule WLMATCH-2 (same detector, same release by default, |Δλ| + 2 nm ≤ 0.5 × bandwidth)",
             "calibration: PAIRDIFF-2 reference-normalised ratio (≥ 3 wavelength-matched reference stars)",
-            f"candidate: |z| ≥ {T['variability_z']} in at least one calibrated matched pair (after the CALCHECK scale)",
-            f"calibration-limited: uncalibrated |z| ≥ {T['variability_z']} only, or CALCHECK scatter > {T['calcheck_unreliable_scale']}"]
+            f"candidate: |z| ≥ {Tt['variability_z']} in at least one calibrated matched pair (after the CALCHECK scale)",
+            f"calibration-limited: uncalibrated |z| ≥ {Tt['variability_z']} only, or CALCHECK scatter > {Tt['calcheck_unreliable_scale']}"]
     cal_z, raw_z, frac = [], [], []
     for p in flux_pairs:
         z, calibrated = pair_significance(p, calcheck.get("error_scale"))
@@ -182,19 +195,19 @@ def assess_variability(flux_pairs: list[dict], spectral_pairs: list[dict], n_pai
           "max_abs_z_calibrated": max(cal_z) if cal_z else None,
           "max_abs_z_uncalibrated": max(raw_z) if raw_z else None,
           "max_abs_z_pairdiff1": max(raw_all) if raw_all else None,   # before reference calibration, all matched pairs
-          "n_calibrated_above_threshold": sum(z >= T["variability_z"] for z in cal_z),
-          "n_uncalibrated_above_threshold": sum(z >= T["variability_z"] for z in raw_z),
+          "n_calibrated_above_threshold": sum(z >= Tt["variability_z"] for z in cal_z),
+          "n_uncalibrated_above_threshold": sum(z >= Tt["variability_z"] for z in raw_z),
           "calcheck_status": calcheck.get("status"), "calcheck_scale": calcheck.get("error_scale"),
           "n_spectral_context_pairs": len(spectral_pairs),
           "max_abs_z_unmatched_wavelength": max(unm) if unm else None}
     inputs = {"n_flux_pairs": len(flux_pairs), "calibration_check": calcheck.get("method")}
     sens = {}
     if frac:
-        sens = {"min_detectable_fractional_change_5sigma": T["variability_z"] * median(frac),
-                "min_detectable_fractional_change_5sigma_best_pair": T["variability_z"] * min(frac),
+        sens = {"min_detectable_fractional_change_5sigma": Tt["variability_z"] * median(frac),
+                "min_detectable_fractional_change_5sigma_best_pair": Tt["variability_z"] * min(frac),
                 "note": "5σ change detectable in a typical (median) matched pair and in the most sensitive pair; "
                         "sensitivity differs by detector and wavelength"}
-    spectral_big = ev["max_abs_z_unmatched_wavelength"] is not None and ev["max_abs_z_unmatched_wavelength"] >= T["variability_z"]
+    spectral_big = ev["max_abs_z_unmatched_wavelength"] is not None and ev["max_abs_z_unmatched_wavelength"] >= Tt["variability_z"]
     if not cal_z and not raw_z:
         if spectral_big:
             return _outcome("variability", "spectral_difference_only",
@@ -204,7 +217,7 @@ def assess_variability(flux_pairs: list[dict], spectral_pairs: list[dict], n_pai
         return _outcome("variability", "insufficient_evidence",
                         "No wavelength-matched pair of usable measurements exists, so variability cannot be tested.",
                         ev, crit, lim, inputs, sens)
-    if (calcheck.get("error_scale") or 0) > T["calcheck_unreliable_scale"]:
+    if (calcheck.get("error_scale") or 0) > Tt["calcheck_unreliable_scale"]:
         return _outcome("variability", "calibration_limited",
                         f"Constant reference stars scatter {calcheck['error_scale']:.1f}× more than their stated errors, "
                         "so the error model is not reliable enough to test variability.", ev, crit, lim, inputs, sens)

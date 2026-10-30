@@ -148,7 +148,7 @@ def test_phase5_discovery_package_capabilities_and_vault(base):
     s = post(base, "/api/targets/syn-var-1/analyze", {"params": {}}).json()
     iid = s["investigation_id"]
     caps = get(base, "/api/capabilities").json()
-    assert caps["version"] == "CAPREG-2" and any(c["id"] == "archive" and c["available"] is False for c in caps["capabilities"])
+    assert caps["version"] == "CAPREG-3" and any(c["id"] == "archive" and c["available"] is False for c in caps["capabilities"])
     d = get(base, f"/api/investigations/{iid}/discovery").json()
     assert d["method"] == "DISC-1" and d["content_hash"] == s["record"]["content_hash"]
     assert {"inventory", "questions", "hypotheses", "uncertainty", "next_steps"} <= set(d)

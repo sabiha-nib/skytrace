@@ -21,6 +21,7 @@ option off the output bytes are identical to the v0.2 fixtures):
   ref_ruwe            RUWE written for all other reference stars (None = column absent)
   target_flux_scale   multiplies the target SED (low-S/N studies)
   psf_sigma_scale     multiplies the PSF width
+  generated_at        fixed provenance timestamp (used by the Synthetic Observatory so a scenario is byte-reproducible)
 """
 
 from __future__ import annotations
@@ -161,7 +162,8 @@ def build(spec: dict, out: Path | None = None) -> Path:
     flux_scale = float(spec.get("target_flux_scale") or 1.0)
     psf_scale = float(spec.get("psf_sigma_scale") or 1.0)
     files, observations = {}, []
-    prov = lambda note: {"provenance": synthetic(note).to_dict()}
+    fixed_t = spec.get("generated_at")   # SYNOBS-1: a fixed stamp so identical scenarios give identical bytes (not a clock reading)
+    prov = lambda note: {"provenance": {**synthetic(note).to_dict(), **({"retrieved_at": fixed_t} if fixed_t else {})}}
     passes = spec["passes"]
     for p_i, (mjd0, ybase) in enumerate(passes):
         for v_i in range(2):

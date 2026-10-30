@@ -29,7 +29,7 @@ MAX_BYTES = 1_000_000
 BLOCK_TYPES = ["heading", "paragraph", "observation", "measurement", "evidence", "hypothesis", "experiment", "figure",
                "warning", "parameters", "citation", "question", "conclusion"]
 REF_KINDS = ["observation", "measurement", "claim", "graph_node", "hypothesis", "user_hypothesis", "experiment",
-             "figure", "run", "dataset", "pair", "test"]
+             "figure", "run", "dataset", "pair", "test", "challenge", "scenario", "opportunity", "twin"]
 STEP_STATUS = ["suggested", "ready", "running", "completed", "blocked", "failed", "needs_review"]
 
 _REF = O({"kind": (S(enum=REF_KINDS), True), "id": (S(300, 1), True)})
@@ -73,6 +73,12 @@ SESSION_SCHEMA = O({
                       "status": (S(enum=["active", "completed", "abandoned"]), True),
                       "reviews": (A(O({"task_id": (S(40, 1), True), "note": (S(1000), True), "at": (ISO, True)}), 50), True)}), 20), True),
     "workflows": (A({"t": "json", "max_bytes": 10000, "depth": 5}, 20), False),
+    # v0.7 (optional, so 0.6 sessions stay valid): counterfactual scenarios (CF-1 results, compacted), synthetic scenarios
+    # (SYNOBS-1 summaries), causal diagrams (user-proposed edges with their labels) and autopilot runs (permission level, steps)
+    "scenarios": (A({"t": "json", "max_bytes": 20000, "depth": 6}, 40), False),
+    "synthetic": (A({"t": "json", "max_bytes": 12000, "depth": 6}, 30), False),
+    "causal": (A({"t": "json", "max_bytes": 6000, "depth": 5}, 30), False),
+    "autopilot": (A({"t": "json", "max_bytes": 12000, "depth": 6}, 20), False),
     "examined": (A(S(200, 1), 500), True),
     "history": (A(O({"seq": (INT(1, 10 ** 9), True), "at": (ISO, True), "kind": (S(40, 1, r"^[a-z_.]{1,40}$"), True),
                      "summary": (S(300), True), "ref": (OPT(S(300)), True)}), 2000), True),
