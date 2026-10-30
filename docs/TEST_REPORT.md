@@ -22,8 +22,19 @@ named), **NOT RUN** (not attempted).
 | G13 | Native reader vs astropy on a real SPHEREx file | needs network and astropy (PyPI 403) | BLOCKED |
 | G14 | Live Meta Model API call | no key in the environment; the API host is refused (403) | BLOCKED |
 | G15 | Dockerfile build | base images cannot be pulled | NOT RUN |
-| G16 | Hosted preview opened after republishing | 0.6.0 published as version 4 of the hosted artifact and opened in the built-in browser of the Claude desktop app (not signed in; the artifact is readable by link): page loaded with *Skytrace 0.6.0 · preview 70e3dc4*; Command Center, planner (plan, *Run 3 ready steps* → completed with results), copilot question with source label, *Add to notebook as draft* → two draft blocks in the notebook; only console error was the host's own `/api/account` 403. **Found a defect**: at 861–1180 px the top bar pushed *Run* and *Copilot* off-screen → fixed in 0.6.1 (see the release section) | PASS (0.6.0, with the defect found); 0.6.1: see below |
-| G17 | Release artifacts | `scripts/make_release.py` → see the release section below; 0.4.0 and 0.5.0 artifacts untouched | see below |
+| G16 | Hosted preview opened after republishing | 0.6.0 published as version 4 of the hosted artifact and opened in the built-in browser of the Claude desktop app (not signed in; the artifact is readable by link): page loaded with *Skytrace 0.6.0 · preview 70e3dc4*; Command Center, planner (plan, *Run 3 ready steps* → completed with results), copilot question with source label, *Add to notebook as draft* → two draft blocks in the notebook; only console error was the host's own `/api/account` 403. **Found a defect**: at 861–1180 px the top bar pushed *Run* and *Copilot* off-screen → fixed in 0.6.1 (see the release section) | PASS for 0.6.0 (defect found and fixed); 0.6.1 opened only as files (see below) |
+| G17 | Release artifacts | `scripts/make_release.py` → 0.6.0 and 0.6.1 archives with verified contents (release section below); 0.4.0 and 0.5.0 artifacts untouched | PASS |
+
+## Release (0.6.0, then 0.6.1)
+
+| Version | Commit | Archive (sha256) | Preview archive (sha256) | Hosted artifact |
+|---|---|---|---|---|
+| 0.6.0 | `70e3dc4` | `dist/skytrace-0.6.0.zip` (`cc6965deef0e…`, 389 files) | `dist/skytrace-preview-0.6.0.zip` (`2f7f8fd6f405…`) | version 4 — opened and exercised in a real browser (G16) |
+| 0.6.1 | `4689ea2` | `dist/skytrace-0.6.1.zip` (`14bfeec56b72…`) | `dist/skytrace-preview-0.6.1.zip` (`b6f58b3d8795…`) | version 5 — `data/status.json` (0.6.1, commit 4689ea2) and `css/app.css` (sha256 identical to the local build) read back from the hosted artifact; the page was **not** re-opened in a browser after this publish (the link to the desktop app's browser dropped) |
+
+0.6.1 gates: `verify.py --e2e` re-run at `4689ea2` → **VERIFIED 18/18** (269 passed / 2 skipped; browser 73 passed,
+including the extended top-bar check at nine widths in both modes). Earlier archives (0.2.0–0.5.0 and their previews) were
+not touched; manifests are kept as `dist/RELEASE_MANIFEST-<version>.json`. Nothing was pushed.
 
 ## New tests in v0.6
 
