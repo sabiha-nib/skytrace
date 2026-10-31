@@ -13,9 +13,51 @@ export async function bodyHash(s) {
   return digest(b);
 }
 
+export const GENESIS = "0".repeat(64);
+
+async function sha256hex(text) {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(d), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** Evidence-vault link (VAULT-1), mirrored from session.chain_hash: SHA-256(previous link + canonical entry). */
+export async function chainHash(prev, e) {
+  return sha256hex(prev + dumps({ seq: e.seq, at: e.at, kind: e.kind, summary: e.summary, ref: e.ref }));
+}
+
+/** Fill missing links in order; existing links are never recomputed, so an edited entry stays detectably broken. */
+export async function chainFill(history) {
+  const out = [];
+  let prev = null;
+  for (const e of history || []) {
+    const x = "h" in e ? e : { ...e, h: await chainHash(prev === null ? GENESIS : prev, e) };
+    out.push(x);
+    prev = x.h;
+  }
+  return out;
+}
+
+export async function verifyChain(history) {
+  const broken = []; let verified = 0, anchor = null, unchained = 0, prev = null;
+  for (let i = 0; i < history.length; i++) {
+    const e = history[i];
+    if (!("h" in e)) { unchained++; prev = null; continue; }
+    if (prev === null) {
+      if (i === 0 && e.seq === 1 && (await chainHash(GENESIS, e)) === e.h) verified++;
+      else if (i === 0 || !("h" in history[i - 1])) anchor = anchor ?? e.seq;
+      else broken.push(e.seq);
+    } else if ((await chainHash(prev, e)) === e.h) verified++;
+    else broken.push(e.seq);
+    prev = e.h;
+  }
+  return { method: "VAULT-1", links: history.length - unchained, verified, anchor, broken, unchained,
+    note: "A hash chain detects an edited or removed entry unless every later link and the session hash are recomputed too; it is not a signature." };
+}
+
 export async function finalize(s) {
   const out = { ...s };
   delete out.content_hash;
+  out.history = await chainFill(out.history);
   out.content_hash = await bodyHash(out);
   return out;
 }
@@ -40,11 +82,16 @@ export function validate(schema, s) {
       if (missing.length) errs.push(`$.plans[${p.id}].${st.id}: depends on steps that do not precede it: ${missing.join(", ")}`);
     }
   }
+  errs.crossField = true;      // reached the cross-field rules: verify() adds the evidence-vault chain check (async)
   return errs;
 }
 
 export async function verify(schema, s) {
   const errors = validate(schema, s);
+  if (errors.crossField) {
+    const vc = await verifyChain(s.history);
+    if (vc.broken.length) errors.push(`$.history: evidence-vault chain broken at entry ${vc.broken[0]} (an entry was edited or removed)`);
+  }
   if (errors.length) return { valid: false, errors, hash_ok: null, stated: s?.content_hash ?? null, computed: null };
   const computed = await bodyHash(s);
   const stated = s.content_hash;

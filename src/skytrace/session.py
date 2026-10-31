@@ -29,7 +29,8 @@ MAX_BYTES = 1_000_000
 BLOCK_TYPES = ["heading", "paragraph", "observation", "measurement", "evidence", "hypothesis", "experiment", "figure",
                "warning", "parameters", "citation", "question", "conclusion"]
 REF_KINDS = ["observation", "measurement", "claim", "graph_node", "hypothesis", "user_hypothesis", "experiment",
-             "figure", "run", "dataset", "pair", "test", "challenge", "scenario", "opportunity", "twin"]
+             "figure", "run", "dataset", "pair", "test", "challenge", "scenario", "opportunity", "twin",
+             "node", "argument", "negative", "review_item", "check"]
 STEP_STATUS = ["suggested", "ready", "running", "completed", "blocked", "failed", "needs_review"]
 
 _REF = O({"kind": (S(enum=REF_KINDS), True), "id": (S(300, 1), True)})
@@ -79,9 +80,17 @@ SESSION_SCHEMA = O({
     "synthetic": (A({"t": "json", "max_bytes": 12000, "depth": 6}, 30), False),
     "causal": (A({"t": "json", "max_bytes": 6000, "depth": 5}, 30), False),
     "autopilot": (A({"t": "json", "max_bytes": 12000, "depth": 6}, 20), False),
+    # v0.8 (optional): negative-knowledge entries you record, human review comments and responses, the research protocol
+    # (pre-analysis plan, lock and amendments), the blind-analysis state, structured arguments, and debugging sessions
+    "negative": (A({"t": "json", "max_bytes": 4000, "depth": 4}, 200), False),
+    "reviews": (A({"t": "json", "max_bytes": 4000, "depth": 4}, 200), False),
+    "protocol": ({"t": "json", "max_bytes": 40000, "depth": 6}, False),
+    "blind": ({"t": "json", "max_bytes": 6000, "depth": 4}, False),
+    "arguments": (A({"t": "json", "max_bytes": 12000, "depth": 6}, 30), False),
+    "debug": (A({"t": "json", "max_bytes": 4000, "depth": 4}, 50), False),
     "examined": (A(S(200, 1), 500), True),
     "history": (A(O({"seq": (INT(1, 10 ** 9), True), "at": (ISO, True), "kind": (S(40, 1, r"^[a-z_.]{1,40}$"), True),
-                     "summary": (S(300), True), "ref": (OPT(S(300)), True)}), 2000), True),
+                     "summary": (S(300), True), "ref": (OPT(S(300)), True), "h": (HEX64, False)}), 2000), True),
     "content_hash": (HEX64, False),
 })
 
@@ -106,8 +115,56 @@ def body_hash(s: dict) -> str:
     return canon.digest({k: v for k, v in s.items() if k != "content_hash"})
 
 
+GENESIS = "0" * 64
+
+
+def chain_hash(prev: str, entry: dict) -> str:
+    """Evidence-vault link (VAULT-1): SHA-256 of the previous link + the entry's canonical text. Mirrored in sessioncore.js."""
+    import hashlib
+    body = canon.dumps({k: entry[k] for k in ("seq", "at", "kind", "summary", "ref")})
+    return hashlib.sha256((prev + body).encode("utf-8")).hexdigest()
+
+
+def chain_fill(history: list) -> list:
+    """Give every entry without a link its link, in order. Existing links are never recomputed (an edited entry stays broken)."""
+    out, prev = [], None
+    for i, e in enumerate(history):
+        if "h" not in e:
+            e = {**e, "h": chain_hash(prev if prev is not None else GENESIS, e)}
+        out.append(e)
+        prev = e["h"]
+    return out
+
+
+def verify_chain(history: list) -> dict:
+    """{'links', 'verified', 'anchor', 'broken': [seq], 'unchained': n}. The first entry verifies against the genesis value
+    unless older entries were trimmed (then it is an unverifiable anchor)."""
+    broken, verified, anchor, unchained = [], 0, None, 0
+    prev = None
+    for i, e in enumerate(history):
+        if "h" not in e:
+            unchained += 1
+            prev = None
+            continue
+        if prev is None:
+            if i == 0 and e["seq"] == 1 and chain_hash(GENESIS, e) == e["h"]:
+                verified += 1
+            elif i == 0 or "h" not in history[i - 1]:
+                anchor = anchor or e["seq"]
+            else:
+                broken.append(e["seq"])
+        elif chain_hash(prev, e) == e["h"]:
+            verified += 1
+        else:
+            broken.append(e["seq"])
+        prev = e["h"]
+    return {"method": "VAULT-1", "links": len(history) - unchained, "verified": verified, "anchor": anchor, "broken": broken, "unchained": unchained,
+            "note": "A hash chain detects an edited or removed entry unless every later link and the session hash are recomputed too; it is not a signature."}
+
+
 def finalize(s: dict) -> dict:
     s = dict(s)
+    s["history"] = chain_fill(s.get("history", []))
     s["content_hash"] = body_hash(s)
     return s
 
@@ -140,6 +197,9 @@ def validate(s) -> list[str]:
             missing = [d for d in st["depends"] if d not in ids[:ids.index(st["id"])]]
             if missing:
                 errs.append(f"$.plans[{p['id']}].{st['id']}: depends on steps that do not precede it: {', '.join(missing)}")
+    vc = verify_chain(s["history"])
+    if vc["broken"]:
+        errs.append(f"$.history: evidence-vault chain broken at entry {vc['broken'][0]} (an entry was edited or removed)")
     return errs
 
 

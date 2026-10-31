@@ -82,6 +82,17 @@ def _versions() -> dict:
     return out
 
 
+_UNIT_SUFFIX = (("mas_yr", "mas/yr"), ("_yr", "yr"), ("_mas", "mas"), ("_ujy", "µJy"), ("_um", "µm"), ("_days", "days"), ("fractional", "(fraction)"), ("fraction", "(fraction)"))
+
+
+def _with_unit(key: str, v) -> str:
+    """A recorded value with the unit its key encodes (keys such as min_detectable_pm_mas_yr_5sigma carry their unit)."""
+    if not isinstance(v, (int, float)) or isinstance(v, bool):
+        return str(v)
+    unit = next((u for suf, u in _UNIT_SUFFIX if suf in key), "")
+    return f"{v:.6g} {unit}".rstrip()
+
+
 def render_markdown(inv: Investigation) -> str:
     d = inv.to_dict()
     origins = sorted(inv.data_origins())
@@ -95,7 +106,22 @@ def render_markdown(inv: Investigation) -> str:
               f"- Content hash: `{d['content_hash']}`",
               f"- Software: skytrace {d['software']['skytrace']}, numpy {d['software']['numpy']}, "
               f"scipy {d['software']['scipy']}, astropy {d['software']['astropy']}",
-              "", "## Parameters", "", "```json", json.dumps(d["parameters"], indent=2, sort_keys=True), "```",
+              ""]
+    # Outcomes, verbatim from the assessment (ASSESS-2): statement, criteria, sensitivity and limitations
+    assess = next((e for e in d["events"] if e["step"] == "assess"), None)
+    outcomes = ((assess or {}).get("data") or {}).get("outcomes") or []
+    if outcomes:
+        lines += ["## Outcomes and limitations", "",
+                  "Each outcome is decided by fixed rules (ASSESS-2). A candidate is not a discovery; an absence is bounded by the stated sensitivity.", ""]
+        for o in outcomes:
+            lines += [f"### {o.get('question')}: {o.get('category')}", "", o.get("statement") or "", ""]
+            if o.get("criteria"):
+                lines += ["- Criteria: " + "; ".join(o["criteria"])]
+            sens = o.get("sensitivity") or {}
+            if sens:
+                lines += ["- Sensitivity: " + "; ".join(f"{k} = {_with_unit(k, v)}" for k, v in sens.items() if not isinstance(v, (dict, list)))]
+            lines += [f"- Limitation: {lim}" for lim in o.get("limitations") or []] + [""]
+    lines += ["## Parameters", "", "```json", json.dumps(d["parameters"], indent=2, sort_keys=True), "```",
               "", "## Steps", "", "| # | Step | Status | Detail |", "|---|---|---|---|"]
     for i, e in enumerate(d["events"], 1):
         lines.append(f"| {i} | {e['step']} | {e['status']} | {e['detail'].replace('|', '/')} |")
