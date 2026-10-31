@@ -1,7 +1,77 @@
-# Test report: v0.7.0 (2026-10-31)
+# Test report: v0.8.0 (2026-10-31)
 
 Statuses: **PASS** means executed and met. **FAIL** means executed and not met. **BLOCKED** means it could not be executed here, and
-the reason is named. **NOT RUN** means it was not attempted.
+the reason is named. **NOT RUN** means it was not attempted. **PARTIAL** says which part ran.
+
+## Gates (v0.8.0, at release commit `9af3ec4`)
+
+| # | Gate (§35 of the Phase 8 brief) | Command / evidence | Status |
+|---|---|---|---|
+| G1 | Actual repository baseline inspected | `docs/PHASE8_AUDIT.md` §1: 0.7.0 at `948cd1c`, clean tree, 292 passed / 2 skipped, e2e 89, preview version 6 | PASS |
+| G2 | Existing application preserved | Feature-preservation matrix (`PHASE8_AUDIT.md` §2). `analysis.py`, `science/`, `ai/`, `archive/` and every Phase 5–7 module are unchanged since 0.7.0; no test removed; the content hashes of all 12 recorded runs in the 0.8.0 preview are identical to the 0.7.0 preview archive | PASS |
+| G3 | Unit, integration, robustness and parity tests (existing preserved; new scientific tests pass) | `python -m pytest` (via `verify.py`): **323 passed, 2 skipped** (astropy not installed). Baseline 292; added `test_epistemic.py` (25 cases including Node parity), `test_phase8_catalogue.py` (5), `integration/test_api.py::test_phase8_epistemic_reproduce_integrity` | PASS |
+| G4 | Epistemic architecture, compiler, debugger, boundary, stress tests, negative knowledge, blindspots, genome, uncertainty lineage, data lineage, reproduction, integrity firewall | `test_epistemic.py`: grounded statuses and deterministic graph; claim lineage back to files, methods and assumptions and forward to claims; negation-aware wording; genome completeness with existing known-answer tests; every compiler stage and the precedence rule; injected unit, provenance and wording defects detected; breakpoints at real stages with exact recomputation; earliest divergence found; boundary rules; ten stress modes; negative registry; blindspot coverage without percentages; uncertainty flow with omissions; lineage from recorded stages only; model arena reproduces the pipeline fit; FutureLab validated first; decisions and questions cite sources; firewall flags without rewriting; review items linked; five reproduction verdicts incl. tampered, parameter, software and blocked cases; simulation-audit refusals; vault chain detects edits and keeps 0.7 sessions valid | PASS |
+| G5 | Browser workflows (both modes; desktop, tablet, phone widths) | `pytest -m e2e tests/e2e`: **107 passed** (baseline 89; `e1`–`e9` added in server and static mode): graph trace and export, lineage; compiler filters, genome, comparison; boundary, stress, blindspots and export; debugger recomputation, differential debugging, reproduction feeding the stress test; models, uncertainty flow, FutureLab calculator; decisions and questions with Planner hand-off; negative-space search and entry, integrity firewall on report and pasted text; protocol, lock, amendment, blind cover, copilot pause, unblinding; Reasoning Lab, evidence vault correction, review board comment | PASS |
+| G6 | Responsive behaviour inspected | e2e `test_r` (no horizontal page scroll at 820 and 390 px, extended to the twelve new workspaces); the twelve Phase 8 workspaces measured at 390 px (scrollWidth = clientWidth); phone-width screenshots `phase8-*-mobile.png` inspected; the reasoning-graph columns were clipping at desktop width and now scroll inside their panel | PASS |
+| G7 | Offline behaviour verified | `verify.py` runs with `OFFLINE=1`; e2e `test_z_no_external_requests_no_errors` (no external request in either mode; the static preview calls no `/api/`); `test_offline_workflow.py` | PASS |
+| G8 | No fabricated data or API calls | Every Phase 8 result is computed from the two synthetic fixtures and labelled synthetic; no model call anywhere in the epistemic layer; the copilot is unchanged; the live tests fail (proxy 403), and no real-data result is reported | PASS |
+| G9 | 500 distinct catalogue concepts audited and deduplicated | `test_phase8_catalogue.py`: 500 brief concepts in 50 domains, **507 distinct** (31 merged, 38 added), 160 cite a real, implemented Phase 7 entry, no new concept cites Phase 7, every cited file and test function exists, deferred/blocked/out-of-scope items cite nothing and say why; generated files current | PASS |
+| G10 | Whole-system verification | `python scripts/verify.py --e2e` at `9af3ec4`: **VERIFIED 18/18**, 4 warnings (no astropy, no real bundles, no Meta key, smoke test never run) | PASS |
+| G11 | Static preview integrity | `verify.py`: 214 files match `PREVIEW_MANIFEST.json` | PASS |
+| G12 | Accessibility (automated) | `test_accessibility.py` (contrast, reduced motion); e2e `test_y` (every visible control named, extended to the new workspaces), `test_k` (keyboard) | PASS |
+| G13 | Accessibility with a screen reader | — | NOT RUN |
+| G14 | Performance measured | `python scripts/measure_performance.py` → `docs/performance.json` (below) | PASS |
+| G15 | Documentation updated | audit, architecture, scientific methods (pointer), generated epistemic methods, limitations, traceability, provenance, reproducibility, feature catalogue (pointer), Phase 8 catalogue, preview (§33 availability table), troubleshooting, release notes, README, CLAUDE.md, this report | PASS |
+| G16 | Release artifacts validated | `scripts/make_release.py`: RELEASE OK (below). Earlier artifacts 0.2.0–0.7.0 untouched | PASS |
+| G17 | Actual preview inspected where possible | Published as **version 7** of the hosted artifact. `data/status.json` (0.8.0, commit `9af3ec4`), `js/epistemiccore.js` and `data/t/syn-var-1/run/724e4a3cdd8ef4d9/reproducex.json` read back with SHA-256 identical to the local build. The hosted page was **not opened in a browser**: no browser on the desktop app was reachable from this session. The identical files were rendered by the static-mode e2e run (G5) and the Phase 8 screenshots (no console errors) | PARTIAL (files verified; hosted page not opened) |
+| G18 | Real SPHEREx acquisition, live archive tests, astropy cross-check | `diagnose_environment.py`: IRSA SIA/TAP, SIMBAD, Gaia, Meta, PyPI and npm all refused (proxy 403). `pytest -m live tests/live`: 2 failed, 2 errors (proxy refused) | BLOCKED |
+| G19 | Live Meta API; multi-agent research; semantic indexing; dependency review | No key; API host, PyPI and OSV refused | BLOCKED |
+| G20 | Dockerfile build | Base images cannot be pulled | NOT RUN |
+
+A structurally valid investigation is not automatically scientifically correct, and a reproducible calculation is not
+automatically a valid physical interpretation. Both fixtures compile to "requires scientific review".
+
+## Release (0.8.0)
+
+| Version | Commit | Archive (sha256) | Preview archive (sha256) | Hosted artifact |
+|---|---|---|---|---|
+| 0.8.0 | `9af3ec4` | `dist/skytrace-0.8.0.zip` (`fcde43a0bb5a80d6fde788656c66fbe4bef25f173967f015db4e1bd00916965d`, 499 files, 24.4 MB; zip integrity verified, no forbidden files, bundle checksums OK) | `dist/skytrace-preview-0.8.0.zip` (`8f6e723eb33124bc76c8a9017e74e97c2670b842d410d002deee1c0f5ef1de0f`, 6.1 MB) | version 7 (G17) |
+
+The manifest is kept as `dist/RELEASE_MANIFEST-0.8.0.json`. Nothing was pushed.
+
+## New tests in v0.8
+
+Unit/API: `test_epistemic.py` (23 functions, 25 cases, including the Node parity test `tests/js/epistemic_parity.mjs`),
+`test_phase8_catalogue.py` (5), `integration/test_api.py::test_phase8_epistemic_reproduce_integrity`.
+Browser (both modes, `e2e/test_controls.py`): `e1`–`e9` as listed in G5. `test_r` and `test_y` were extended to the new
+workspaces. No assertion of an earlier test was changed.
+
+## Performance (v0.8.0; this machine, 2 CPUs, median of 3; `docs/performance.json`)
+
+| Fixture | Analysis | Epistemic report, first call | Epistemic report, cached | Independent reproduction (re-execution) |
+|---|---|---|---|---|
+| syn-var-1 | 4.007 s | 0.243 s | 0.02 s | 3.842 s |
+| syn-hpm-1 | 4.063 s | 0.211 s | 0.019 s | 3.385 s |
+
+| Phase 8 workspace, click to first rendered element | Server mode | Static preview |
+|---|---|---|
+| Reasoning Graph (fetches the epistemic report) | 0.161 s (first 0.267 s) | 0.117 s |
+| Scientific Compiler | 0.081 s (first 0.083 s) | 0.072 s |
+| Claims | 0.071 s (first 0.09 s) | 0.064 s |
+| Scientific Debugger | 0.094 s (first 0.094 s) | 0.068 s |
+| Model Arena | 0.059 s (first 0.096 s) | 0.065 s |
+| Uncertainty Flow | 0.055 s (first 0.055 s) | 0.072 s |
+| FutureLab | 0.052 s (first 0.094 s) | 0.069 s |
+| Questions & Next Steps | 0.053 s (first 0.066 s) | 0.082 s |
+| Negative Space | 0.092 s (first 0.092 s) | 0.094 s |
+| Integrity check of the report (in the browser) | 0.134 s (first 0.143 s) | 0.102 s |
+| Protocol & Blind Analysis | 0.097 s (first 0.097 s) | 0.102 s |
+| Reasoning Lab | 0.098 s (first 0.07 s) | 0.075 s |
+
+Page load: server 0.34 s, static 0.256 s; first result in the static preview 0.427 s. Static
+preview: 215 files, 24.7 MB. All earlier measurements are in `docs/performance.json`.
+
+---
 
 ## Gates (v0.7.0, at release commit `da5ab0f`)
 
