@@ -245,3 +245,28 @@ def test_phase7_frontier_counterfactual_reproduce_synthetic(base):
     assert post(base, "/api/synthetic", {"scenario": {"seed": 1}}).status_code == 400
     sp = get(base, "/api/specs").json()["frontier"]
     assert sp["counterfactual"]["presets"] and sp["autopilot"]["levels"] and sp["twin"]["semantics"]
+
+
+def test_phase8_epistemic_reproduce_integrity(base):
+    iid = post(base, "/api/targets/syn-var-1/analyze", {"params": {}}).json()["investigation_id"]
+    d = get(base, f"/api/investigations/{iid}/epistemic").json()
+    assert {"graph", "genome", "compile", "boundary", "stress", "negative", "blindspot", "uflow", "lineage", "breakpoints", "inspect", "models",
+            "future", "next", "questions", "facts", "report_check", "review"} <= set(d)
+    assert d["compile"]["outcome"] == "requires scientific review" and "does not mean" in d["compile"]["meaning"]
+    assert get(base, f"/api/investigations/{iid}/epistemic").json() == d  # cached by content hash, same answer
+    pair = next(n["id"] for n in d["graph"]["nodes"] if n["id"].startswith("pair:"))
+    lin = get(base, f"/api/investigations/{iid}/lineage?result={pair}").json()
+    assert lin["result"] == pair and lin["stages"]
+    assert get(base, f"/api/investigations/{iid}/lineage?result=pair:nope").status_code == 404
+    r = post(base, f"/api/investigations/{iid}/reproduce-x", {}).json()
+    assert r["verdict"] == "exact reproduction"
+    rep = get(base, f"/api/investigations/{iid}/report.md").text
+    ok = post(base, "/api/integrity", {"investigation_id": iid, "text": rep}).json()
+    assert ok["outcome"] == "ready"
+    bad = post(base, "/api/integrity", {"investigation_id": iid, "text": "We discovered a new variable star with 99% probability."}).json()
+    assert bad["outcome"] == "needs attention" and any(not c["ok"] and c["id"] == "I6" for c in bad["checks"])
+    assert post(base, "/api/integrity", {"investigation_id": iid, "text": 5}).status_code == 400
+    assert post(base, "/api/simulation-audit", {"scenario": {"seed": 1}}).status_code == 400
+    assert post(base, "/api/simulation-audit", {"scenario": {}, "seeds": [1, 2, 3, 4]}).status_code == 400
+    sp = get(base, "/api/specs").json()["epistemic"]
+    assert len(sp["statuses"]) == 10 and len(sp["kinds"]) == 15 and len(sp["stress"]["modes"]) == 10

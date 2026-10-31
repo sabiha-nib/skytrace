@@ -77,7 +77,9 @@ export function stressCounts(S) {
 async function blindView(base) {
   const words = (await getSpecs()).frontier.review_causal_words;
   const B = overlayBlindspots(base, state.session, words);
-  return el("div", {}, el("div", { class: "card" }, el("p", { class: "muted" }, B.note),
+  const exp = el("button", { class: "btn small", type: "button", id: "blind-export" }, "Export blindspot report (JSON)");
+  exp.addEventListener("click", async () => { if (await download("skytrace-blindspots.json", JSON.stringify(B, null, 1), "application/json")) toast("Blindspot report exported"); });
+  return el("div", {}, el("div", { class: "card" }, el("p", { class: "muted" }, B.note), el("div", { class: "controls" }, exp),
     el("p", {}, ...Object.entries(B.counts).filter(([, n]) => n).map(([k, n]) => el("span", {}, outcomePill(k), ` ${n} `)),
       el("span", { class: "faint" }, ` of ${B.checks.length} defined checks`))),
     table(["Check", "State", "Rule", "What was found"], B.checks.map((r) => el("tr", { "data-blind": r.id }, el("th", { scope: "row" }, r.name), el("td", {}, outcomePill(r.state)),

@@ -9,6 +9,7 @@ must stay on the local origin. Run: pytest -m e2e tests/e2e
 """
 
 import json
+import re
 import os
 import socket
 import subprocess
@@ -372,7 +373,7 @@ def test_k_palette_help_shortcuts(app):
     app.locator("#help").wait_for(state="hidden")
     app.keyboard.press("Alt+1")
     app.locator(".nav button[data-ws=command][aria-current=page]").wait_for()
-    app.keyboard.press("Alt+8")                       # investigate level: command, explorer, time, atlas, horizon, discovery, radar, lab
+    app.keyboard.press("Alt+8")                       # investigate level: command, explorer, time, atlas, graph, reasoning, quality, lab
     app.locator(".nav button[data-ws=lab][aria-current=page]").wait_for()
 
 
@@ -509,7 +510,8 @@ def test_r_new_workspaces_narrow(app):
     for w, h, name in [(820, 1100, "tablet"), (390, 844, "mobile")]:
         app.set_viewport_size({"width": w, "height": h})
         for ws in ["discovery", "arena", "records", "command", "planner", "quality", "radar", "notebook", "experiments",
-                   "horizon", "counterfactual", "synthetic", "adversarial", "autopilot", "atlas", "knowledge", "review"]:
+                   "horizon", "counterfactual", "synthetic", "adversarial", "autopilot", "atlas", "knowledge", "review",
+                   "reasoning", "compiler", "claims", "debugger", "models", "uflow", "future", "decide", "negative", "integrity", "protocol", "argue"]:
             app.locator(f".nav button[data-ws={ws}]").click()
             app.wait_for_timeout(400)
             assert app.locator("#main").bounding_box()["width"] <= w
@@ -955,7 +957,8 @@ def test_y_accessible_names(app):
     problems = []
     app.click(".level-switch button[data-level=research]")
     for ws in ["command", "planner", "quality", "radar", "notebook", "experiments", "discovery", "explorer", "time", "lab", "arena", "graph", "records",
-               "horizon", "counterfactual", "synthetic", "adversarial", "autopilot", "atlas", "knowledge", "review"]:
+               "horizon", "counterfactual", "synthetic", "adversarial", "autopilot", "atlas", "knowledge", "review",
+               "reasoning", "compiler", "claims", "debugger", "models", "uflow", "future", "decide", "negative", "integrity", "protocol", "argue"]:
         app.locator(f".nav button[data-ws={ws}]").click()
         app.wait_for_timeout(700)
         scope = app.locator(f"#ws-{ws}, .topbar, .copilot, .session-box")
@@ -991,3 +994,262 @@ def test_z_no_external_requests_no_errors(app):
     errors = [e for e in app.errors if not (app.mode == "server" and "status of 400" in e)]
     assert errors == [], errors
     assert sum("status of 400" in e for e in app.errors) <= 1
+
+
+# ------------------------------------------------------------------ Phase 8: the epistemic layer
+def _dl_json(app, sel):
+    with app.expect_download() as d:
+        app.click(sel)
+    return json.loads(Path(d.value.path()).read_text())
+
+
+def test_e1_reasoning_graph_and_lineage(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=reasoning]")
+    app.locator(".epi-node").first.wait_for(timeout=60000)
+    pw.expect(app.locator("#epi-node")).to_have_value("claim:variability")
+    pw.expect(app.locator("#epi-summary")).to_contain_text("upstream")
+    for k in ("source", "measurement", "method", "assumption"):
+        pw.expect(app.locator("#epi-summary")).to_contain_text(k)
+    app.locator("#epi-selected .pill.epi").first.wait_for()
+    app.select_option("#epi-node", index=app.locator("#epi-node option").count() - 1)      # a source file
+    app.click("[data-dir=forward]")
+    pw.expect(app.locator("#epi-summary")).to_contain_text("downstream")
+    pw.expect(app.locator("#epi-summary")).to_contain_text("claim")
+    data = _dl_json(app, "#epi-export")
+    assert data["method"] == "EPI-1" and data["direction"] == "forward" and data["nodes"]
+    app.click("[data-dir=back]")
+    app.click("[data-rtab-epi=lineage]")
+    app.locator(".lin-stage").nth(8).wait_for(timeout=30000)
+    assert app.locator(".lin-stage.missing").count() == 0
+    lin = _dl_json(app, "#lin-export")
+    assert lin["method"] == "LINEAGE-1" and lin["complete"]
+    app.click("[data-rtab-epi=graph]")
+
+
+def test_e2_scientific_compiler_and_method_genome(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=compiler]")
+    app.locator("#compile-outcome").wait_for(timeout=60000)
+    pw.expect(app.locator("#compile-outcome h3")).to_have_text("requires scientific review")
+    pw.expect(app.locator("#compile-outcome")).to_contain_text("does not mean any conclusion is true")
+    app.click("[data-stage=types]")
+    assert app.locator("#compile-checks .check").count() == app.locator("#compile-checks .check[data-check^=T]").count() > 0
+    app.click("[data-out=fail]")
+    app.locator(".empty", has_text="No check matches").wait_for()
+    app.click("[data-out=all]")
+    app.click("[data-stage=types]")
+    rep = _dl_json(app, "#compile-export")
+    assert rep["method"] == "SCICOMP-1" and len(rep["stages"]) == 9
+    app.click("[data-ctab=genome]")
+    assert app.locator("#genome-table tbody tr").count() >= 13
+    app.click("[data-method=APPHOT-1]")
+    pw.expect(app.locator("#method-detail h3")).to_have_text("APPHOT-1")
+    pw.expect(app.locator("#method-detail")).to_contain_text("µJy")
+    app.select_option("#cmp-a", "PAIRDIFF-1")
+    app.select_option("#cmp-b", "PAIRDIFF-2")
+    pw.expect(app.locator("#cmp-out")).to_contain_text("Compatible")
+    app.click("[data-ctab=compile]")
+
+
+def test_e3_claims_boundary_stress_blindspots(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=claims]")
+    app.locator(".kb-item").first.wait_for(timeout=60000)
+    app.locator("[data-region=unresolved] [data-kb='claim:variability']").click()
+    pw.expect(app.locator("#kb-detail")).to_contain_text("artefact explanations not ruled out")
+    app.locator("[data-region='outside the evidence'] [data-kb=Q-CAUSE]").wait_for()
+    assert "confidence" not in app.locator("#claims-body").inner_text().lower().replace("not confidence levels", "")
+    app.click("[data-cltab=stress]")
+    assert app.locator("#cx-table tbody tr").count() == 10
+    pw.expect(app.locator("#cx-table tr[data-mode=reproducibility]")).to_contain_text("not tested")
+    pw.expect(app.locator("#cx-table tr[data-mode=alternatives]")).to_contain_text("warning")
+    app.click("[data-cltab=blindspot]")
+    app.locator("#blind-table tbody tr").first.wait_for(timeout=30000)
+    assert app.locator("#blind-table tbody tr").count() == 11
+    assert "%" not in app.locator("#claims-body").inner_text()
+    assert _dl_json(app, "#blind-export")["method"] == "BLIND-1"
+    pw.expect(app.locator("#blind-table tr[data-blind=epochs]")).to_contain_text("not examined")
+    app.click("[data-cltab=boundary]")
+
+
+def test_e4_scientific_debugger(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=debugger]")
+    app.locator("#dbg-panel").wait_for(timeout=60000)
+    pw.expect(app.locator("#dbg-verdict")).to_contain_text("recomputes")
+    app.select_option("#dbg-result", index=app.locator("#dbg-result option").count() - 1)          # a flux comparison
+    pw.expect(app.locator("#dbg-verdict")).to_have_text(re.compile(r"^recomputes (identically|within tolerance)$"))
+    app.click("[data-bp=assessment]")
+    pw.expect(app.locator("#dbg-verdict")).to_have_text("recomputes identically")
+    app.click("[data-dtab=diff]")
+    app.locator("#diff-run, #debugger-body .empty").first.wait_for(timeout=30000)
+    if app.locator("#diff-run").count():                          # static: the recorded runs; server: runs attached to the session
+        app.select_option("#diff-b", index=1)
+        app.click("#diff-run")
+        app.locator("#diff-earliest").wait_for(timeout=30000)
+        assert app.locator("#diff-table tbody tr").count() >= 5
+    else:
+        assert app.mode == "server"
+        app.locator(".empty", has_text="needs two runs").wait_for()
+    app.click("[data-dtab=repro]")
+    app.click("#rx-run")
+    if app.mode == "server":
+        app.click("#rx-run")                                      # confirm
+    app.locator("#rx-verdict", has_text="exact reproduction").wait_for(timeout=120000)
+    app.click(".nav button[data-ws=claims]")
+    app.click("[data-cltab=stress]")
+    pw.expect(app.locator("#cx-table tr[data-mode=reproducibility]")).to_contain_text("pass")
+    app.click("[data-cltab=boundary]")
+    app.click(".nav button[data-ws=debugger]")
+    app.click("[data-dtab=inspect]")
+
+
+def test_e5_models_uncertainty_future(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=models]")
+    app.locator(".models-table").nth(1).wait_for(timeout=60000)
+    assert app.locator("#models-body", has_text="LINFIT-EPOCH-1 reproduced").count() == 1
+    assert "probability" not in app.locator("#models-body").inner_text().lower()
+    assert _dl_json(app, "#models-export")["method"] == "MODELS-1"
+    app.click(".nav button[data-ws=uflow]")
+    app.locator("[data-unode='u:flux']").click()
+    pw.expect(app.locator("#uflow-detail h3")).to_contain_text("flux error")
+    assert app.locator("#uflow-gaps tbody tr").count() >= 4
+    app.click(".nav button[data-ws=future]")
+    pw.expect(app.locator("#future-validation")).to_contain_text("reproduces")
+    assert app.locator("[data-scenario=baseline] tbody tr").count() == 5
+    app.fill("#fl-years", "2")
+    app.click("#fl-calc")
+    pw.expect(app.locator("#fl-out")).to_contain_text("Hypothetical")
+    app.click("#fl-keep")
+    app.locator("#toast", has_text="hypothetical").wait_for()
+
+
+def test_e6_decisions_and_questions(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=decide]")
+    app.locator("#nx-list .nx-item").nth(2).wait_for(timeout=60000)
+    app.locator("#nx-list .nx-item").nth(1).locator("dt", has_text="Why not higher").wait_for()
+    pw.expect(app.locator("#decide-body")).to_contain_text("not an optimisation")
+    app.locator("#nx-list .nx-item").first.locator("button", has_text="Record this decision").click()
+    app.locator("#toast", has_text="Decision recorded").wait_for()
+    app.click("[data-qtab-epi=questions]")
+    app.locator("#qf-list .nx-item").first.wait_for()
+    app.click("[data-qcat=hypothetical]")
+    assert app.locator("#qf-list .nx-item").count() == app.locator("#qf-list .nx-item", has_text="hypothetical").count() > 0
+    app.locator("#qf-list .nx-item").first.locator("button", has_text="Plan this question").click()
+    app.locator("#plan-question").wait_for()
+    app.click(".nav button[data-ws=decide]")
+    app.click("[data-qcat=all]")
+    app.click("[data-qtab-epi=next]")
+
+
+def test_e7_negative_space_and_integrity(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=negative]")
+    app.locator("#neg-table tbody tr").first.wait_for(timeout=60000)
+    total = app.locator("#neg-table tbody tr").count()
+    app.fill("#neg-search", "WLMATCH")
+    assert 0 < app.locator("#neg-table tbody tr").count() < total
+    app.fill("#neg-search", "")
+    app.fill("#neg-new-attempted", "compare D1 pairs by eye")
+    app.fill("#neg-new-happened", "too few visits to judge")
+    app.click("#neg-add")
+    app.locator("#neg-table tbody tr", has_text="compare D1 pairs by eye").wait_for(timeout=30000)
+    app.click(".nav button[data-ws=integrity]")
+    app.click("#integ-run")
+    app.locator("#integ-outcome", has_text="ready").wait_for(timeout=30000)
+    app.select_option("#integ-source", "paste")
+    app.fill("#integ-text", "We discovered a variable star with high probability (flux 12345.67 µJy).")
+    app.click("#integ-run")
+    app.locator("#integ-outcome", has_text="needs attention").wait_for()
+    pw.expect(app.locator("#integ-table tr[data-icheck=I12]")).to_contain_text("discovered")
+    assert _dl_json(app, "#integ-export")["method"] == "INTEG-1"
+    app.select_option("#integ-source", "report")
+
+
+def test_e8_protocol_and_blind_analysis(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=protocol]")
+    app.fill("#pr-question", "Did SYN-VAR-1 change in brightness?")
+    app.fill("#pr-primary_hypothesis", "The source dimmed between passes.")
+    app.select_option("#pr-eval-variability", "variability_candidate")
+    app.fill("#pr-param-aperture_radius_px", "2.0")
+    app.click("#pr-save")
+    app.locator("#pr-status", has_text="draft").wait_for(timeout=30000)
+    app.click("#pr-lock")
+    app.click("#pr-lock")
+    app.locator("#pr-status", has_text="locked after results were visible").wait_for(timeout=30000)
+    pw.expect(app.locator("#pr-question")).to_be_disabled()
+    app.locator("#pr-compare-table tbody tr", has_text="as expected").wait_for()
+    app.fill("#am-value", "3.0")
+    app.fill("#am-reason", "larger aperture for the faint target")
+    app.click("#am-add")
+    app.locator("#protocol-body td", has_text="larger aperture").wait_for(timeout=30000)
+    app.click("#blind-start")
+    app.click("#blind-start")
+    app.locator("#blind-state", has_text="blind active").wait_for(timeout=30000)
+    for ws in ("lab", "command", "claims", "time"):
+        app.click(f".nav button[data-ws={ws}]")
+        app.locator(f"#ws-{ws} .blind-cover").wait_for()
+        assert app.locator(".outcome:visible").count() == 0
+    app.click(".nav button[data-ws=explorer]")
+    assert app.locator("#ws-explorer .blind-cover").count() == 0
+    pw.expect(app.locator("#ruler-caption")).to_contain_text("hidden by the blind")
+    app.click(".nav button[data-ws=protocol]")
+    app.click("#blind-end")
+    app.locator("#toast", has_text="UNBLIND").wait_for()
+    app.fill("#unblind-confirm", "UNBLIND")
+    app.click("#blind-end")
+    app.locator("#blind-state", has_text="unblinded").wait_for(timeout=30000)
+    pw.expect(app.locator("#blind-card")).to_contain_text("matches")
+    app.click(".nav button[data-ws=lab]")
+    app.locator(".outcome").first.wait_for(timeout=30000)
+
+
+def test_e9_reasoning_lab_and_phase8_tabs(app):
+    _research_level(app)
+    app.click(".nav button[data-ws=argue]")
+    app.select_option("#arg-claim-ref", "claim:variability")
+    app.click("#arg-new")
+    app.locator("#arg-view").wait_for(timeout=30000)
+    pw.expect(app.locator("#arg-valid")).to_contain_text("no supporting evidence")
+    app.select_option("#arg-add-support", index=1)
+    app.select_option("#arg-rule", index=1)
+    app.select_option("#arg-add-asm", index=1)
+    app.click("#arg-apply")
+    pw.expect(app.locator("#arg-valid")).to_contain_text("every step has premises")
+    pw.expect(app.locator("#arg-empirical")).to_contain_text("rests on")
+    app.fill("#arg-dispute-text", "the threshold was chosen for another purpose")
+    app.click("#arg-dispute")
+    app.locator("#arg-view li", has_text="open").first.wait_for()
+    app.click("#arg-branch")
+    app.locator("#arg-list li").nth(1).wait_for()
+    app.select_option("#arg-compare", index=1)
+    app.locator("#arg-compare-out").wait_for()
+    with app.expect_download() as d:
+        app.click("#arg-export")
+    assert "Well-formed" in Path(d.value.path()).read_text()
+    app.click(".nav button[data-ws=knowledge]")
+    app.click("[data-ktab=vault]")
+    pw.expect(app.locator("#vault-broken")).to_have_text("none")
+    app.fill("#vault-correction", "the D1 note referred to visit 2")
+    app.click("#vault-correct")
+    app.locator("#vault-table tr", has_text="Correction to").first.wait_for(timeout=30000)
+    app.click("[data-ktab=search]")
+    app.click(".nav button[data-ws=review]")
+    app.click("[data-rtab=board]")
+    assert app.locator("[data-perspective]").count() == 8
+    item = app.locator("details[data-perspective][open] .rb-item").first
+    item.locator("input").fill("checked: the scale is applied")
+    item.locator("button", has_text="Add").click()
+    app.locator(".rb-item", has_text="checked: the scale is applied").wait_for(timeout=30000)
+    app.click("[data-rtab=review]")
+    app.click(".nav button[data-ws=synthetic]")
+    app.click("[data-stab=audit]")
+    app.click("#sa-run")
+    if app.mode == "server":
+        app.click("#sa-run")
+    app.locator("#sa-verdict", has_text="stable").wait_for(timeout=180000)
+    app.click("[data-stab=scenarios]")

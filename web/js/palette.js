@@ -104,6 +104,16 @@ const GLOSSARY = [
   ["Research opportunity", "A Discovery Radar item: something worth examining, with why, the evidence, the data needed, and what it cannot establish. Not a detection."],
   ["Negative control", "The same analysis on a fixture where the effect is absent by construction; detecting it there would show a method problem."],
   ["Static preview", "A copy of the interface with results precomputed by the Python pipeline; nothing runs on a server while you browse."],
+  ["Epistemic status", "How a statement was produced — directly recorded, measured, derived, model-dependent, assumed, hypothesized, simulated, user-authored, unsupported or unknown. Assigned by stated rules from the origin and method (EPI-1), never from wording; it is not a measure of truth."],
+  ["Reasoning graph", "The investigation as connected objects: files, observations, measurements, derived quantities, inferences and claims, with the methods, assumptions and uncertainty that produced them (EPI-1). Trace a claim back or a file forward."],
+  ["Scientific compilation", "Ten stages of structural and methodological checks on an investigation (SCICOMP-1). Passing means the investigation met these checks, not that its conclusions are true."],
+  ["Knowledge boundary", "Where each claim stands: established by the recorded evidence, supported under stated assumptions, unresolved, or outside the evidence (KBOUND-1). Categories with rules, not confidence levels."],
+  ["Negative knowledge", "What was attempted and could not be established — failed, refused, inconclusive or impossible work, kept on record with what would unblock it (NEG-1)."],
+  ["Blind analysis", "Working with outcomes hidden until a documented unblinding, so analysis choices are fixed before results are seen (BLINDLAB-1). A workflow aid, not access control."],
+  ["Locked protocol", "A research plan stored with a content hash and time; later changes are appended as amendments with reasons. Labelled when results were already visible. Not a formal preregistration."],
+  ["Lineage", "The recorded path from an original file to a result: import, validation, transformations, measurement, analysis, assessment, claim, report (LINEAGE-1). Missing stages are shown as missing."],
+  ["Reproduction verdict", "Exact (identical hash), numerically equivalent (within 1e-9 relative), with documented differences, failed, or blocked (REPROX-1). Importing a record is never a reproduction."],
+  ["Evidence vault", "The session's append-only history with a hash chain linking every event, so an edited or removed event is detectable (VAULT-1). Not a signature."],
 ];
 const SHORTCUTS = [
   ["Ctrl+K, ⌘K or /", "Search and commands"], ["?", "This reference"], ["Alt+1 … Alt+9", "Switch between the visible workspaces"],

@@ -151,7 +151,77 @@ Navigation is grouped in eight research modes: Observatory (Command Center, Sky 
 (Counterfactual Lab, Experiment Studio, Synthetic Observatory) · Understand (Data Quality, Adversarial Lab) · Orchestrate
 (Investigation Planner, Research Autopilot) · Knowledge (Research Notebook, Knowledge Atlas, Vault & Reports) · Publish (Review & Story). The session gained optional `scenarios`, `synthetic`, `causal` and `autopilot`
 fields. Sessions written by 0.6 still validate. Synthetic Observatory bundles live in `data/synthlab/` (or `SKYTRACE_SYNTHLAB_DIR`),
-never in `data/bundles/` or `fixtures/`. Methods: [FRONTIER_METHODS.md](FRONTIER_METHODS.md).
+never in `data/bundles/` or `fixtures/`. Methods: [FRONTIER_METHODS.md](FRONTIER_METHODS.md). (Phase 8 regrouped this navigation;
+see below.)
+
+## Phase 8 additions (v0.8): the epistemic layer
+
+Every Phase 8 engine is a deterministic reader of a finished record. None of them changes a record, calls a model or uses a
+probability. They share one graph (EPI-1), built once per record.
+
+```
+ browser                                                          server (server/epistemic.py)
+ ┌─────────────────────────────────────────────────────────┐     ┌───────────────────────────────────────────────────┐
+ │ state.getEpistemic() ─────────────────────────────────────┼────►│ GET /api/investigations/{iid}/epistemic            │
+ │   epistemiccore.js (parity-tested): trace ·             │◄────│   EPI-1 graph → METHOD-DNA-1 genome, SCICOMP-1,    │
+ │   assertedWords · compareValues · diff (differential    │     │   KBOUND-1, CLAIMX-1, NEG-1, BLIND-1 base,         │
+ │   debugging) · overlayBlindspots · sigmaPm ·            │     │   UFLOW-1, LINEAGE-1 (claims, fit), SCIDEBUG-1     │
+ │   pairPrecision · integrityCheck                        │     │   breakpoints + inspections, MODELS-1, FUTURE-1,   │
+ │ reasoningui · compilerui · claimsui · debuggerui ·      │     │   NEXTX-1, QFORGE-1, INTEG-1 facts + report check, │
+ │ modelsui · uflowui · futureui · decideui · negativeui · │     │   REVIEWX-1; cached by content hash                │
+ │ integrityui · protocolui · argueui · epitabs            │     ├───────────────────────────────────────────────────┤
+ │ debuggerui (reproduce) ───────────────────────────────────┼────►│ POST …/reproduce-x (REPROX-1, re-execution)       │
+ │ reasoningui (any comparison) ─────────────────────────────┼────►│ GET  …/lineage?result= (LINEAGE-1)                │
+ │ epitabs (simulation audit) ───────────────────────────────┼────►│ POST /api/simulation-audit (SIMCHECK-1)           │
+ │ sessioncore.js: VAULT-1 chain; protocol, blind, args    │     │ POST /api/integrity (INTEG-1 on any text)         │
+ └─────────────────────────────────────────────────────────┘     └───────────────────────────────────────────────────┘
+   static preview: epistemic.json per recorded run, reproducex.json (default run), simaudit.json; lineage of results
+   other than claims and the motion fit, and audits of edited scenarios, are refused with a reason
+```
+
+| Piece | Module | Server | Interface | Static preview |
+|---|---|---|---|---|
+| Reasoning graph, statuses, trace (EPI-1) | `epistemic.py` | in `/epistemic` | `reasoningui.js` + `trace` | `epistemic.json` |
+| Method genome (METHOD-DNA-1) | `methodgenome.py` | in `/epistemic`; specs | `compilerui.js` (genome tab) | same |
+| Scientific compiler (SCICOMP-1) | `scicomp.py` | in `/epistemic` | `compilerui.js` | same |
+| Scientific debugger (SCIDEBUG-1) | `scidebug.py` | in `/epistemic` (breakpoints, inspections) | `debuggerui.js` + `diff` | inspections and differential debugging between recorded runs |
+| Knowledge boundary (KBOUND-1), claim stress tests (CLAIMX-1) | `claims.py` | in `/epistemic` | `claimsui.js` | same; the reproducibility mode uses a reproduction you ran |
+| Negative knowledge (NEG-1) | `negspace.py` | in `/epistemic` | `negativeui.js` (plus your session entries) | same |
+| Blindspots (BLIND-1) | `blindspot.py` | base in `/epistemic` | `claimsui.js` + `overlayBlindspots` | same |
+| Uncertainty flow (UFLOW-1) | `uflow.py` | in `/epistemic` | `uflowui.js` | same |
+| Data lineage (LINEAGE-1) | `lineage.py` | in `/epistemic` (claims, fit); `GET …/lineage` | `reasoningui.js` (Lineage-X tab) | claims and fit |
+| Model arena (MODELS-1) | `modelarena.py` | in `/epistemic` | `modelsui.js` | same |
+| FutureLab (FUTURE-1) | `futurelab.py` | in `/epistemic` | `futureui.js` + `sigmaPm`, `pairPrecision` | same; calculator interactive |
+| Next steps, questions (NEXTX-1, QFORGE-1) | `decide.py` | in `/epistemic` | `decideui.js` | same |
+| Integrity firewall (INTEG-1) | `integrity.py` | facts and report check in `/epistemic`; `POST /api/integrity` | `integrityui.js` + `integrityCheck` | interactive in the browser |
+| Review board (REVIEWX-1) | `reviewx.py` | in `/epistemic` | `epitabs.js` (Review Room tab) | same; comments in the session |
+| Independent reproduction (REPROX-1) | `reprox.py` | `POST …/reproduce-x` | `debuggerui.js` | default run recorded |
+| Simulation audit (SIMCHECK-1) | `simcheck.py` (uses SYNOBS-1) | `POST /api/simulation-audit` | `epitabs.js` (Synthetic Observatory tab) | one audit recorded |
+| Evidence vault (VAULT-1) | `session.py`, `sessioncore.js` | — | `epitabs.js` (Knowledge Atlas tab) | interactive |
+| Protocols, blind analysis (PROTOCOL-1, BLINDLAB-1) | `protocolui.js`, `main.js` | — | `protocolui.js` | interactive |
+| Reasoning Lab (ARG-1) | `argueui.js` | — | `argueui.js` | interactive |
+
+Navigation now follows the eight modes of the Phase 8 brief:
+
+| Mode | Workspaces |
+|---|---|
+| Observatory | Command Center, Sky Explorer, Time Machine, Cosmic Atlas |
+| Evidence | Evidence Ledger, Reasoning Graph, Data Quality, Negative Space |
+| Analyze | Discovery Lab, Discovery Engine, Hypothesis Arena, Model Arena, Uncertainty Flow, Scientific Debugger |
+| Challenge | Scientific Compiler, Claims, Adversarial Lab, Review Room |
+| Experiment | Counterfactual Lab, Experiment Studio, Synthetic Observatory, FutureLab |
+| Plan | Questions & Next Steps, Discovery Horizon, Discovery Radar, Investigation Planner, Autopilot, Protocol & Blind Analysis |
+| Knowledge | Research Notebook, Knowledge Atlas, Reasoning Lab |
+| Publish | Integrity Firewall, Vault & Reports |
+
+The session gained optional `negative`, `reviews`, `protocol`, `blind`, `arguments` and `debug` fields, and the reference kinds
+`node`, `argument`, `negative`, `review_item` and `check`. History entries carry a hash-chain link `h`. Sessions written by 0.7
+still validate and are chained on their next save. While a blind analysis is active, the shell does three things:
+- It covers every workspace except Protocol, Sky Explorer, Data Quality and the Notebook; the covered renderers are not called.
+- It pauses the copilot.
+- The evidence ruler stops emphasising significant pairs.
+
+Methods: [EPISTEMIC_METHODS.md](EPISTEMIC_METHODS.md).
 
 ## Layers and their rules
 

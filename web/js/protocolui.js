@@ -51,14 +51,14 @@ function field(id, label, value, multiline) {
 
 function protocolCard(p) {
   const locked = !!p?.locked;
-  const v = p || { question: state.session?.question?.text || "", primary_hypothesis: "", alternatives: [], methods: ["WLMATCH-2", "PAIRDIFF-1", "PAIRDIFF-2", "CALCHECK-1", "LINFIT-EPOCH-1", "ASSESS-2"],
+  const v = p || { question: state.session?.question?.text || "", primary_hypothesis: "", inputs: state.targetId ? [`target ${state.targetId}`, "detectors D1–D6"] : [], alternatives: [], methods: ["WLMATCH-2", "PAIRDIFF-1", "PAIRDIFF-2", "CALCHECK-1", "LINFIT-EPOCH-1", "ASSESS-2"],
     exclusion: ["exposures refused by the flag policy (FLAGPOL-1)", "pairs rejected by WLMATCH-2"], parameters: {}, evaluation: {}, robustness: ["stability check (STAB-1)"], limitations: [] };
   const f = {};
   const grid = el("div", { class: "proto-grid" });
   for (const [k, label, multi] of [["question", "Research question", true], ["primary_hypothesis", "Primary hypothesis", true]]) {
     const [l, i] = field(`pr-${k}`, label, v[k], multi); f[k] = i; grid.append(l, i);
   }
-  for (const [k, label] of [["alternatives", "Alternative hypotheses (one per line)"], ["methods", "Planned methods (one per line)"], ["exclusion", "Exclusion criteria (one per line)"],
+  for (const [k, label] of [["inputs", "Selected inputs (one per line: target, detectors, release…)"], ["alternatives", "Alternative hypotheses (one per line)"], ["methods", "Planned methods (one per line)"], ["exclusion", "Exclusion criteria (one per line)"],
     ["robustness", "Planned robustness tests (one per line)"], ["limitations", "Known limitations (one per line)"]]) {
     const [l, i] = field(`pr-${k}`, label, (v[k] || []).join("\n"), true); f[k] = i; grid.append(l, i);
   }
@@ -72,7 +72,7 @@ function protocolCard(p) {
   }));
   if (locked) Object.values(f).forEach((i) => i.setAttribute("disabled", ""));
   const read = () => ({ schema: "skytrace.protocol/1", created_at: p?.created_at || nowIso(), question: f.question.value.slice(0, 500), primary_hypothesis: f.primary_hypothesis.value.slice(0, 500),
-    alternatives: lines(f.alternatives), methods: lines(f.methods), exclusion: lines(f.exclusion), robustness: lines(f.robustness), limitations: lines(f.limitations),
+    inputs: lines(f.inputs), alternatives: lines(f.alternatives), methods: lines(f.methods), exclusion: lines(f.exclusion), robustness: lines(f.robustness), limitations: lines(f.limitations),
     parameters: Object.fromEntries(PARAMS.map((k) => [k, parse(f[`param:${k}`].value)]).filter(([, x]) => x !== null)),
     evaluation: Object.fromEntries(QUESTIONS.map((q) => [q, f[`eval:${q}`].value]).filter(([, x]) => x)) });
   const save = el("button", { class: "btn", type: "button", id: "pr-save", disabled: locked || null }, "Save draft");
@@ -105,7 +105,7 @@ function protocolCard(p) {
 }
 
 function amendForm(p) {
-  const fieldSel = el("select", { id: "am-field", "aria-label": "Field to amend" }, ...["question", "primary_hypothesis", "alternatives", "methods", "exclusion", "robustness", "limitations",
+  const fieldSel = el("select", { id: "am-field", "aria-label": "Field to amend" }, ...["question", "primary_hypothesis", "inputs", "alternatives", "methods", "exclusion", "robustness", "limitations",
     ...PARAMS.map((k) => `parameters.${k}`), ...QUESTIONS.map((q) => `evaluation.${q}`)].map((x) => el("option", { value: x }, x)));
   const val = el("input", { type: "text", id: "am-value", placeholder: "New value", "aria-label": "New value" });
   const why = el("input", { type: "text", id: "am-reason", placeholder: "Reason for the amendment", "aria-label": "Reason" });
