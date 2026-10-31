@@ -47,7 +47,8 @@ export function renderRuler() {
   };
   if (m) {
     const strong = new Set();
-    for (const f of m.flux) if (Math.abs(f.z) >= 5) strong.add(f.a + "|" + f.b);
+    const blind = !!state.session?.blind?.active;      // a blind analysis hides significances: no emphasis
+    for (const f of m.flux) if (!blind && Math.abs(f.z) >= 5) strong.add(f.a + "|" + f.b);
     for (const p of m.accepted) {
       const oa = obs.find((o) => o.key === p.a), ob = obs.find((o) => o.key === p.b);
       const pa = oa && pos(oa), pb = ob && pos(ob);
@@ -69,6 +70,7 @@ export function renderRuler() {
     svg.append(c);
   }
   document.getElementById("ruler-caption").textContent = m
-    ? `${m.accepted.length} wavelength-matched pairs (vertical links). Bold links differ in brightness by |z| ≥ 5. Faded dots were rejected. Click a dot to select it.`
+    ? (state.session?.blind?.active ? `${m.accepted.length} wavelength-matched pairs (vertical links). Significances are hidden by the blind analysis. Faded dots were rejected. Click a dot to select it.`
+      : `${m.accepted.length} wavelength-matched pairs (vertical links). Bold links differ in brightness by |z| ≥ 5. Faded dots were rejected. Click a dot to select it.`)
     : "Before analysis, dots sit at each image's band centre. Run the analysis to place them at the wavelength measured at the target.";
 }

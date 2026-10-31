@@ -303,6 +303,24 @@ export const staticApi = {
       throw new PreviewLimit("only the default schedule comparison is precomputed in the preview; edited schedules generate files and need python run.py.");
     return { ...d, recorded_at_build: true };
   },
+  // Phase 8: recorded by the server at build time
+  epistemic: (iid) => getJSON(`t/${runTarget.get(iid)}/run/${iid}/epistemic.json`),
+  async reproduceX(iid) {
+    const r = await getJSON(`t/${runTarget.get(iid)}/run/${iid}/reproducex.json`).catch(() => null);
+    if (!r) throw new PreviewLimit("the independent reproduction is recorded for the default run only in this preview; run python run.py for others.");
+    return { ...r, recorded_at_build: true };
+  },
+  async lineage(iid, rid) {
+    const e = await getJSON(`t/${runTarget.get(iid)}/run/${iid}/epistemic.json`);
+    if (e.lineage[rid]) return e.lineage[rid];
+    throw new PreviewLimit("the preview records the lineage of the claims and the motion fit; the lineage of a single comparison is computed by the server (python run.py).");
+  },
+  async simAudit(scenario, seeds) {
+    const a = await getJSON("simaudit.json");
+    if (canonKey({ scenario, seeds: seeds || null }) !== canonKey(a.inputs))
+      throw new PreviewLimit("only the recorded audit of the first template is precomputed in the preview; other audits generate files and need python run.py.");
+    return { ...a, recorded_at_build: true };
+  },
   async provenance() { throw new PreviewLimit("provenance verification re-reads the stored files and re-runs the analysis: it needs the local server (python run.py)."); },
   connectors: () => getJSON("connectors.json"),
   async connectorPreview() { throw new PreviewLimit("request previews are built by the server's acquisition code; run python run.py to preview a query."); },

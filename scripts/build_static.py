@@ -203,8 +203,10 @@ def main() -> int:
                 write(f"t/{tid}/run/{iid}/ask.json", {intent: {**ok(post(f"/api/investigations/{iid}/ask", {"question": q})).json(), "recorded_question": q}
                                                       for intent, q in QUESTIONS.items()})
                 write(f"t/{tid}/run/{iid}/frontier.json", ok(post(f"/api/investigations/{iid}/frontier", {"stability": stab} if not params else {})).json())
+                write(f"t/{tid}/run/{iid}/epistemic.json", ok(get(f"/api/investigations/{iid}/epistemic")).json())
                 if not params:
                     write(f"t/{tid}/run/{iid}/reproduce.json", ok(post(f"/api/investigations/{iid}/reproduce", {})).json())
+                    write(f"t/{tid}/run/{iid}/reproducex.json", ok(post(f"/api/investigations/{iid}/reproduce-x", {})).json())
                     cfs = []
                     for pr in counterfactual.PRESETS:      # the prepared counterfactuals, against the default run
                         sc = {"kind": pr["kind"], "change": pr["change"], "label": pr["label"]}
@@ -237,6 +239,9 @@ def main() -> int:
                      {"name": "four passes over 18 months", "passes": tpl["passes"]}]
         d = ok(post("/api/observation-design", {"truth": truth, "schedules": schedules})).json()
         write("design.json", {**d, "inputs": {"truth": truth, "schedules": schedules}})
+        a = ok(post("/api/simulation-audit", {"scenario": tpl})).json()   # SIMCHECK-1: three seeds of the first template
+        write("simaudit.json", {**a, "inputs": {"scenario": tpl, "seeds": None}})
+        print("  simulation audit: " + ", ".join(f"{q} {'stable' if v else 'unstable'}" for q, v in a["repeated_seed_test"]["stable"].items()))
     finally:
         proc.terminate()
         proc.wait(10)

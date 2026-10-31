@@ -3,6 +3,7 @@
 // (TWIN-1) with deterministic comparison. No semantic similarity is claimed: there is no embedding model here, so
 // matching is exact (every word must occur, case-insensitive) and every result names where it came from.
 
+import { vaultView } from "./epitabs.js";
 import { api } from "./api.js";
 import { emit, getFrontier, getSpecs, state } from "./state.js";
 import { investigationTwin, overlayChallenges, overlayHorizon, twinCompare } from "./frontiercore.js";
@@ -46,7 +47,7 @@ export async function renderKnowledge() {
   const live = renderToken("knowledge");
   const body = $("#knowledge-body");
   clear(body);
-  body.append(el("div", { class: "tabs", role: "tablist", "aria-label": "Knowledge Atlas" }, ...[["search", "Structured search"], ["twins", "Astro-Twins"]].map(([k, t]) => {
+  body.append(el("div", { class: "tabs", role: "tablist", "aria-label": "Knowledge Atlas" }, ...[["search", "Structured search"], ["twins", "Astro-Twins"], ["vault", "Evidence vault"]].map(([k, t]) => {
     const b = el("button", { type: "button", role: "tab", "aria-selected": String(tab === k), "data-ktab": k }, t);
     b.addEventListener("click", () => { tab = k; renderKnowledge(); });
     return b;
@@ -58,7 +59,8 @@ export async function renderKnowledge() {
     if (!live()) return;
     holder.remove();
     body.append(searchView(items));
-  } else body.append(await twinsView());
+  } else if (tab === "vault") body.append(await vaultView(renderKnowledge));
+  else body.append(await twinsView());
 }
 
 function searchView(items) {

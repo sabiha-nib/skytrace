@@ -54,6 +54,7 @@ function linkify(text) {
 }
 
 export async function ask(question) {
+  if (state.session?.blind?.active) { toast("The copilot is paused while a blind analysis is active: its answers would reveal hidden results."); return; }
   if (!state.inv || !question.trim()) return;
   const thread = $("#thread");
   thread.append(el("div", { class: "msg user" }, el("div", { class: "mode" }, "Your question · user-authored content"), question));

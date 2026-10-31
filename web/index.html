@@ -48,36 +48,48 @@
       <button data-ws="time">Time Machine</button>
       <button data-ws="atlas">Cosmic Atlas</button>
     </div>
-    <div class="nav-group"><h3 class="nav-h">Discover</h3>
-      <button data-ws="horizon" data-min-level="investigate">Discovery Horizon</button>
-      <button data-ws="discovery" data-min-level="investigate">Discovery Engine</button>
-      <button data-ws="radar" data-min-level="investigate">Discovery Radar</button>
-    </div>
-    <div class="nav-group"><h3 class="nav-h">Investigate</h3>
-      <button data-ws="lab">Discovery Lab</button>
-      <button data-ws="arena" data-min-level="investigate">Hypothesis Arena</button>
+    <div class="nav-group"><h3 class="nav-h">Evidence</h3>
       <button data-ws="graph" data-min-level="investigate">Evidence Ledger</button>
-      <button data-ws="counterfactual" data-min-level="research">Counterfactual Lab</button>
+      <button data-ws="reasoning" data-min-level="investigate">Reasoning Graph</button>
+      <button data-ws="quality" data-min-level="investigate">Data Quality</button>
+      <button data-ws="negative" data-min-level="research">Negative Space</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Analyze</h3>
+      <button data-ws="lab">Discovery Lab</button>
+      <button data-ws="discovery" data-min-level="investigate">Discovery Engine</button>
+      <button data-ws="arena" data-min-level="investigate">Hypothesis Arena</button>
+      <button data-ws="models" data-min-level="research">Model Arena</button>
+      <button data-ws="uflow" data-min-level="research">Uncertainty Flow</button>
+      <button data-ws="debugger" data-min-level="research">Scientific Debugger</button>
+    </div>
+    <div class="nav-group"><h3 class="nav-h">Challenge</h3>
+      <button data-ws="compiler" data-min-level="investigate">Scientific Compiler</button>
+      <button data-ws="claims" data-min-level="investigate">Claims &amp; Blindspots</button>
+      <button data-ws="adversarial" data-min-level="investigate">Adversarial Lab</button>
+      <button data-ws="review" data-min-level="investigate">Review &amp; Story</button>
     </div>
     <div class="nav-group"><h3 class="nav-h">Experiment</h3>
+      <button data-ws="counterfactual" data-min-level="research">Counterfactual Lab</button>
       <button data-ws="experiments" data-min-level="research">Experiment Studio</button>
       <button data-ws="synthetic" data-min-level="research">Synthetic Observatory</button>
+      <button data-ws="future" data-min-level="research">FutureLab</button>
     </div>
-    <div class="nav-group"><h3 class="nav-h">Understand</h3>
-      <button data-ws="quality" data-min-level="investigate">Data Quality</button>
-      <button data-ws="adversarial" data-min-level="investigate">Adversarial Lab</button>
-    </div>
-    <div class="nav-group"><h3 class="nav-h">Orchestrate</h3>
+    <div class="nav-group"><h3 class="nav-h">Plan</h3>
+      <button data-ws="decide" data-min-level="investigate">Questions &amp; Next Steps</button>
+      <button data-ws="horizon" data-min-level="investigate">Discovery Horizon</button>
+      <button data-ws="radar" data-min-level="investigate">Discovery Radar</button>
       <button data-ws="planner" data-min-level="investigate">Investigation Planner</button>
       <button data-ws="autopilot" data-min-level="research">Research Autopilot</button>
+      <button data-ws="protocol" data-min-level="research">Protocol &amp; Blind</button>
     </div>
     <div class="nav-group"><h3 class="nav-h">Knowledge</h3>
       <button data-ws="notebook">Research Notebook</button>
       <button data-ws="knowledge" data-min-level="investigate">Knowledge Atlas</button>
-      <button data-ws="records">Vault &amp; Reports</button>
+      <button data-ws="argue" data-min-level="research">Reasoning Lab</button>
     </div>
     <div class="nav-group"><h3 class="nav-h">Publish</h3>
-      <button data-ws="review" data-min-level="investigate">Review &amp; Story</button>
+      <button data-ws="integrity" data-min-level="investigate">Integrity Firewall</button>
+      <button data-ws="records">Vault &amp; Reports</button>
     </div>
     <div class="nav-foot" id="nav-foot"></div>
   </nav>
@@ -124,6 +136,78 @@
       <h2 class="ws-title" id="ws-notebook-title">Research Notebook</h2>
       <p class="ws-sub">Structured notes kept with the session: text you write, and blocks that reference observations, measurements, claims, explanations, experiments and figures by identifier. Referenced values are read from the record, never typed; your interpretations stay labelled as yours.</p>
       <div id="notebook-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-reasoning" aria-labelledby="ws-reasoning-title">
+      <h2 class="ws-title" id="ws-reasoning-title">Reasoning Graph</h2>
+      <p class="ws-sub">How each conclusion is constructed: source files, observations, measurements, derived quantities, inferences and claims, with the transformations, methods, models, assumptions and uncertainty that produced them. Every object carries an epistemic status assigned by stated rules from its origin and method — never from how a sentence sounds. Trace a claim back to its files, or a file forward to everything that depends on it; Lineage-X follows a result through every recorded transformation.</p>
+      <div id="reasoning-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-negative" aria-labelledby="ws-negative-title">
+      <h2 class="ws-title" id="ws-negative-title">Negative Space</h2>
+      <p class="ws-sub">What was attempted and could not be established: excluded images, refused measurements, invalid comparisons, tests not run or inconclusive, unavailable services, unresolved contradictions, failed reproductions and hypotheses you abandoned. Each entry says why it was attempted, what happened, what remains unknown and what would unblock it. Failed work is evidence too, and nothing here is erased.</p>
+      <div id="negative-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-models" aria-labelledby="ws-models-title">
+      <h2 class="ws-title" id="ws-models-title">Model Arena</h2>
+      <p class="ws-sub">Competing models fitted to the same recorded visit positions — a static position and linear motion — compared with standard criteria for Gaussian errors (χ², degrees of freedom, Δχ², AIC), residuals and leave-one-visit-out refits. The better-fitting model describes these points better; it is not thereby the physical explanation.</p>
+      <div id="models-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-uflow" aria-labelledby="ws-uflow-title">
+      <h2 class="ws-title" id="ws-uflow-title">Uncertainty Flow</h2>
+      <p class="ws-sub">How uncertainty travels from per-pixel variance to the stated sensitivities, transformation by transformation: what each step propagates, how, under which assumptions, with which recorded result — and which effects no σ includes.</p>
+      <div id="uflow-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-debugger" aria-labelledby="ws-debugger-title">
+      <h2 class="ws-title" id="ws-debugger-title">Scientific Debugger</h2>
+      <p class="ws-sub">Why was this output produced? Breakpoints at the execution stages the record actually contains; for a selected result, the exact computation, its parameters and recorded inputs, and a recomputation where the record determines it. Compare two runs to find the earliest stage where they diverge, or re-execute a run to see how closely it reproduces.</p>
+      <div id="debugger-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-compiler" aria-labelledby="ws-compiler-title">
+      <h2 class="ws-title" id="ws-compiler-title">Scientific Compiler</h2>
+      <p class="ws-sub">Structural and methodological checks on the whole investigation, in ten stages — parse, types and units, dependencies, assumptions, method preconditions, evidence, uncertainty, provenance, conclusions, report — each check with its rule and the objects it cites. A successful compilation means the investigation passed these checks, not that its conclusions are true. The method genome documents every method as a versioned object.</p>
+      <div id="compiler-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-claims" aria-labelledby="ws-claims-title">
+      <h2 class="ws-title" id="ws-claims-title">Claims &amp; Blindspots</h2>
+      <p class="ws-sub">Where each claim stands — established by the recorded evidence, supported under stated assumptions, unresolved, or outside the evidence — and why, by stated rules rather than confidence numbers. Stress-test a claim in ten modes, and see which parts of the investigation have not been examined against a defined list of checks.</p>
+      <div id="claims-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-future" aria-labelledby="ws-future-title">
+      <h2 class="ws-title" id="ws-future-title">FutureLab</h2>
+      <p class="ws-sub">How could future measurements change this investigation? Hypothetical scenarios — a longer baseline, more visits, better precision, missing metadata supplied — computed with formulas that first reproduce the recorded fit. Every scenario states its assumptions; nothing here is a scheduled observation.</p>
+      <div id="future-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-decide" aria-labelledby="ws-decide-title">
+      <h2 class="ws-title" id="ws-decide-title">Questions &amp; Next Steps</h2>
+      <p class="ws-sub">What to investigate next, as transparent decision records — the action, the reasoning, the evidence used, what it needs, its limitations and why other actions were placed lower — and research questions that arise from this investigation's evidence and gaps, each citing what prompted it.</p>
+      <div id="decide-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-protocol" aria-labelledby="ws-protocol-title">
+      <h2 class="ws-title" id="ws-protocol-title">Protocol &amp; Blind Analysis</h2>
+      <p class="ws-sub">Write down the question, hypotheses, inputs, methods, exclusions, parameters, evaluation criteria and robustness plans before analysing; lock them; amend only with a reason. Optionally hide outcomes while you work and unblind through a documented step. This separates planned choices from choices made after seeing results.</p>
+      <div id="protocol-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-argue" aria-labelledby="ws-argue-title">
+      <h2 class="ws-title" id="ws-argue-title">Reasoning Lab</h2>
+      <p class="ws-sub">Construct an inspectable scientific argument from the recorded evidence — claim, supporting and contradicting evidence, assumptions, inference rule, limitations, alternatives, open questions — branch it, compare it, challenge its steps and export the map. Logical validity and empirical truth are judged separately.</p>
+      <div id="argue-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-integrity" aria-labelledby="ws-integrity-title">
+      <h2 class="ws-title" id="ws-integrity-title">Integrity Firewall</h2>
+      <p class="ws-sub">Check a report, your notebook or any text against the recorded investigation before you share it. Advice, never a block: every warning can be inspected, and the text is never changed.</p>
+      <div id="integrity-body"></div>
     </section>
 
     <section class="workspace" id="ws-horizon" aria-labelledby="ws-horizon-title">

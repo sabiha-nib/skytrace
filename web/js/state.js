@@ -25,7 +25,8 @@ export const state = {
   specs: null,              // schemas, planner spec, missions, templates (served by the server or the preview)
   plan: null,               // the plan on the planner canvas (also stored in the session)
   sequence: null,           // {id, index} the multi-epoch sequence open in the Time Machine
-  frontier: null,           // {key, data}: SPE-1, HORIZON-1, ASL-1, INFO-1, REVIEW-1, REPRO-1, twins for the current investigation
+  frontier: null,
+  epistemic: null,          // {iid, data}: EPI-1 graph, genome, SCI-COMP, boundary, stress, NEG-1, BLIND-1, UFLOW-1, lineage, models, future, decisions           // {key, data}: SPE-1, HORIZON-1, ASL-1, INFO-1, REVIEW-1, REPRO-1, twins for the current investigation
 };
 
 /** Specification documents (fetched once). */
@@ -51,6 +52,14 @@ export async function getFrontier() {
   const key = `${iid}|${st ? "stab" : ""}`;
   if (state.frontier?.key !== key) state.frontier = { key, data: await api.frontier(iid, st) };
   return state.frontier.data;
+}
+
+/** Phase 8 epistemic report for the current investigation (fetched once per run; session rules in epistemiccore.js). */
+export async function getEpistemic() {
+  if (!state.inv) return null;
+  const iid = state.inv.investigation_id;
+  if (state.epistemic?.iid !== iid) state.epistemic = { iid, data: await api.epistemic(iid) };
+  return state.epistemic.data;
 }
 
 export function emptyContext() { return { question: null, question_text: "", hypotheses: [] }; }

@@ -2,6 +2,7 @@
 // Review roles are software rule sets, not people. The audit's verdict follows one stated rule. The story is written
 // only from recorded outcomes and their own statements: an inconclusive result stays inconclusive.
 
+import { reviewBoardView } from "./epitabs.js";
 import { api, STATIC } from "./api.js";
 import { emit, getDiscovery, getFrontier, getSpecs, state } from "./state.js";
 import { overlayChallenges, overlayReview } from "./frontiercore.js";
@@ -20,12 +21,13 @@ export async function renderReview() {
   if (!state.inv) { needRun(body, "The Review Room reads the recorded analysis, its checks and your session."); return; }
   const f = await loadFrontier(body, "review");
   if (!f || !live()) return;
-  body.append(el("div", { class: "tabs", role: "tablist", "aria-label": "Review Room" }, ...[["review", "Review"], ["repro", "Reproducibility Challenge"], ["story", "Discovery Story"]].map(([k, t]) => {
+  body.append(el("div", { class: "tabs", role: "tablist", "aria-label": "Review Room" }, ...[["review", "Review"], ["board", "Review board"], ["repro", "Reproducibility Challenge"], ["story", "Discovery Story"]].map(([k, t]) => {
     const b = el("button", { type: "button", role: "tab", "aria-selected": String(tab === k), "data-rtab": k }, t);
     b.addEventListener("click", () => { tab = k; renderReview(); });
     return b;
   })));
   if (tab === "review") body.append(await reviewView(f));
+  else if (tab === "board") body.append(await reviewBoardView(renderReview));
   else if (tab === "repro") body.append(reproView(f));
   else body.append(await storyView(f));
 }

@@ -31,22 +31,57 @@ import { renderAutopilot } from "./autopilotui.js";
 import { renderAtlas } from "./atlasui.js";
 import { renderKnowledge } from "./knowledgeui.js";
 import { renderReview, setReviewTab } from "./reviewui.js";
+import { renderReasoning, setReasoningTab } from "./reasoningui.js";
+import { renderCompiler, setCompilerTab } from "./compilerui.js";
+import { renderClaims, setClaimsTab } from "./claimsui.js";
+import { renderDebugger, setDebuggerTab } from "./debuggerui.js";
+import { renderModels } from "./modelsui.js";
+import { renderUflow } from "./uflowui.js";
+import { renderFuture } from "./futureui.js";
+import { renderDecide, setDecideTab } from "./decideui.js";
+import { renderNegative } from "./negativeui.js";
+import { renderIntegrity } from "./integrityui.js";
+import { BLIND_ALLOWED, blindActive, renderProtocol } from "./protocolui.js";
+import { renderArgue } from "./argueui.js";
 import { $, $$, el, fmtDate, toast } from "./util.js";
 
 const RENDER = { command: renderCommand, discovery: renderDiscovery, explorer: renderExplorer, time: renderTime, lab: renderLab, arena: renderArena,
                  graph: renderLedger, records: renderRecords, planner: renderPlanner, experiments: renderExperiments, quality: renderQuality,
                  radar: renderRadar, notebook: renderNotebook, horizon: renderHorizon, counterfactual: renderCounterfactual, synthetic: renderSynthetic,
-                 adversarial: renderAdversarial, autopilot: renderAutopilot, atlas: renderAtlas, knowledge: renderKnowledge, review: renderReview };
+                 adversarial: renderAdversarial, autopilot: renderAutopilot, atlas: renderAtlas, knowledge: renderKnowledge, review: renderReview,
+                 reasoning: renderReasoning, compiler: renderCompiler, claims: renderClaims, debugger: renderDebugger, models: renderModels, uflow: renderUflow,
+                 future: renderFuture, decide: renderDecide, negative: renderNegative, integrity: renderIntegrity, protocol: renderProtocol, argue: renderArgue };
 const WS_LABEL = { command: "Command Center", explorer: "Sky Explorer", time: "Time Machine", quality: "Data Quality Observatory", planner: "Investigation Planner",
                    discovery: "Discovery Engine", lab: "Discovery Lab", arena: "Hypothesis Arena", experiments: "Experiment Studio", graph: "Evidence Ledger",
                    radar: "Discovery Radar", notebook: "Research Notebook", records: "Vault & Reports", horizon: "Discovery Horizon",
                    counterfactual: "Counterfactual Lab", synthetic: "Synthetic Observatory", adversarial: "Adversarial Science Lab", autopilot: "Research Autopilot",
-                   atlas: "Cosmic Atlas", knowledge: "Knowledge Atlas", review: "Review Room & Discovery Story" };
+                   atlas: "Cosmic Atlas", knowledge: "Knowledge Atlas", review: "Review Room & Discovery Story", reasoning: "Reasoning Graph & Lineage-X",
+                   compiler: "Scientific Compiler & Method Genome", claims: "Claims: Boundary, Stress Test & Blindspots", debugger: "Scientific Debugger",
+                   models: "Model Arena", uflow: "Uncertainty Flow", future: "FutureLab", decide: "Questions & Next Steps", negative: "Negative Space",
+                   integrity: "Integrity Firewall", protocol: "Protocol & Blind Analysis", argue: "Reasoning Lab" };
 const LEVELS = ["explore", "investigate", "research"];
 const minLevel = (ws) => document.querySelector(`.nav button[data-ws=${ws}]`)?.dataset.minLevel || "explore";
 const visibleWs = () => $$(".nav button[data-ws]").map((b) => b.dataset.ws).filter((ws) => LEVELS.indexOf(minLevel(ws)) <= LEVELS.indexOf(state.level));
 const LOGGED = { arena: "arena.view", radar: null, quality: null, graph: null, planner: "planner.view", notebook: "notebook.view", experiments: "experiments.view",
-                 counterfactual: "counterfactual.view", adversarial: "adversarial.view", review: "review.view", synthetic: "synthetic.view", autopilot: "autopilot.view" };
+                 counterfactual: "counterfactual.view", adversarial: "adversarial.view", review: "review.view", synthetic: "synthetic.view", autopilot: "autopilot.view",
+                 compiler: "compiler.view", claims: "claims.view", debugger: "debugger.view", reasoning: "reasoning.view" };
+
+/** Render a workspace, unless a blind analysis is active and the workspace would show hidden results (BLINDLAB-1). The cover
+ *  is drawn over the section; the workspace's own renderer is not called, so nothing hidden is computed or drawn. */
+function renderWs(ws) {
+  const sec = $(`#ws-${ws}`);
+  sec?.querySelector(".blind-cover")?.remove();
+  sec?.classList.remove("blinded");
+  if (blindActive() && !BLIND_ALLOWED.includes(ws)) {
+    sec?.classList.add("blinded");
+    sec?.prepend(el("div", { class: "blind-cover card", role: "status" }, el("h3", {}, "Hidden by the blind analysis"),
+      el("p", {}, `${WS_LABEL[ws]} would show outcomes, significances or results derived from them, which are hidden until you unblind.`),
+      el("p", { class: "muted" }, `Open while blind: ${BLIND_ALLOWED.map((w) => WS_LABEL[w]).join(", ")}.`),
+      el("button", { class: "btn", type: "button", onclick: () => setWorkspace("protocol") }, "Go to Protocol & Blind Analysis")));
+    return;
+  }
+  RENDER[ws]();
+}
 
 // The discovery loop. Each step names where it happens; "Explain" opens the copilot.
 const LOOP = [["Explore", "command"], ["Observe", "explorer"], ["Compare", "time"], ["Detect", "lab"], ["Test", "arena"],
@@ -90,7 +125,7 @@ function setWorkspace(ws, { push = true } = {}) {
   $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.ws === ws ? "page" : "false"));
   $$(".workspace").forEach((s) => s.classList.toggle("active", s.id === `ws-${ws}`));
   $(`.nav button[data-ws=${ws}]`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
-  RENDER[ws]();
+  renderWs(ws);
   renderLoop();
   writeHash(push);
 }
@@ -131,7 +166,7 @@ function renderHeader() {
 
 async function loadTarget(tid, { keepSelection = null, push = true } = {}) {
   if (state.targetId !== tid) state.context = state.session ? state.context : emptyContext();   // a session's context spans its targets
-  state.discovery = null; state.research = null; state.frontier = null;
+  state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null;
   state.targetId = tid;
   state.target = null; state.inv = null; state.model = null; state.prevInv = null; state.selectedKey = null; state.partnerKey = null;
   resetCopilot();
@@ -145,7 +180,7 @@ async function loadTarget(tid, { keepSelection = null, push = true } = {}) {
   }
   $("#target-select").value = tid;
   renderHeader(); renderRuler(); refreshCopilot();
-  RENDER[state.ws]();
+  renderWs(state.ws);
   writeHash(push);
   // The preview's default analysis is already computed, so open each target in its working state.
   if (STATIC && state.target) await runAnalysis(undefined, { quiet: true });
@@ -159,14 +194,14 @@ async function runAnalysis(params, { quiet = false } = {}) {
     const prev = state.inv ? { record: state.inv.record, model: state.model } : null;
     const r = await api.analyze(state.targetId, params || {});
     state.prevInv = prev;
-    state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null;
+    state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null;
     if (state.session) S.attachRun(r, Object.keys(params || {}).length ? "re-run with changed parameters" : "analysis");
     const o = state.model.outcomes.map((x) => `${x.question.replace("_", " ")}: ${x.category.replaceAll("_", " ")}`).join(" · ");
     if (!quiet) toast(`Analysis complete. ${o}`, 5000);
     if (prev) $("#thread").append(el("p", { class: "faint" }, "New analysis run; later answers refer to it."));
   } catch (e) { toast(STATIC ? e.message : `Analysis failed: ${e.message}`, 7000); }
   renderHeader(); renderRuler(); refreshCopilot();
-  RENDER[state.ws]();
+  renderWs(state.ws);
 }
 
 // On narrow screens the copilot is an overlay panel: Escape or Close dismisses it and focus returns to the toggle.
@@ -212,12 +247,18 @@ function bind() {
     if (tab && ws === "graph") setLedgerTab(tab === "ledger" ? "claims" : tab);
     if (tab && ws === "adversarial") setAdversarialTab(tab);
     if (tab && ws === "review") setReviewTab(tab);
+    if (tab && ws === "reasoning") setReasoningTab(tab);
+    if (tab && ws === "compiler") setCompilerTab(tab);
+    if (tab && ws === "claims") setClaimsTab(tab);
+    if (tab && ws === "debugger") setDebuggerTab(tab);
+    if (tab && ws === "decide") setDecideTab(tab);
     if (qtab) setQualityTab(qtab);
     if (question) setPlannerQuestion(question);
     renderRuler();
     setWorkspace(ws);
   });
   on("run", (params) => runAnalysis(params));
+  on("blind-changed", () => { $("#app").classList.toggle("blind-mode", blindActive()); renderRuler(); });
   on("open-sequence", (id) => { openSequence(id); setWorkspace("time"); });
   on("pair-viewed", async ({ a, b, compatible }) => {
     if (!state.session) return;
@@ -226,14 +267,18 @@ function bind() {
       (x) => { if (!x.examined.includes(key)) x.examined = [...x.examined, key].slice(-500); return x; }, key);
   });
   on("sequence-viewed", (id) => S.log("sequence.view", `Sequence ${id} opened`, id));
-  on("session-changed", () => { renderSessionBox(); if (state.ws === "command") renderCommand(); });
+  on("session-changed", () => {
+    renderSessionBox();
+    if (state.ws === "command") renderCommand();
+    if ($("#app").classList.contains("blind-mode") !== blindActive()) { $("#app").classList.toggle("blind-mode", blindActive()); renderRuler(); if (!BLIND_ALLOWED.includes(state.ws)) renderWs(state.ws); }
+  });
   on("ask", (q) => { setCopilotOpen(true, false); ask(q); });
   on("open-record", async (d) => {
     if (!d.bundle_available) { toast("The data bundle for this record is not available on this machine."); return; }
     if (state.targetId !== d.target_id) await loadTarget(d.target_id);
     try {
       const r = await api.investigation(d.investigation_id);
-      state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null;
+      state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null;
       state.context = sanitizeContext(d.context);   // restored as saved (untrusted, so only known fields); nothing is filled in
       resetCopilot();
       $("#thread").append(el("p", { class: "faint" }, `Reopened “${d.name}”, saved ${d.saved_at}. Earlier conversation:`));
@@ -259,7 +304,7 @@ function bind() {
   });
   new ResizeObserver(() => renderRuler()).observe($("#ruler-svg"));
   bindCopilot();
-  $$(".level-switch button").forEach((b) => b.addEventListener("click", () => { setLevel(b.dataset.level); RENDER[state.ws](); }));
+  $$(".level-switch button").forEach((b) => b.addEventListener("click", () => { setLevel(b.dataset.level); renderWs(state.ws); }));
   $("#palette-btn").addEventListener("click", openPalette);
   $("#help-btn").addEventListener("click", openHelp);
   bindPalette(paletteCommands);
@@ -281,7 +326,7 @@ function paletteCommands() {
     { group: "Action", label: "Reproducibility package and reports", disabled: !inv, run: () => { setWorkspace("records"); setTimeout(() => $("#studio")?.scrollIntoView(), 50); } },
     { group: "Action", label: "Ask the copilot", run: () => { setCopilotOpen(true); $("#ask-input").focus(); } },
     ...["explore", "investigate", "research"].map((l) => ({ group: "View", label: `Level: ${l[0].toUpperCase() + l.slice(1)}`,
-      run: () => { setLevel(l); RENDER[state.ws](); } })),
+      run: () => { setLevel(l); renderWs(state.ws); } })),
     { group: "Help", label: "Glossary and keyboard shortcuts", hint: "?", run: openHelp },
     { group: "Session", label: "Research sessions…", hint: state.session ? state.session.name : "none yet", run: openSessions },
     { group: "Session", label: "Plan an investigation", hint: "PLAN-1", run: () => setWorkspace("planner") },
@@ -324,7 +369,7 @@ async function init() {
   setWorkspace(state.ws, { push: false });
   await loadTarget(tid, { keepSelection: h.obs, push: false });
   if (h.b) state.partnerKey = h.b;
-  RENDER[state.ws]();
+  renderWs(state.ws);
   renderLoop();
 }
 

@@ -70,6 +70,11 @@ const serverApi = {
   counterfactual: (tid, iid, scenario) => req("/api/counterfactuals", { method: "POST", body: JSON.stringify({ target_id: tid, baseline_investigation_id: iid, scenario }) }),
   synthetic: (scenario) => req("/api/synthetic", { method: "POST", body: JSON.stringify({ scenario }) }),
   design: (truth, schedules) => req("/api/observation-design", { method: "POST", body: JSON.stringify({ truth, schedules }) }),
+  // Phase 8
+  epistemic: (iid) => req(`/api/investigations/${iid}/epistemic`),
+  reproduceX: (iid) => req(`/api/investigations/${iid}/reproduce-x`, { method: "POST", body: "{}" }),
+  lineage: (iid, rid) => req(`/api/investigations/${iid}/lineage?result=${encodeURIComponent(rid)}`),
+  simAudit: (scenario, seeds) => req("/api/simulation-audit", { method: "POST", body: JSON.stringify(seeds ? { scenario, seeds } : { scenario }) }),
 };
 
 export const api = STATIC ? (await import("./static/backend.js")).staticApi : serverApi;
