@@ -1,4 +1,4 @@
-# Requirement traceability (v0.7.0, 2026-10-31)
+# Requirement traceability (v0.8.0, 2026-10-31)
 
 `IMPLEMENTED` means the code exists and its deterministic tests pass. `VERIFIED` means it is also confirmed on real data or a live service. `BLOCKED` names the missing access. Hackathon submission requirements were retired when the project moved to Meta.
 
@@ -133,3 +133,47 @@ Section numbers follow the Phase 7 brief. Tests named `t1`–`t8` are in `tests/
 | P7.23 | Security: validated inputs, permission boundaries, no keys in the browser, no automatic external access | `server/frontier.py`, `capabilities.py` | API tests, `test_frontier.py::test_registry_permissions_cover_every_action`, e2e `test_z_no_external_requests_no_errors` | IMPLEMENTED |  |
 | P7.24 | Validation tests for every Phase 7 area; none removed | `tests/` | see TEST_REPORT v0.7.0 | IMPLEMENTED | live tests BLOCKED |
 | P7.25 | Release: version, docs, methods generated from code, new version only, commit, no push; hosted preview opened where possible | `make_release.py`, `gen_frontier_methods.py` | see TEST_REPORT v0.7.0 | see TEST_REPORT | not pushed |
+
+## Phase 8 (v0.8)
+
+Section numbers follow the Phase 8 brief. Tests named `e1`–`e9` are in `tests/e2e/test_controls.py` and run in server and static
+mode. `test_epistemic.py` is `tests/unit/test_epistemic.py`.
+
+| ID | Requirement | Location | Test | Status | Evidence / blocker |
+|---|---|---|---|---|---|
+| P8.01 | §1 Audit the actual project first; preserve existing functionality | `docs/PHASE8_AUDIT.md` (feature-preservation matrix) | baseline at `948cd1c`: 292/2, e2e 89; every earlier test still runs | DONE | pipeline code unchanged; record hashes identical |
+| P8.02 | §2.1 Epistemic objects (15 kinds, stable IDs) | `epistemic.py` (EPI-1) | `test_epistemic.py::test_epistemic_objects_have_stable_ids_known_kinds_and_grounded_statuses`, e2e `e1` | IMPLEMENTED |  |
+| P8.03 | §2.2 Ten epistemic statuses from source and method, never wording | `epistemic.py` STATUS_RULES S1–S10 | same; `test_epistemic.py::test_asserted_words_ignore_negated_uses` | IMPLEMENTED | procedures carry no status |
+| P8.04 | §2.3 Reasoning graph with backward and forward tracing | `epistemic.trace`, `epistemiccore.trace`, `reasoningui.js` | `test_epistemic.py::test_claim_lineage_traces_back_to_files_methods_assumptions_and_forward_to_claims`, parity, e2e `e1` | IMPLEMENTED |  |
+| P8.05 | §3 SCI-COMP: ten stages, outcomes, never "proof" | `scicomp.py` (SCICOMP-1), `compilerui.js` | `test_epistemic.py::test_compiler_runs_every_stage_and_states_the_precedence_rule`, `::test_compiler_detects_injected_defects`, e2e `e2` | IMPLEMENTED | both fixtures: "requires scientific review" |
+| P8.06 | §4 SCI-DEBUG: breakpoints at real stages, recomputation, no invented intermediates, differential debugging | `scidebug.py` (SCIDEBUG-1), `debuggerui.js`, `epistemiccore.diff` | `test_epistemic.py::test_debugger_breakpoints_are_real_stages_and_recompute_exactly`, `::test_differential_debugging_finds_the_earliest_divergence`, parity, e2e `e4` | IMPLEMENTED |  |
+| P8.07 | §5 K-BOUNDARY: four regions, no numeric confidence | `claims.boundary` (KBOUND-1), `claimsui.js` | `test_epistemic.py::test_knowledge_boundary_rules`, e2e `e3` | IMPLEMENTED |  |
+| P8.08 | §6 CLAIM-X: ten modes with documented rules, six results | `claims.stress` (CLAIMX-1) | `test_epistemic.py::test_claim_stress_modes_and_results`, e2e `e3`, `e4` | IMPLEMENTED |  |
+| P8.09 | §7 NEGATIVE SPACE: required fields, seven distinctions, searchable, never erased | `negspace.py` (NEG-1), `negativeui.js` | `test_epistemic.py::test_negative_knowledge_registry_records_what_failed`, e2e `e7` | IMPLEMENTED | session entries persist with the session |
+| P8.10 | §8 BLINDSPOT: coverage of defined checks, no percentage | `blindspot.py` (BLIND-1), `overlayBlindspots` | `test_epistemic.py::test_blindspot_coverage_is_over_defined_checks_only`, parity, e2e `e3` | IMPLEMENTED |  |
+| P8.11 | §9 METHOD DNA: schema, comparison, dependency graph, health; tests ≠ validity | `methodgenome.py` (METHOD-DNA-1) | `test_epistemic.py::test_method_genome_is_complete_and_its_tests_exist`, e2e `e2` | IMPLEMENTED | 13 methods |
+| P8.12 | §10 UNCERTAINTY FLOW: represented categories only, omissions listed, no invented propagation | `uflow.py` (UFLOW-1), `uflowui.js` | `test_epistemic.py::test_uncertainty_flow_only_uses_represented_categories_and_lists_omissions`, e2e `e5` | IMPLEMENTED |  |
+| P8.13 | §11 LINEAGE-X | `lineage.py` (LINEAGE-1), `GET …/lineage` | `test_epistemic.py::test_lineage_refers_only_to_recorded_stages`, API, e2e `e1` | IMPLEMENTED | preview: claims and fit |
+| P8.14 | §12 BLINDLAB: hidden fields, who/when, disclosure prevention, documented unblinding, audit trail | `protocolui.js`, `main.js` (BLINDLAB-1), `ruler.js`, `copilot.js` | e2e `e8` | IMPLEMENTED | interface-level blinding; documented in LIMITATIONS |
+| P8.15 | §13 REPRODUCE-X: five verdicts, no false "exact" | `reprox.py` (REPROX-1), `POST …/reproduce-x` | `test_epistemic.py::test_reproduction_verdicts`, API, e2e `e4` | IMPLEMENTED | local environment only |
+| P8.16 | §14 NEXT-X: transparent decision records, no optimality | `decide.next_steps` (NEXTX-1), `decideui.js` | `test_epistemic.py::test_decisions_are_explained_and_questions_cite_their_source`, e2e `e6` | IMPLEMENTED |  |
+| P8.17 | §15 MODEL ARENA: appropriate criteria, no arbitrary scores | `modelarena.py` (MODELS-1) | `test_epistemic.py::test_model_arena_compares_nested_models_and_reproduces_the_pipeline_fit`, e2e `e5` | IMPLEMENTED | your own models DEFERRED |
+| P8.18 | §16 EVIDENCE VAULT: append-only, no claim of cryptographic immutability | `session.py`, `sessioncore.js` (VAULT-1), `epitabs.js` | `test_epistemic.py::test_evidence_vault_chain_detects_edits_and_keeps_old_sessions_valid`, e2e `e9` | IMPLEMENTED |  |
+| P8.19 | §17 REASONING LAB: validity separate from empirical truth | `argueui.js` (ARG-1) | e2e `e9` | IMPLEMENTED |  |
+| P8.20 | §18 INTEGRITY-X: export readiness, never rewrites, never blocks | `integrity.py` (INTEG-1), `integrityCheck`, `POST /api/integrity` | `test_epistemic.py::test_integrity_firewall_flags_problems_without_rewriting`, parity, API, e2e `e7` | IMPLEMENTED | found a real gap: the report stated no limitations (fixed) |
+| P8.21 | §19 QUESTION FORGE | `decide.questions` (QFORGE-1) | `test_epistemic.py::test_decisions_are_explained_and_questions_cite_their_source`, e2e `e6` | IMPLEMENTED | ranking DEFERRED |
+| P8.22 | §20 Scientific contract: protocol, lock, amendments; not preregistration | `protocolui.js` (PROTOCOL-1) | e2e `e8` | IMPLEMENTED | late locks labelled |
+| P8.23 | §21 POSSIBILITY ATLAS | `possibility.py` (Phase 7), `decideui.js` hand-off | e2e `t1`, `e6` | IMPLEMENTED (existing); path validity, opportunity comparison and map provenance DEFERRED | connections are not inferences |
+| P8.24 | §22 Multi-scale workbench | Sky Explorer, ruler, Discovery Engine, KG, reasoning graph focus | e2e `test_b`, `l`, `p`, `e1`, `e2` | PARTIAL: measurement, observation, investigation and knowledge levels exist; pixel level and multi-scale export DEFERRED |  |
+| P8.25 | §23 SIM-CHECK | `simcheck.py` (SIMCHECK-1), `epitabs.js` | `test_epistemic.py::test_simulation_audit_refuses_invalid_scenarios`, API, e2e `e9` | IMPLEMENTED | near-threshold boundary tests DEFERRED |
+| P8.26 | §24 REVIEW-X: not peer review; human annotations | `reviewx.py` (REVIEWX-1), `epitabs.js` | `test_epistemic.py::test_review_board_links_every_item`, e2e `e9` | IMPLEMENTED | no accounts (reviewer identity out of scope) |
+| P8.27 | §25 FUTURELAB: hypothetical only | `futurelab.py` (FUTURE-1), `futureui.js` | `test_epistemic.py::test_futurelab_formula_is_validated_before_scenarios`, parity, e2e `e5` | IMPLEMENTED |  |
+| P8.28 | §26 Catalogue ≥ 500 distinct concepts in 50 domains, deduplicated against every earlier phase | `scripts/phase8_catalogue.py` → `docs/PHASE8_CATALOGUE.md` | `test_phase8_catalogue.py` | IMPLEMENTED | 507 distinct; 31 merged; 160 cite Phase 7 |
+| P8.29 | §27 Eight-mode navigation | `web/index.html`, `main.js` | e2e `test_y_accessible_names`, `test_r_new_workspaces_narrow`, `test_j_levels` | IMPLEMENTED |  |
+| P8.30 | §28 Reusable components; no fake metrics, no inert controls | `epiui.js` (status and outcome pills, tabs, tables), `app.css` | e2e `test_y` (every visible control named), `e1`–`e9` | IMPLEMENTED |  |
+| P8.31 | §29 Data and scientific integrity distinctions | EPI-1 statuses, synthetic notes, labels | `test_epistemic.py::test_epistemic_objects_have_stable_ids_known_kinds_and_grounded_statuses` | IMPLEMENTED | no model computes anything |
+| P8.32 | §30 Engineering: existing stack, one source of truth, typed, versioned, no new dependencies | `server/epistemic.py` (one cached report), method IDs | parity tests | IMPLEMENTED | no dependency added |
+| P8.33 | §31 Tests for every area; browser workflows; none removed or weakened | `tests/` | see TEST_REPORT v0.8.0 | IMPLEMENTED | live tests BLOCKED |
+| P8.34 | §32 Documentation and release; methods generated from code; new version only; no push | `gen_epistemic_methods.py`, `make_release.py` | see TEST_REPORT v0.8.0 | see TEST_REPORT | not pushed |
+| P8.35 | §33 Working preview with the five capability classes stated | `docs/PREVIEW.md` | e2e static mode | see TEST_REPORT v0.8.0 | publication is not proof of rendering |
+

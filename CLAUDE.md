@@ -12,8 +12,8 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
 - Meta check: `python scripts/meta_smoke_test.py` (needs `META_API_KEY` or `MODEL_API_KEY`)
 - Static preview: `python scripts/build_static.py` (`--web-only` to re-copy the interface) → `dist/preview/`
 - Docs generated from code: `python scripts/feature_catalogue.py` (0.5) · `python scripts/phase6_catalogue.py` (0.6) ·
-  `python scripts/phase7_catalogue.py` (0.7) · `python scripts/gen_discovery_methods.py` · `python scripts/gen_research_methods.py` ·
-  `python scripts/gen_frontier_methods.py` · `python scripts/measure_performance.py`
+  `python scripts/phase7_catalogue.py` (0.7) · `python scripts/phase8_catalogue.py` (0.8) · `python scripts/gen_discovery_methods.py` · `python scripts/gen_research_methods.py` ·
+  `python scripts/gen_frontier_methods.py` · `python scripts/gen_epistemic_methods.py` · `python scripts/measure_performance.py`
 - Release: commit, rebuild the preview, then `python scripts/make_release.py` (never overwrites an earlier version)
 
 ## Architecture (see docs/ARCHITECTURE.md)
@@ -30,6 +30,12 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
   `synthobs.py` SYNOBS-1/OBSDES-1 (data/synthlab, fixed stamp), `adversarial.py` ASL-1, `infogain.py` INFO-1, `repro.py` REPRO-1,
   `review.py` REVIEW-1, `twin.py` TWIN-1, `possibility.py` SPE-1/HORIZON-1, CAPREG-3 permissions; routes in `server/frontier.py`;
   session-dependent rules in `web/js/frontiercore.js` (parity-tested).
+- v0.8 epistemic layer (readers; no probabilities, no scores, no model calls): `epistemic.py` EPI-1 (graph, statuses S1–S10 from
+  origin and method, trace), `methodgenome.py` METHOD-DNA-1, `scicomp.py` SCICOMP-1, `scidebug.py` SCIDEBUG-1, `claims.py`
+  KBOUND-1/CLAIMX-1, `negspace.py` NEG-1, `blindspot.py` BLIND-1, `uflow.py` UFLOW-1, `lineage.py` LINEAGE-1, `modelarena.py`
+  MODELS-1, `futurelab.py` FUTURE-1, `decide.py` NEXTX-1/QFORGE-1, `integrity.py` INTEG-1, `reviewx.py` REVIEWX-1, `reprox.py`
+  REPROX-1, `simcheck.py` SIMCHECK-1; session hash chain VAULT-1; routes in `server/epistemic.py` (one report per record, cached
+  by hash); browser rules in `web/js/epistemiccore.js` (parity-tested); protocols, blind analysis and arguments in the browser.
 - `server/app.py` (Starlette) + `web/` (ES modules, no build, strict CSP, no external requests).
 
 ## Rules
@@ -44,4 +50,8 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
   SYN-* names. Never in `data/bundles/`. Agreement on generated data never validates real-data performance.
 - A counterfactual never modifies its baseline; a challenge needs a rule; import is not reproduction; no 3-D from 2-D sky positions.
 - Keys only from the environment; never in code, logs, records or the browser.
+- Statuses come from origin and method, never wording; a compilation is not proof; the debugger never reconstructs unrecorded
+  values; boundary regions are not confidence levels; failed work is never erased; no completeness percentages; tests are not
+  scientific validity; the firewall advises, never blocks or rewrites; a hash chain is tamper-evident, not a signature; a lock is
+  not preregistration; FutureLab is hypothetical.
 - A gate passes only when its acceptance checks were executed and recorded (docs/TEST_REPORT.md).

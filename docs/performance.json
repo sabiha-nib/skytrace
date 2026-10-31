@@ -5,76 +5,111 @@
   "cpus": 2
  },
  "runs_per_measurement": 3,
- "measured_at": "2026-10-30T18:44:00Z",
+ "measured_at": "2026-10-31T08:56:07Z",
  "server_api": {
   "syn-var-1": {
-   "analysis_s": 3.591,
-   "discovery_report_s": 0.007,
-   "evidence_graph_s": 0.006,
-   "package_zip_s": 0.041,
-   "package_zip_bytes": 121208,
-   "stability_check_s": 21.236,
-   "research_report_first_call_s": 0.058,
+   "analysis_s": 4.007,
+   "discovery_report_s": 0.009,
+   "evidence_graph_s": 0.009,
+   "package_zip_s": 0.056,
+   "package_zip_bytes": 122274,
+   "stability_check_s": 23.211,
+   "research_report_first_call_s": 0.059,
    "plan_s": 0.002,
-   "frontier_report_first_call_s": 0.111,
-   "counterfactual_exclusion_s": 3.061,
-   "reproduce_with_replay_s": 3.597
+   "frontier_report_first_call_s": 0.102,
+   "counterfactual_exclusion_s": 3.122,
+   "reproduce_with_replay_s": 4.045,
+   "epistemic_report_first_call_s": 0.243,
+   "epistemic_report_cached_s": 0.02,
+   "independent_reproduction_s": 3.842
   },
   "syn-hpm-1": {
-   "analysis_s": 3.357,
-   "discovery_report_s": 0.007,
-   "evidence_graph_s": 0.006,
-   "package_zip_s": 0.046,
-   "package_zip_bytes": 124275,
-   "stability_check_s": 20.019,
-   "research_report_first_call_s": 0.057,
+   "analysis_s": 4.063,
+   "discovery_report_s": 0.008,
+   "evidence_graph_s": 0.007,
+   "package_zip_s": 0.049,
+   "package_zip_bytes": 125336,
+   "stability_check_s": 22.335,
+   "research_report_first_call_s": 0.056,
    "plan_s": 0.002,
-   "frontier_report_first_call_s": 0.105,
-   "counterfactual_exclusion_s": 2.91,
-   "reproduce_with_replay_s": 3.517
+   "frontier_report_first_call_s": 0.144,
+   "counterfactual_exclusion_s": 2.939,
+   "reproduce_with_replay_s": 3.439,
+   "epistemic_report_first_call_s": 0.211,
+   "epistemic_report_cached_s": 0.019,
+   "independent_reproduction_s": 3.385
   }
  },
  "server_page": {
-  "page_load_s": 0.272,
-  "first_result_s": 4.294,
+  "page_load_s": 0.34,
+  "first_result_s": 4.808,
   "first_result_includes": "running the full analysis on the server",
-  "discovery_engine_first_render_s": 0.068,
-  "hypothesis_arena_render_s": 0.062,
+  "discovery_engine_first_render_s": 0.07,
+  "hypothesis_arena_render_s": 0.057,
   "uncertainty_tab_render_s": 0.079,
   "phase6_first_render_s": {
-   "command_center": 0.078,
-   "planner_plan": 0.078,
-   "data_quality": 0.051,
-   "evidence_ledger": 0.075,
-   "discovery_radar": 0.074,
-   "notebook": 0.054,
-   "experiment_studio": 0.052
+   "command_center": 0.069,
+   "planner_plan": 0.087,
+   "data_quality": 0.048,
+   "evidence_ledger": 0.077,
+   "discovery_radar": 0.069,
+   "notebook": 0.056,
+   "experiment_studio": 0.051
   },
   "phase7_render_s": {
-   "discovery_horizon": 0.095,
-   "adversarial_lab": 0.077,
-   "review_room": 0.06,
-   "counterfactual_preset": 0.081,
-   "synthetic_template": 4.437,
-   "autopilot_plan": 0.082,
-   "cosmic_atlas": 0.076,
-   "knowledge_atlas": 0.115
+   "discovery_horizon": 0.102,
+   "adversarial_lab": 0.085,
+   "review_room": 0.054,
+   "counterfactual_preset": 0.096,
+   "synthetic_template": 5.983,
+   "autopilot_plan": 0.088,
+   "cosmic_atlas": 0.088,
+   "knowledge_atlas": 0.166
   },
   "phase7_render_first_iteration_s": {
-   "discovery_horizon": 0.155,
-   "adversarial_lab": 0.084,
-   "review_room": 0.093,
-   "counterfactual_preset": 0.091,
-   "synthetic_template": 4.425,
-   "autopilot_plan": 0.075,
-   "cosmic_atlas": 0.076,
-   "knowledge_atlas": 0.115
+   "discovery_horizon": 0.274,
+   "adversarial_lab": 0.099,
+   "review_room": 0.06,
+   "counterfactual_preset": 0.096,
+   "synthetic_template": 5.983,
+   "autopilot_plan": 0.088,
+   "cosmic_atlas": 0.088,
+   "knowledge_atlas": 0.287
   },
+  "phase8_render_s": {
+   "reasoning_graph": 0.161,
+   "scientific_compiler": 0.081,
+   "claims": 0.071,
+   "scientific_debugger": 0.094,
+   "model_arena": 0.059,
+   "uncertainty_flow": 0.055,
+   "futurelab": 0.052,
+   "next_steps": 0.053,
+   "negative_space": 0.092,
+   "integrity_check": 0.134,
+   "protocol": 0.097,
+   "reasoning_lab": 0.098
+  },
+  "phase8_render_first_iteration_s": {
+   "reasoning_graph": 0.267,
+   "scientific_compiler": 0.083,
+   "claims": 0.09,
+   "scientific_debugger": 0.094,
+   "model_arena": 0.096,
+   "uncertainty_flow": 0.055,
+   "futurelab": 0.094,
+   "next_steps": 0.066,
+   "negative_space": 0.092,
+   "integrity_check": 0.143,
+   "protocol": 0.097,
+   "reasoning_lab": 0.07
+  },
+  "phase8_note": "median over runs, from click to first rendered element; the epistemic report is computed once per record and then served from the server's cache (the uncached cost is server_api.*.epistemic_report_first_call_s). integrity_check fetches the report Markdown and runs the twelve checks in the browser",
   "phase7_note": "median over runs, from click to first rendered element. Every iteration re-runs the default analysis, whose content hash is the same, so the frontier report is computed once and then served from the server's cache (the uncached cost is server_api.*.frontier_report_first_call_s). synthetic_template includes verifying or writing the scenario's files and running the full analysis on them; counterfactual_preset is a threshold re-assessment"
  },
  "static_preview": {
-  "files": 185,
-  "bytes": 18279532,
+  "files": 215,
+  "bytes": 24671396,
   "largest_files": [
    [
     1162899,
@@ -85,55 +120,84 @@
     "data/t/syn-var-1/images.json"
    ],
    [
-    458043,
-    "data/t/syn-hpm-1/run/650ef26f3d188e8f/record.json"
+    523656,
+    "data/t/syn-var-1/run/92af97fb3a26ee69/epistemic.json"
    ],
    [
-    457982,
-    "data/t/syn-hpm-1/run/e433c07cf5da4b29/record.json"
+    523656,
+    "data/t/syn-var-1/run/724e4a3cdd8ef4d9/epistemic.json"
    ],
    [
-    457982,
-    "data/t/syn-hpm-1/run/968b4a3d5f517c19/record.json"
+    523656,
+    "data/t/syn-var-1/run/1b1b2e78f9ad16af/epistemic.json"
    ]
   ]
  },
  "static_page": {
-  "page_load_s": 0.203,
-  "first_result_s": 0.374,
+  "page_load_s": 0.256,
+  "first_result_s": 0.427,
   "first_result_includes": "loading the precomputed default run",
-  "discovery_engine_first_render_s": 0.099,
-  "hypothesis_arena_render_s": 0.061,
-  "uncertainty_tab_render_s": 0.075,
+  "discovery_engine_first_render_s": 0.086,
+  "hypothesis_arena_render_s": 0.063,
+  "uncertainty_tab_render_s": 0.081,
   "phase6_first_render_s": {
-   "command_center": 0.08,
-   "planner_plan": 0.067,
-   "data_quality": 0.043,
-   "evidence_ledger": 0.087,
-   "discovery_radar": 0.069,
-   "notebook": 0.047,
-   "experiment_studio": 0.051
+   "command_center": 0.102,
+   "planner_plan": 0.076,
+   "data_quality": 0.056,
+   "evidence_ledger": 0.077,
+   "discovery_radar": 0.076,
+   "notebook": 0.045,
+   "experiment_studio": 0.057
   },
   "phase7_render_s": {
-   "discovery_horizon": 0.113,
-   "adversarial_lab": 0.09,
-   "review_room": 0.051,
-   "counterfactual_preset": 0.075,
-   "synthetic_template": 0.064,
-   "autopilot_plan": 0.061,
-   "cosmic_atlas": 0.071,
-   "knowledge_atlas": 0.07
+   "discovery_horizon": 0.102,
+   "adversarial_lab": 0.081,
+   "review_room": 0.07,
+   "counterfactual_preset": 0.068,
+   "synthetic_template": 0.069,
+   "autopilot_plan": 0.062,
+   "cosmic_atlas": 0.066,
+   "knowledge_atlas": 0.098
   },
   "phase7_render_first_iteration_s": {
-   "discovery_horizon": 0.113,
-   "adversarial_lab": 0.09,
-   "review_room": 0.052,
-   "counterfactual_preset": 0.075,
-   "synthetic_template": 0.064,
-   "autopilot_plan": 0.053,
-   "cosmic_atlas": 0.072,
-   "knowledge_atlas": 0.07
+   "discovery_horizon": 0.106,
+   "adversarial_lab": 0.074,
+   "review_room": 0.07,
+   "counterfactual_preset": 0.066,
+   "synthetic_template": 0.092,
+   "autopilot_plan": 0.062,
+   "cosmic_atlas": 0.066,
+   "knowledge_atlas": 0.105
   },
+  "phase8_render_s": {
+   "reasoning_graph": 0.117,
+   "scientific_compiler": 0.072,
+   "claims": 0.064,
+   "scientific_debugger": 0.068,
+   "model_arena": 0.065,
+   "uncertainty_flow": 0.072,
+   "futurelab": 0.069,
+   "next_steps": 0.082,
+   "negative_space": 0.094,
+   "integrity_check": 0.102,
+   "protocol": 0.102,
+   "reasoning_lab": 0.075
+  },
+  "phase8_render_first_iteration_s": {
+   "reasoning_graph": 0.121,
+   "scientific_compiler": 0.065,
+   "claims": 0.064,
+   "scientific_debugger": 0.068,
+   "model_arena": 0.064,
+   "uncertainty_flow": 0.059,
+   "futurelab": 0.091,
+   "next_steps": 0.063,
+   "negative_space": 0.116,
+   "integrity_check": 0.102,
+   "protocol": 0.113,
+   "reasoning_lab": 0.075
+  },
+  "phase8_note": "median over runs; the preview serves the epistemic report recorded at build time",
   "phase7_note": "median over runs; the preview serves results recorded at build time"
  }
 }

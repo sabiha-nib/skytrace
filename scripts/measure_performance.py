@@ -62,6 +62,8 @@ def page_timings(base: str, mode: str) -> dict:
         p6 = {k: [] for k in ("command_center", "planner_plan", "data_quality", "evidence_ledger", "discovery_radar", "notebook", "experiment_studio")}
         p7 = {k: [] for k in ("discovery_horizon", "adversarial_lab", "review_room", "counterfactual_preset", "synthetic_template", "autopilot_plan",
                               "cosmic_atlas", "knowledge_atlas")}
+        p8 = {k: [] for k in ("reasoning_graph", "scientific_compiler", "claims", "scientific_debugger", "model_arena", "uncertainty_flow",
+                              "futurelab", "next_steps", "negative_space", "integrity_check", "protocol", "reasoning_lab")}
         for _ in range(N):
             ctx = b.new_context(viewport={"width": 1440, "height": 900})
             pg = ctx.new_page()
@@ -112,6 +114,18 @@ def page_timings(base: str, mode: str) -> dict:
             p7["autopilot_plan"].append(timed(lambda: (pg.click("#ap-propose"), pg.locator("#ap-steps tbody tr").first.wait_for(timeout=60000))))
             p7["cosmic_atlas"].append(timed(lambda: (pg.click(".nav button[data-ws=atlas]"), pg.locator("#atlas-table tbody tr").first.wait_for(timeout=60000))))
             p7["knowledge_atlas"].append(timed(lambda: (pg.click(".nav button[data-ws=knowledge]"), pg.locator("#ka-search").wait_for(timeout=60000))))
+            # Phase 8 workspaces. The reasoning graph is opened first: it fetches the epistemic report (computed by the server on first
+            # request for a record, then cached by content hash), which every other Phase 8 workspace reuses.
+            for k, ws, sel in (("reasoning_graph", "reasoning", ".epi-node"), ("scientific_compiler", "compiler", "#compile-outcome"),
+                               ("claims", "claims", ".kb-item"), ("scientific_debugger", "debugger", "#dbg-panel"),
+                               ("model_arena", "models", ".models-table"), ("uncertainty_flow", "uflow", "[data-unode]"),
+                               ("futurelab", "future", "#future-validation"), ("next_steps", "decide", "#nx-list .nx-item"),
+                               ("negative_space", "negative", "#neg-table tbody tr"), ("protocol", "protocol", "#pr-question"),
+                               ("reasoning_lab", "argue", "#arg-claim-ref")):
+                p8[k].append(timed(lambda: (pg.click(f".nav button[data-ws={ws}]"), pg.locator(sel).first.wait_for(timeout=180000))))
+            pg.click(".nav button[data-ws=integrity]")
+            pg.locator("#integ-run").wait_for(timeout=60000)
+            p8["integrity_check"].append(timed(lambda: (pg.click("#integ-run"), pg.locator("#integ-outcome").wait_for(timeout=60000))))
             ctx.close()
         b.close()
     out["page_load_s"] = med(loads)
@@ -123,6 +137,12 @@ def page_timings(base: str, mode: str) -> dict:
     out["phase6_first_render_s"] = {k: med(v) for k, v in p6.items()}
     out["phase7_render_s"] = {k: med(v) for k, v in p7.items()}
     out["phase7_render_first_iteration_s"] = {k: round(v[0], 3) for k, v in p7.items()}
+    out["phase8_render_s"] = {k: med(v) for k, v in p8.items()}
+    out["phase8_render_first_iteration_s"] = {k: round(v[0], 3) for k, v in p8.items()}
+    out["phase8_note"] = ("median over runs, from click to first rendered element; the epistemic report is computed once per record and then served "
+                          "from the server's cache (the uncached cost is server_api.*.epistemic_report_first_call_s). integrity_check fetches the "
+                          "report Markdown and runs the twelve checks in the browser" if mode == "server" else
+                          "median over runs; the preview serves the epistemic report recorded at build time")
     out["phase7_note"] = ("median over runs, from click to first rendered element. Every iteration re-runs the default analysis, whose content "
                           "hash is the same, so the frontier report is computed once and then served from the server's cache (the uncached "
                           "cost is server_api.*.frontier_report_first_call_s). synthetic_template includes verifying or writing the "
@@ -166,6 +186,13 @@ def main() -> int:
                 r3 = requests.post(base + f"api/targets/{tid}/analyze", json={"params": {"aperture_radius_px": 2.5 + 0.1 * (len(fr) + 1)}}, proxies=NOPROXY, timeout=600)
                 iid3 = r3.json()["investigation_id"]
                 fr.append(timed(lambda: requests.get(base + f"api/investigations/{iid3}/frontier", proxies=NOPROXY, timeout=600).raise_for_status()))
+            er = []
+            for _ in range(N):                      # epistemic report: first call per record (new parameters → new content hash)
+                r4 = requests.post(base + f"api/targets/{tid}/analyze", json={"params": {"aperture_radius_px": 3.0 + 0.1 * (len(er) + 1)}}, proxies=NOPROXY, timeout=600)
+                iid4 = r4.json()["investigation_id"]
+                er.append(timed(lambda: requests.get(base + f"api/investigations/{iid4}/epistemic", proxies=NOPROXY, timeout=600).raise_for_status()))
+            erc = timed(lambda: requests.get(base + f"api/investigations/{iid4}/epistemic", proxies=NOPROXY, timeout=600).raise_for_status())
+            rx = timed(lambda: requests.post(base + f"api/investigations/{iid}/reproduce-x", json={}, proxies=NOPROXY, timeout=900).raise_for_status())
             cfx = timed(lambda: requests.post(base + "api/counterfactuals", json={"target_id": tid, "baseline_investigation_id": iid,
                         "scenario": {"kind": "exclusion", "change": {"detectors": [1]}}}, proxies=NOPROXY, timeout=900).raise_for_status())
             rep = timed(lambda: requests.post(base + f"api/investigations/{iid}/reproduce", json={}, proxies=NOPROXY, timeout=900).raise_for_status())
@@ -174,7 +201,8 @@ def main() -> int:
             api[tid] = {"analysis_s": med(an), "discovery_report_s": med(di), "evidence_graph_s": med(gr),
                         "package_zip_s": med(pk), "package_zip_bytes": size, "stability_check_s": round(st, 3),
                         "research_report_first_call_s": med(rr), "plan_s": med(pl),
-                        "frontier_report_first_call_s": med(fr), "counterfactual_exclusion_s": round(cfx, 3), "reproduce_with_replay_s": round(rep, 3)}
+                        "frontier_report_first_call_s": med(fr), "counterfactual_exclusion_s": round(cfx, 3), "reproduce_with_replay_s": round(rep, 3),
+                        "epistemic_report_first_call_s": med(er), "epistemic_report_cached_s": round(erc, 3), "independent_reproduction_s": round(rx, 3)}
         res["server_api"] = api
         res["server_page"] = page_timings(base, "server")
     finally:

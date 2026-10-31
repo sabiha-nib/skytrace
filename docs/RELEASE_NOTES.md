@@ -1,5 +1,67 @@
 # Release notes
 
+## 0.8.0 — 2026-10-31 · the epistemic frontier
+
+Skytrace can now show how each conclusion is built and test it the way software is tested. Every claim traces back to its files,
+methods and assumptions. Investigations compile and can be debugged. Claims are stress-tested, failed work is kept, blindspots
+are named, and uncertainty is followed through the pipeline. Reports are checked before they leave. Nothing in this release
+measures anything new, invents a probability or calls a model, and the bundled data are still synthetic. Real-data acquisition,
+the Meta model, multi-agent research and semantic search are still blocked in the build environment.
+
+**New**
+* **Reasoning graph** (EPI-1): fifteen kinds of scientific object with stable identifiers and ten epistemic statuses. Each status
+  comes from one rule about origin and method (S1–S10), never from wording. Trace backward to files, measurements, methods and
+  assumptions, or forward to dependent claims, with export. **Lineage-X** (LINEAGE-1) shows the nine stages of a claim or of the
+  motion fit, with SHA-256 fingerprints, unit and coordinate conversions, and missing stages reported as missing.
+* **Scientific compiler** (SCICOMP-1): ten stages (parse, types, dependencies, assumptions, methods, evidence, uncertainty,
+  provenance, conclusions, report), each check stating its rule. Seven outcomes under one precedence rule. Every result says that
+  passing is not proof. **Method genome** (METHOD-DNA-1) covers thirteen methods with typed inputs and outputs (units),
+  assumptions, formula, dependencies, applicability, limitations, version chain and real known-answer tests, plus comparison, a
+  dependency graph and health. Tests are labelled as software evidence, not scientific validity.
+* **Scientific debugger** (SCIDEBUG-1): breakpoints only at stages the record contains. Results are recomputed from recorded
+  inputs; nothing unrecorded is reconstructed. **Differential debugging** compares two runs stage by stage and finds the
+  earliest divergence. **Independent reproduction** (REPROX-1) gives one of five verdicts; "exact" requires identical outputs and
+  an intact record.
+* **Claims**: a knowledge boundary (KBOUND-1) with four regions under rules B1–B4 and no confidence numbers; claim stress tests
+  (CLAIMX-1) in ten documented modes, each returning pass, warning, fail, inconclusive, not tested or blocked; and blindspots
+  (BLIND-1) over eleven defined checks, with no percentage. All three can be exported.
+* **Negative Space** (NEG-1): failed, inconclusive, unavailable, unsupported, contradictory, unreproduced, missing, invalid,
+  abandoned and limiting work, each with every required field and one of seven distinctions. Searchable, and you can add your own.
+* **Model Arena** (MODELS-1): static against linear motion per axis, with residuals, χ², χ²ν, Δχ², AIC and leave-one-out. It checks
+  that it reproduces the pipeline's fit, and reports no p-values or scores. **Uncertainty Flow** (UFLOW-1) shows only the
+  categories the methods propagate and lists what they do not. **FutureLab** (FUTURE-1) validates its formula against the
+  recorded σ before showing hypothetical scenarios, and has an interactive calculator.
+* **Questions & Next Steps** (NEXTX-1, QFORGE-1): decision records with action, reasoning, evidence, inputs, limitations and why
+  each item is not ranked higher, with no optimality claims. Questions in seven categories, each citing what prompted it.
+* **Integrity Firewall** (INTEG-1): twelve export-readiness checks on the investigation report, your notebook or any text. It
+  never blocks and never rewrites. It found a real gap: the investigation report had no limitations section. The report now
+  states outcomes, criteria, sensitivities with units, and limitations.
+* **Protocol & Blind Analysis** (PROTOCOL-1, BLINDLAB-1): a protocol can be locked with a content hash. A late lock is labelled as
+  made after results were visible, and amendments are append-only. None of this is called preregistration. Blind analysis has a
+  commitment hash; it covers outcome-bearing workspaces, pauses the copilot and stops ruler emphasis. Unblinding needs a locked
+  protocol and a typed confirmation.
+* **Reasoning Lab** (ARG-1): arguments built from graph objects, with inference rules, branching, comparison, disputes and a
+  Markdown export that separates logical validity from empirical standing.
+* **New tabs in existing workspaces**:
+  - **Evidence vault** (VAULT-1, Knowledge Atlas): the session history is hash-chained. Edits are detected and refused on save,
+    and corrections are appended. Described as tamper-evident, not as a signature.
+  - **Simulation audit** (SIMCHECK-1, Synthetic Observatory): repeated-seed stability, assumptions and validity domain.
+  - **Review board** (REVIEWX-1, Review Room): eight automated perspectives, every item linked to its evidence, with your
+    comments, responses and resolutions.
+* Navigation in the eight modes of the brief. New session fields `negative`, `reviews`, `protocol`, `blind`, `arguments` and
+  `debug`, and the history chain; 0.7 sessions stay valid.
+* API: `GET /api/investigations/{iid}/epistemic`, `POST …/reproduce-x`, `GET …/lineage`, `POST /api/integrity`,
+  `POST /api/simulation-audit`. The static preview records the epistemic report for every run.
+* Generated documentation: [EPISTEMIC_METHODS.md](EPISTEMIC_METHODS.md), the [Phase 8 catalogue](PHASE8_CATALOGUE.md) (507
+  distinct concepts in 50 domains, deduplicated against Phase 7) and the [Phase 8 audit](PHASE8_AUDIT.md) with a
+  feature-preservation matrix.
+
+**Changed**: the investigation report has a new "Outcomes and limitations" section. Records and their content hashes are
+unchanged. Navigation groups were renamed; every workspace keeps its button and route.
+
+**Unchanged**: the pipeline, the copilot's tools and guard, and every earlier workspace and test. Earlier release artifacts are
+kept.
+
 ## 0.7.0 — 2026-10-31 · the frontier laboratory
 
 Skytrace can now ask "what if", generate and test against known answers, challenge its own interpretation, and say which

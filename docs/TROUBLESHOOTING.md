@@ -39,3 +39,13 @@
 | Reproducibility verdict "replayable, not replayed here" | only the audit ran | press *Re-execute and audit* (full application) to replay |
 | Atlas shows "distance unknown" | no parallax is recorded for the target | expected; no distance is inferred from sky position |
 | Knowledge search finds nothing for a related word | search is exact, multi-word substring matching | search for the words the item actually uses |
+| Compiler outcome "requires scientific review" | a check asks for review (an unresolved contradiction, a positive claim with open alternatives); this is the expected outcome on both fixtures | open the Review perspective or the cited checks; it is not a failure and passing would not be proof |
+| Debugger: "This stage records its decisions but no separate result" | the stage logs events but no single value to recompute | trace its events in the reasoning graph or the Discovery Lab's step log |
+| Differential debugging "needs two runs" (full application) | only runs attached to the session can be compared | run a stability perturbation or another parameter set while the session is open |
+| Reproduction "failed reproduction" with no software change | the record's parameters or inputs no longer give the recorded outputs, or the record was edited (its hash does not recompute) | the earliest divergence names the stage; re-run the analysis to get a fresh record |
+| Lineage-X: "the preview records the lineage of the claims and the motion fit" | the static preview records lineage for the claims and the motion fit only | use the full application for other results |
+| Workspaces show "Hidden by the blind analysis" | a blind analysis is active | finish the work you planned, then unblind in Protocol & Blind Analysis (needs a locked protocol and typing UNBLIND) |
+| Copilot says it is paused | a blind analysis is active; its answers would reveal outcomes | unblind first |
+| Session save refused: "evidence-vault chain broken at entry N" | an earlier history entry was edited outside Skytrace | restore an unedited export; corrections must be appended, not edited in |
+| Integrity firewall "needs attention" on my notebook | a high-severity check failed (for example a number not in the record, or "discovered") | each failing check lists the items; the firewall never changes your text |
+| Protocol says "locked after results were visible" | the lock was made after the analysis ran | expected: a late lock is labelled so; lock before running to record a pre-analysis plan |

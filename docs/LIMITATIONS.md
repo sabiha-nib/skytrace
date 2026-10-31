@@ -113,6 +113,50 @@
 - **Catalogue.** 74 Phase 7 concepts are deferred, 6 blocked and 4 out of scope. See [PHASE7_CATALOGUE.md](PHASE7_CATALOGUE.md).
   Group assignments are the developer's judgement.
 
+## Epistemic layer (v0.8)
+
+- **Synthetic data only, again.** Every Phase 8 result (graphs, compilations, boundaries, stress tests, lineage, models,
+  reproductions) was computed on the two synthetic fixtures. None has run on a real SPHEREx observation.
+- **The graph is as fine as the record.** EPI-1 builds objects from recorded events. Steps the pipeline does not record as
+  separate events (for example the individual pixels of an aperture) are not objects. Statuses come from ten fixed rules about
+  origin and method. They say how a statement was produced, not whether it is true.
+- **A compilation is not proof.** SCICOMP-1 checks the structure and the documented preconditions it knows about. Its checks are a
+  fixed list. Passing them says nothing about calibration systematics, unmodelled physics or anything the record does not contain.
+  The wording check (C1) recognises a fixed list of outcome words and negators within four words in the same sentence. Unusual
+  phrasing can escape it or trigger it.
+- **The debugger recomputes what was recorded.** It does not re-read pixels. A breakpoint whose stage records decisions but no
+  separate result shows its events only. Differential debugging in the server needs two runs attached to your session; the static
+  preview compares its recorded runs.
+- **Boundaries and stress tests are rule sets.** The four regions follow rules B1–B4 and the ten stress modes follow one rule each.
+  A claim with no failing mode is not thereby correct. "Not tested" means exactly that.
+- **Negative space and blindspots cover what is defined.** NEG-1 lists failures the record and your session contain. BLIND-1
+  counts eleven defined checks; an investigation can have blindspots outside them. No completeness percentage is computed.
+- **The method genome describes; it does not validate.** Known-answer tests check the software against generated truth. Health
+  reports whether those tests are defined, not whether the method is right for real SPHEREx data.
+- **Uncertainty flow shows what the methods propagate.** Calibration systematics, PSF model error, reference-star variability and
+  parameter sensitivity are listed as not propagated. No combined error budget is computed.
+- **Model arena is two models.** It compares a static and a linear motion model per axis, assuming independent Gaussian errors.
+  You cannot register your own model. There are no brightness models. AIC differences are reported without significance levels.
+- **FutureLab is hypothetical.** The slope-error formula assumes white, independent errors at the recorded precision. It is used
+  only after it reproduces the recorded σ. Scenarios say nothing about SPHEREx scheduling.
+- **Reproduction is local.** "Exact reproduction" means re-executed here with identical outputs and a record whose hash
+  recomputes. Dependency comparison covers recorded versions, not a full package lock.
+- **The integrity firewall is advice.** Its twelve checks match numbers against recorded values at the precision written, and words
+  against fixed lists. It cannot tell a misleading sentence built from true numbers. It never blocks an export or edits text.
+- **The evidence vault is tamper-evident, not tamper-proof.** Anyone who rewrites an entry and recomputes every later link can hide
+  the edit. Entries trimmed by the history limit are gone; the first remaining entry is reported as unverifiable.
+- **Protocols and blinding are local discipline.** A lock is a content hash and a time in your session, not an external registry,
+  and it is not preregistration. A lock made after results were visible is labelled so. Blind analysis hides outcomes in the
+  interface. The record and the server still contain them, so it guards against accidental viewing, not against deliberate access.
+- **The Reasoning Lab checks form, not truth.** Validity means every step has premises and a rule from the fixed list. Empirical
+  standing repeats the statuses of the linked objects.
+- **The review board is automated.** Its eight perspectives regroup compiler checks, stress results, the report check and the
+  genome. It is not peer review, and there are no reviewer accounts.
+- **The copilot does not use the epistemic report.** Its sixteen tools are unchanged.
+- **Static preview.** Lineage for results other than the claims and the motion fit, reproduction of runs other than the default,
+  and audits of other scenarios are refused with a reason.
+- **Catalogue.** 79 Phase 8 concepts are deferred, 1 blocked and 5 out of scope. See [PHASE8_CATALOGUE.md](PHASE8_CATALOGUE.md).
+
 ## Product
 
 - Single-user: no accounts, and saved investigations are visible to anyone who can reach the server.

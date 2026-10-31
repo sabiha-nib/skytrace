@@ -16,7 +16,7 @@ stability perturbations (record, summary, evidence graph, report, discovery repo
 quality, ledger, radar), the reproducibility package — the server-built zip carried as base64 with its SHA-256, checked in the browser before it is offered — and the
 local assistant's answer to each question type with the question it was recorded for), the stability result, the standard
 experiments per target, the specifications (planner table, missions, templates, schemas, citations), the connector registry and
-the capability registry as the preview sees it, and for Phase 7: the frontier report for every run (`frontier.json`), the default run's reproducibility audit with replay (`reproduce.json`), nine prepared counterfactual scenarios (`counterfactuals.json`), the six Synthetic Observatory templates (`synthetic.json`) and one schedule comparison (`design.json`). `PREVIEW_MANIFEST.json` lists every file with its SHA-256 and the commit it was built from.
+the capability registry as the preview sees it, and for Phase 7: the frontier report for every run (`frontier.json`), the default run's reproducibility audit with replay (`reproduce.json`), nine prepared counterfactual scenarios (`counterfactuals.json`), the six Synthetic Observatory templates (`synthetic.json`) and one schedule comparison (`design.json`), and for Phase 8: the epistemic report for every run (`epistemic.json`: reasoning graph, method genome, compilation, boundary, stress tests, negative space, blindspot base, uncertainty flow, lineage of the claims and the motion fit, breakpoints and inspections, model arena, FutureLab, next steps, questions, integrity facts and report check, review board), the default run's independent reproduction (`reproducex.json`) and one simulation audit (`simaudit.json`). `PREVIEW_MANIFEST.json` lists every file with its SHA-256 and the commit it was built from.
 
 `index.html` is for local use; `artifact.html` is the same page as body content for hosts that wrap pages in their
 own document. The `<meta name="skytrace-mode" content="static">` tag switches `web/js/api.js` to the static backend
@@ -48,8 +48,28 @@ own document. The `<meta name="skytrace-mode" content="static">` tag switches `w
 | Synthetic Observatory, Observation Design Lab | generates and analyses any valid scenario (written to `data/synthlab/`) | the six templates and one recorded schedule comparison; edited scenarios refused |
 | Reproducibility challenge | audit and re-execution | audit for every run; the recorded re-execution of the default run |
 | Autopilot, Cosmic Atlas, Knowledge Atlas, twins, story | browser over server data | browser (same code) over recorded data |
+| Phase 8 epistemic workspaces (reasoning graph, compiler, genome, claims, debugger inspections, models, uncertainty flow, FutureLab, next steps, questions, negative space, review board) | computed by the server per record | recorded per run (`epistemic.json`); session rules in the browser (same code) |
+| Differential debugging | two runs attached to your session | the recorded runs, compared in the browser (parity-tested port) |
+| Independent reproduction (REPROX-1) | re-executes any run | the recorded reproduction of the default run |
+| Lineage-X | any result in the graph | the claims and the motion fit; other results refused with a reason |
+| Integrity firewall, protocol, blind analysis, Reasoning Lab, evidence vault, FutureLab calculator | browser | browser (same code) |
+| Simulation audit | any valid scenario, up to three seeds | the one recorded audit |
 
 Every screen of the static preview says it is a preview of precomputed results.
+
+## Capability availability in the static preview (Phase 8, §33)
+
+| Class | Capabilities |
+|---|---|
+| **Fully interactive in the static preview** (runs in the browser with the same code as the full application) | trace in the reasoning graph; compiler filters; method comparison; differential debugging between recorded runs; blindspot overlay with your session; FutureLab calculator; integrity firewall on the report, your notebook or pasted text; protocol, lock and amendments; blind analysis and unblinding; Reasoning Lab; evidence vault verification and corrections; review-board comments; negative-space search and your own entries; decision records; questions handed to the Planner; every export; pair comparison, registration, planner, workflows, notebook, figures, knowledge graph, sessions (earlier phases) |
+| **Precomputed in the static preview** (recorded from the real server at build time) | analyses (default and five stability perturbations); the epistemic report per run; the default run's independent reproduction; one simulation audit; frontier reports, nine counterfactuals, six synthetic templates, one schedule comparison; research reports; standard experiments; the local assistant's answers |
+| **Only in server mode** | analyses with other parameters; re-executing reproductions of other runs; lineage of results other than claims and the motion fit; simulation audits of other scenarios; edited counterfactuals and synthetic scenarios; custom experiments; replay of saved records; connector request previews |
+| **Blocked by external dependencies** | real SPHEREx acquisition and every real-data result (IRSA, SIMBAD and Gaia refused, proxy 403); Meta model answers (no key, API refused); multi-agent research; semantic indexing; dependency review (PyPI/OSV refused); live tests |
+| **Not implemented** | the deferred concepts of [PHASE8_CATALOGUE.md](PHASE8_CATALOGUE.md), including copilot use of the epistemic report, your own models in the arena, object and claim histories across runs, pixel profiles and region statistics, question ranking, FITS/VOTable/PROV exports and the learning exercises |
+
+Publishing the preview does not prove that it renders. Rendering is checked by the browser tests against `dist/preview/` served
+locally, in the static mode of every e2e test. The hosted copy is checked by reading it back and, where a browser can reach it,
+by opening it.
 
 ## Rebuilding
 

@@ -95,3 +95,29 @@ files were produced by the server at build time and are listed in `PREVIEW_MANIF
   (`events[step].data…`, ledger claims, hypothesis tests) or session items.
 * **Session additions**: `scenarios`, `synthetic`, `causal` (labelled user-proposed) and `autopilot` runs (level, steps,
   statuses, errors). Each is appended to the session history with a hash-verified save.
+
+## Epistemic layer (v0.8)
+
+* **The epistemic report** (EPI-1 and every Phase 8 reader) carries the record's content hash and is cached by it. Every object
+  in the reasoning graph names what it was built from:
+  - a source file names its manifest key and SHA-256;
+  - a measurement names its `measure` event and source file;
+  - a derived value names its event and method;
+  - an assumption names the method or threshold it belongs to.
+
+  Synthetic sources and observations carry the status *simulated* (rule S1), never *directly recorded*.
+* **Lineage** (LINEAGE-1) lists, for a result, the original files with their SHA-256 and origin, then the import, validation,
+  transformation (unit and coordinate conversions as recorded), measurement, analysis, assessment, claim and report stages. A
+  stage the record does not contain is reported as missing, never filled.
+* **Compiler, stress tests, review board and firewall** cite record paths (`$.content_hash`, `events[...]`), graph identifiers
+  and manifest keys. A check that found nothing cites a sample of what it examined.
+* **Session additions** (all optional, all appended to the history):
+  - `negative` entries you add;
+  - `reviews` (comments, responses and resolutions on review-board items, "you", no accounts);
+  - `protocol` (content, lock hash, lock time, whether results were visible, amendments);
+  - `blind` (hidden fields, commitment hash, start, unblinding);
+  - `arguments`;
+  - `debug` (reproductions and comparisons you ran).
+* **History hash chain** (VAULT-1): every history entry carries `h`, the SHA-256 of the previous link and the canonical entry
+  (SKY-CANON-1), starting from a fixed genesis value. `session.verify` reports broken links. A save with a broken link is refused.
+  Corrections are new entries with a `seq:` reference to the corrected entry.

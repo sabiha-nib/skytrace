@@ -94,3 +94,26 @@ full application, then *Replay*.
   stated change alone.
 * `python scripts/gen_frontier_methods.py` re-runs the prepared counterfactuals, the synthetic templates, a schedule
   comparison and every frontier method on both fixtures, and writes the results into `docs/FRONTIER_METHODS.md`.
+
+## Independent reproduction and the epistemic layer (v0.8)
+
+* **REPROX-1** (Scientific Debugger → Reproduce) records the environment (Python, platform, numpy, scipy, Skytrace version) and
+  compares it with the record. It restores the recorded parameters and verifies the input files against the manifest. It then
+  re-executes the analysis and compares every stage with SCIDEBUG-1's differential debugger, at a relative tolerance of 1e-9. There
+  are five verdicts:
+  - *Exact reproduction*: identical outputs and a record whose content hash recomputes.
+  - *Numerically equivalent*: every difference is within the tolerance.
+  - *With documented differences*: outputs differ and a recorded cause explains it (software version, parameters or inputs).
+  - *Failed*: outputs differ with no recorded cause, or the record's hash does not recompute.
+  - *Blocked*: inputs are missing.
+
+  The earliest divergence is reported. Floating-point behaviour on another platform can turn an exact reproduction into a
+  numerically equivalent one; the verdict says which. Tests: `tests/unit/test_epistemic.py::test_reproduction_verdicts` (including
+  a tampered record, a parameter change, a software change and missing inputs).
+* **Differential debugging** compares any two runs stage by stage. The interface needs two runs: in the server these are runs
+  attached to your session; in the static preview they are the recorded runs. The browser port is parity-tested.
+* **The epistemic report is deterministic.** The same record gives the same graph, compilation, boundary, stress results and
+  review board. It is cached by content hash. `python scripts/gen_epistemic_methods.py` regenerates
+  `docs/EPISTEMIC_METHODS.md` from the fixtures.
+* **Simulation audit** (SIMCHECK-1) regenerates a scenario with up to three seeds. It reports whether each verdict is stable
+  across them, alongside the generator version, ground truth, assumptions and validity domain.

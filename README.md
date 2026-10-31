@@ -19,7 +19,23 @@ The static preview says on every screen that it is a preview of precomputed resu
 an explanation; pair comparisons, image registration and record-hash checks run in the browser with code that is
 tested for parity with the Python implementation.
 
-## Status (v0.7.0, 2026-10-31)
+## Status (v0.8.0, 2026-10-31)
+
+Phase 8 added an epistemic layer: Skytrace now shows how each conclusion is built and tests it. It includes:
+
+- a reasoning graph of fifteen kinds of scientific object, with statuses grounded in source and method, and backward and
+  forward tracing to files, methods and assumptions
+- a scientific compiler (ten stages; passing is never called proof) and a method genome
+- a scientific debugger with recomputation, differential debugging and graded independent reproduction
+- a knowledge boundary without confidence numbers, ten-mode claim stress tests and blindspots over defined checks
+- a negative-knowledge registry, an uncertainty flow that lists what is not propagated, and data lineage
+- a model arena, a validated FutureLab, decision records and a question forge
+- an integrity firewall that never blocks or rewrites
+- protocols with locks and amendments, blind analysis, a Reasoning Lab, a hash-chained evidence vault and a review board
+
+See [docs/PHASE8_AUDIT.md](docs/PHASE8_AUDIT.md), [docs/EPISTEMIC_METHODS.md](docs/EPISTEMIC_METHODS.md) and the
+[Phase 8 catalogue](docs/PHASE8_CATALOGUE.md). Which capabilities are interactive, precomputed or server-only in the preview:
+[docs/PREVIEW.md](docs/PREVIEW.md).
 
 Phase 7 added a frontier laboratory on top of the research system. It includes:
 
@@ -54,6 +70,7 @@ Phase 3 (validation): [docs/PHASE3_GATES.md](docs/PHASE3_GATES.md).
 | Part | State |
 |---|---|
 | Application (API + web interface) | Works end to end offline, in both the server and the static-preview mode; every control is exercised by browser tests (counts in [docs/TEST_REPORT.md](docs/TEST_REPORT.md)) |
+| Epistemic layer (v0.8) | Reasoning graph (EPI-1), Lineage-X (LINEAGE-1), Scientific Compiler (SCICOMP-1), Method Genome (METHOD-DNA-1), Scientific Debugger (SCIDEBUG-1), independent reproduction (REPROX-1), knowledge boundary (KBOUND-1), claim stress tests (CLAIMX-1), blindspots (BLIND-1), Negative Space (NEG-1), Model Arena (MODELS-1), Uncertainty Flow (UFLOW-1), FutureLab (FUTURE-1), Questions & Next Steps (NEXTX-1, QFORGE-1), Integrity Firewall (INTEG-1), Protocol & Blind Analysis, Reasoning Lab, evidence vault (VAULT-1), simulation audit (SIMCHECK-1), review board (REVIEWX-1) |
 | Frontier laboratory (v0.7) | Counterfactual Lab (CF-1), Synthetic Observatory (SYNOBS-1), Observation Design Lab (OBSDES-1), Adversarial Lab (ASL-1), information analysis (INFO-1), Review Room (REVIEW-1), reproducibility challenge (REPRO-1), astro-twins (TWIN-1), Discovery Horizon (SPE-1, HORIZON-1), Research Autopilot (CAPREG-3 permission levels), Cosmic Atlas, Knowledge Atlas |
 | Research operating system (v0.6) | Research sessions (SESSION-1), capability registry with actions (CAPREG-2), Investigation Planner (PLAN-1), Command Center, sequences (SEQ-1), compatibility matrix (COMPAT-1), data quality (DQ-1), evidence ledger (LEDGER-1), Discovery Radar (RADAR-1), Experiment Studio (EXP-1), workflows (WF-1), missions (MISSION-1), notebook, figure studio (FIG-2), knowledge graph (KG-1), connector previews (ACQ-2), Copilot 2.0 |
 | Discovery environment (v0.5) | Discovery Engine (DISC-1), Hypothesis Arena (HYPO-1), Uncertainty Explorer (UNC-1), registration diagnostics (REGDIAG-1), capability registry (CAPREG-1), reproducibility package (PKG-1), vault, report studio, command palette, glossary, three levels of detail |
@@ -98,8 +115,31 @@ Each target becomes a bundle in `data/bundles/<target>/`: the original files byt
 
 ## What you can do in the app
 
-New in 0.7. Workspaces are grouped in eight research modes: Observatory · Discover · Investigate · Experiment · Understand ·
-Orchestrate · Knowledge · Publish.
+New in 0.8. Workspaces are grouped in eight modes: Observatory · Evidence · Analyze · Challenge · Experiment · Plan · Knowledge ·
+Publish.
+
+- **Reasoning Graph & Lineage-X** (Evidence): every scientific object of the run with its epistemic status. Pick a claim and trace
+  what it rests on (files, measurements, methods, assumptions), or pick a file and trace what depends on it. The Lineage-X tab
+  shows the nine stages from original file to report, with fingerprints and conversions.
+- **Scientific Compiler & Method Genome** (Challenge): ten stages of checks with their rules and one outcome, filterable and
+  exportable. Passing is never called proof. Method cards cover inputs and outputs with units, assumptions, formula,
+  dependencies, limitations, version chain and known-answer tests, with comparison and health.
+- **Claims** (Challenge): the knowledge boundary (four regions with rules, no confidence numbers), a ten-mode stress test for each
+  claim and blindspot coverage over eleven defined checks.
+- **Scientific Debugger** (Analyze): breakpoints at recorded stages with recomputation, differential debugging between two runs,
+  and independent reproduction with five verdicts.
+- **Model Arena, Uncertainty Flow** (Analyze) and **FutureLab** (Experiment): static against linear motion with residuals and
+  criteria; the uncertainty the methods propagate and what they leave out; hypothetical scenarios from a validated formula.
+- **Questions & Next Steps, Protocol & Blind Analysis** (Plan): decision records that say why each step is not ranked higher, and
+  questions in seven categories; a lockable protocol with amendments, and blind analysis with a commitment hash and documented
+  unblinding.
+- **Negative Space** (Evidence), **Reasoning Lab** (Knowledge) and **Integrity Firewall** (Publish): what failed or remained
+  inconclusive, kept and searchable; arguments whose logical validity is reported separately from their empirical standing;
+  export-readiness checks that never block and never rewrite.
+- New tabs: the evidence vault (hash-chained history, Knowledge Atlas), the simulation audit (Synthetic Observatory) and the
+  review board (Review Room).
+
+From 0.7 (the navigation groups were renamed in 0.8):
 
 - **Discovery Horizon**: the investigation in six layers (what is known, which questions are answerable, how to test them,
   what can be computed, how the evidence stands, what to do next), and research opportunities from ten rules. Each opportunity

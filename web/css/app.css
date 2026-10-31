@@ -706,7 +706,8 @@ pre.wrap { white-space: pre-wrap; overflow-wrap: break-word; }
 .linkish.current { color: var(--text); font-weight: 600; }
 tr.sel td, tr.sel th { background: color-mix(in srgb, var(--accent) 8%, transparent); }
 tr.flag td, tr.flag th { background: color-mix(in srgb, var(--warn) 8%, transparent); }
-.epi-layers { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.epi-layers { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.epi-node .pill { max-width: 100%; white-space: normal; }
 .epi-col { border: 1px solid var(--line-soft); border-radius: var(--r-s); padding: 8px; min-width: 0; background: var(--panel-2); }
 .epi-col h4 { margin: 0 0 6px; font-size: 12px; color: var(--muted); font-weight: 500; }
 .epi-node { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; width: 100%; text-align: left; background: var(--panel); border: 1px solid var(--line-soft);
