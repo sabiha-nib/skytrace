@@ -44,6 +44,7 @@
     <div class="session-box" id="session-box"></div>
     <div class="nav-group"><h3 class="nav-h">Observatory</h3>
       <button data-ws="command" aria-current="page">Command Center</button>
+      <button data-ws="intel" data-min-level="research">Scientific Intelligence</button>
       <button data-ws="explorer">Sky Explorer</button>
       <button data-ws="time">Time Machine</button>
       <button data-ws="atlas">Cosmic Atlas</button>
@@ -136,6 +137,12 @@
       <h2 class="ws-title" id="ws-notebook-title">Research Notebook</h2>
       <p class="ws-sub">Structured notes kept with the session: text you write, and blocks that reference observations, measurements, claims, explanations, experiments and figures by identifier. Referenced values are read from the record, never typed; your interpretations stay labelled as yours.</p>
       <div id="notebook-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-intel" aria-labelledby="ws-intel-title">
+      <h2 class="ws-title" id="ws-intel-title">Scientific Intelligence</h2>
+      <p class="ws-sub">What this investigation knows, what it does not yet know, why, and what evidence could change that — in six connected layers sharing one focus. Observation (the command center and the discovery genome), Discovery (the unknown universe and the relationships between investigations), Reasoning (the scientific adversary and the causality lab), Experimental (what-if questions, observation planning and the bounded research cycle), Knowledge (research memory and the reproduction network) and Integrity (the gate an investigation passes before it is marked complete). Every item names its rule and where it is recorded; real data, synthetic data, simulated outputs, hypothetical scenarios, unverified interpretations and verified computations are labelled apart.</p>
+      <div id="intel-body"></div>
     </section>
 
     <section class="workspace" id="ws-reasoning" aria-labelledby="ws-reasoning-title">

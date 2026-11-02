@@ -379,3 +379,22 @@ def test_browser_intelligence_functions_match_python(tmp_path):
     assert js["sess_e"] == E.session_entities(sess_e)
     assert js["causal"] == [causal.warnings(s, lab["models"]) for s in csess]
     assert js["pyg"] == [format(x, "g") for x in job["pyg"]] + [format(x, ".4g") for x in job["pyg"]] + [format(x, ".3g") for x in job["pyg"]]
+
+
+def test_research_cycle_proposes_registered_actions_by_rule_and_levels_bound_execution():
+    from skytrace import autonomy, capabilities
+    c, a2 = run("syn-var-1"), run("syn-var-1", {"aperture_radius_px": 2.5})
+    u = unknownmap.build(c["rec"], c["rep"], c["disc"], [c["rec"]["parameters"], a2["rec"]["parameters"]])
+    cy = autonomy.propose(c["intel"], u)
+    ids = {a["id"] for a in capabilities.ACTIONS}
+    assert [p["rule"] for p in cy["proposals"]][0] == "A6"
+    for p in cy["proposals"]:
+        assert p["action"] in ids and p["permission"] == capabilities.PERMISSION[p["action"]] and p["rule"] in autonomy.RULES and p["addresses"]
+    assert {p["rule"] for p in cy["proposals"]} >= {"A1", "A2", "A3", "A4", "A5"}
+    levels = {l["id"]: l for l in capabilities.AUTONOMY_LEVELS}
+    assert levels["advisory"]["allows"] == [] and all("network" not in l["allows"] and "export" not in l["allows"] for l in levels.values())
+    assert all(a in ids and capabilities.PERMISSION[a] in levels["restricted"]["allows"] for a in capabilities.RESTRICTED_WORKFLOW)
+    assert all(x["kind"] in ("counterfactual scenario", "hypothetical observation plan") for x in cy["for_you_to_decide"])
+    done = copy.deepcopy(c["intel"])
+    done["gate"]["requirements"] = [{**r, "state": "met"} if r["id"] == "G3" else r for r in done["gate"]["requirements"]]
+    assert "A1" not in {p["rule"] for p in autonomy.propose(done, u)["proposals"]}

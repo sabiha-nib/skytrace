@@ -762,3 +762,62 @@ section.workspace.blinded > :not(.blind-cover):not(.ws-title):not(.ws-sub) { dis
   .kb-map { grid-template-columns: minmax(0, 1fr); }
   .proto-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---------------------------------------------------------------- Phase 9: scientific intelligence */
+.kind { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; border: 1px solid var(--line); white-space: nowrap; }
+.kind::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.kind-real { color: var(--ok); } .kind-synthetic { color: var(--syn); } .kind-simulated { color: var(--warn); }
+.kind-hypothetical { color: var(--violet); border-style: dashed; } .kind-unverified { color: #e4c35c; } .kind-verified { color: var(--accent); }
+.kind-legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 6px 14px; margin-top: 8px; }
+.kind-legend .kind-item { display: flex; gap: 8px; align-items: baseline; }
+.intel-head .controls { flex-wrap: wrap; }
+.intel-layers { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin: 10px 0 4px; }
+.intel-layer { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--line-soft); border-radius: var(--r-s); padding: 6px; background: var(--panel-2); min-width: 0; }
+.intel-layer-h { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.intel-tab { text-align: left; background: none; border: 1px solid transparent; border-radius: var(--r-s); color: var(--text); padding: 4px 6px; cursor: pointer; font: inherit; font-size: 13px; }
+.intel-tab:hover, .intel-tab:focus-visible { border-color: var(--line); }
+.intel-tab.current { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+@media (max-width: 1180px) { .intel-layers { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .intel-layers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.intel-more { margin-top: 6px; } .intel-more summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+.ic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.ic-card { display: flex; flex-direction: column; gap: 2px; margin: 0; }
+.ic-value { font-size: 22px; margin: 0; color: var(--text); font-family: var(--serif, inherit); }
+.mem-list { padding-left: 18px; } .mem-list li { margin-bottom: 8px; }
+.warn-item { border-left: 3px solid var(--warn); padding-left: 8px; margin-bottom: 6px; }
+.warn-card { border-color: color-mix(in srgb, var(--warn) 50%, var(--line)); }
+dl.genome dt { color: var(--muted); text-transform: capitalize; }
+.uk-map { width: 100%; min-width: 620px; height: auto; }
+.uk-band path { stroke: var(--bg, #0b1224); stroke-width: 2; cursor: pointer; }
+.uk-band { outline: none; }
+.uk-0 path { fill: color-mix(in srgb, var(--ok) 55%, var(--panel)); } .uk-1 path { fill: color-mix(in srgb, var(--ok) 32%, var(--panel)); }
+.uk-2 path { fill: color-mix(in srgb, #e4c35c 30%, var(--panel)); } .uk-3 path { fill: color-mix(in srgb, var(--warn) 28%, var(--panel)); }
+.uk-4 path { fill: color-mix(in srgb, var(--violet) 26%, var(--panel)); } .uk-5 path { fill: color-mix(in srgb, var(--violet) 18%, var(--panel)); }
+.uk-6 path { fill: color-mix(in srgb, var(--bad) 20%, var(--panel)); } .uk-7 path { fill: color-mix(in srgb, var(--bad) 12%, var(--panel)); }
+.uk-band.current path, .uk-band:focus path { stroke: var(--accent); stroke-width: 3; }
+.uk-label { fill: var(--text); font-size: 13px; cursor: pointer; }
+.uk-count { fill: var(--text); font-size: 12px; text-anchor: middle; pointer-events: none; }
+.uk-band .uk-swatch { stroke: var(--line); }
+.uk-0 .uk-swatch { fill: color-mix(in srgb, var(--ok) 55%, var(--panel)); } .uk-1 .uk-swatch { fill: color-mix(in srgb, var(--ok) 32%, var(--panel)); }
+.uk-2 .uk-swatch { fill: color-mix(in srgb, #e4c35c 30%, var(--panel)); } .uk-3 .uk-swatch { fill: color-mix(in srgb, var(--warn) 28%, var(--panel)); }
+.uk-4 .uk-swatch { fill: color-mix(in srgb, var(--violet) 26%, var(--panel)); } .uk-5 .uk-swatch { fill: color-mix(in srgb, var(--violet) 18%, var(--panel)); }
+.uk-6 .uk-swatch { fill: color-mix(in srgb, var(--bad) 20%, var(--panel)); } .uk-7 .uk-swatch { fill: color-mix(in srgb, var(--bad) 12%, var(--panel)); }
+.uk-band.current .uk-label { fill: var(--accent); font-weight: 600; }
+.net-svg, .cl-svg { width: 100%; min-width: 680px; height: auto; }
+.net-edge { stroke: var(--line); stroke-width: 1.5; } .net-edge.conflict { stroke: var(--warn); stroke-dasharray: 5 3; }
+.net-node circle { fill: var(--panel-2); stroke: var(--accent); stroke-width: 1.5; } .net-node.current circle { fill: var(--accent); }
+.net-node text { fill: var(--text); font-size: 11px; }
+.cl-edge { stroke: var(--line); stroke-width: 1.2; } .cl-arrowhead { fill: var(--line); }
+.cl-node rect { fill: var(--panel-2); stroke: var(--line); } .cl-node text { fill: var(--muted); font-size: 11px; }
+.cl-node.hot rect { stroke: #e4c35c; } .cl-node.hot text { fill: var(--text); }
+.cl-node.cause rect { stroke: var(--violet); stroke-width: 2; } .cl-node.effect rect { stroke: var(--accent); stroke-width: 2; }
+#cl-models tr { cursor: pointer; }
+.adv-item { border-left: 3px solid var(--line); padding-left: 10px; margin-bottom: 12px; }
+.adv-item.sev-major, .adv-item.sev-critical { border-left-color: var(--bad); } .adv-item.sev-moderate { border-left-color: var(--warn); }
+.adv-note { min-width: 160px; }
+.cy-steps li { border: 1px solid var(--line-soft); border-radius: var(--r-s); padding: 8px; margin-bottom: 8px; }
+.cy-steps li.cy-completed { border-color: color-mix(in srgb, var(--ok) 50%, var(--line)); } .cy-steps li.cy-failed { border-color: color-mix(in srgb, var(--bad) 50%, var(--line)); }
+.or-cand input[type=text].or-label { min-width: 200px; } .or-cand .or-years { width: 110px; } .or-cand .or-factor, .or-cand .or-err { width: 90px; }
+#rp-paste { width: 100%; }
+#intel-body td, #intel-body th { white-space: normal; overflow-wrap: anywhere; }
+#cl-models td.cl-crit { text-align: center; width: 36px; } #cl-models td, #cl-models th { overflow-wrap: normal; word-break: normal; }

@@ -77,6 +77,9 @@ def build(record: dict, rep: dict, disc: dict, sibling_params: list[dict] | None
         if b["kind"] != "claim":
             add(_item("unresolved", b["id"], b["statement"], f"KBOUND-1 {b['rule']} ({b['region']})", f"graph:{b['id']}", why=b.get("why")))
     for qn in rep["questions"]["questions"]:
+        pb = str(qn.get("prompted_by") or "")
+        if any(f" {i} " in f" {pb} " or pb.endswith(f" {i}") for i in list(seen)):
+            continue                                    # the same open question already placed from KBOUND-1 (one region, one entry)
         if qn["category"] != "directly answerable":
             add(_item("unresolved", qn["id"], qn["question"], f"QFORGE-1 '{qn['category']}'", qn.get("prompted_by"), missing=qn.get("missing")))
     for k, n in enumerate(rep["negative"]["entries"]):

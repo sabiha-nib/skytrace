@@ -511,7 +511,8 @@ def test_r_new_workspaces_narrow(app):
         app.set_viewport_size({"width": w, "height": h})
         for ws in ["discovery", "arena", "records", "command", "planner", "quality", "radar", "notebook", "experiments",
                    "horizon", "counterfactual", "synthetic", "adversarial", "autopilot", "atlas", "knowledge", "review",
-                   "reasoning", "compiler", "claims", "debugger", "models", "uflow", "future", "decide", "negative", "integrity", "protocol", "argue"]:
+                   "reasoning", "compiler", "claims", "debugger", "models", "uflow", "future", "decide", "negative", "integrity", "protocol", "argue",
+                   "intel"]:
             app.locator(f".nav button[data-ws={ws}]").click()
             app.wait_for_timeout(400)
             assert app.locator("#main").bounding_box()["width"] <= w
@@ -958,7 +959,8 @@ def test_y_accessible_names(app):
     app.click(".level-switch button[data-level=research]")
     for ws in ["command", "planner", "quality", "radar", "notebook", "experiments", "discovery", "explorer", "time", "lab", "arena", "graph", "records",
                "horizon", "counterfactual", "synthetic", "adversarial", "autopilot", "atlas", "knowledge", "review",
-               "reasoning", "compiler", "claims", "debugger", "models", "uflow", "future", "decide", "negative", "integrity", "protocol", "argue"]:
+               "reasoning", "compiler", "claims", "debugger", "models", "uflow", "future", "decide", "negative", "integrity", "protocol", "argue",
+                   "intel"]:
         app.locator(f".nav button[data-ws={ws}]").click()
         app.wait_for_timeout(700)
         scope = app.locator(f"#ws-{ws}, .topbar, .copilot, .session-box")
@@ -1253,3 +1255,170 @@ def test_e9_reasoning_lab_and_phase8_tabs(app):
         app.click("#sa-run")
     app.locator("#sa-verdict", has_text="stable").wait_for(timeout=180000)
     app.click("[data-stab=scenarios]")
+
+
+# ------------------------------------------------------------------ Phase 9: the scientific intelligence workspace
+def _intel(app, panel):
+    _research_level(app)
+    app.click(".nav button[data-ws=intel]")
+    app.locator("#intel-layers").wait_for(timeout=120000)
+    app.click(f"[data-ipanel={panel}]")
+    app.locator(f"#intel-panel[data-panel={panel}]").wait_for(timeout=60000)
+
+
+def test_i1_command_center_genome_and_fingerprint(app):
+    _intel(app, "command")
+    assert app.locator("#intel-layers .intel-layer").count() == 6 and app.locator("#intel-layers [data-ipanel]").count() == 12
+    pw.expect(app.locator("#ic-gate")).to_have_text("not ready")
+    assert app.locator("#ic-investigations tbody tr").count() >= 1
+    app.locator(".intel-head details summary").click()
+    for k in ("Real data", "Synthetic data", "Simulated output", "Hypothetical scenario", "Unverified interpretation", "Verified computation"):
+        app.locator(".kind-legend .kind", has_text=k).first.wait_for()
+    app.locator("[data-goto=gate] button").first.click()
+    app.locator("#intel-panel[data-panel=gate]").wait_for()
+    app.click("[data-ipanel=genome]")
+    app.locator("#gn-fields").wait_for(timeout=30000)
+    assert app.locator("#gn-fields dt").count() == 13
+    pw.expect(app.locator("#gn-fingerprint tr[data-dim=F2]")).to_contain_text("changes")
+    pw.expect(app.locator("#gn-fingerprint tr[data-dim=F4]")).to_contain_text("not tested")
+    assert app.locator("#gn-budget tbody tr", has_text="unquantified").count() >= 4
+    if app.locator("#gn-compare option").count() > 1:
+        app.select_option("#gn-compare", index=1)
+        app.locator("#gn-cmp table").wait_for(timeout=30000)
+        pw.expect(app.locator("#gn-cmp")).to_contain_text("not evidence that the sources are physically alike")
+    app.select_option("#intel-focus", "motion")
+    pw.expect(app.locator("#gn-fields")).to_contain_text("LINFIT-EPOCH-1")
+    app.select_option("#intel-focus", "variability")
+
+
+def test_i2_unknown_universe_and_network(app):
+    _intel(app, "unknown")
+    assert app.locator("#uk-map [data-region]").count() == 8
+    app.locator("#uk-map [data-region=unexplored]").focus()
+    app.keyboard.press("Enter")                               # the bands are keyboard-operable buttons
+    app.locator("#uk-items [data-ukitem]").first.wait_for()
+    pw.expect(app.locator("#intel-panel")).to_contain_text("U6")
+    app.locator("#uk-map [data-region=unresolved]").focus()
+    app.keyboard.press("Enter")
+    pw.expect(app.locator("#uk-items")).to_contain_text("HYPO-1 overall 'untested'")
+    assert _dl_json(app, "#uk-export")["method"] == "UNKNOWN-1"
+    app.click("[data-ipanel=network]")
+    app.locator("#net-graph [data-node]").first.wait_for(timeout=30000)
+    if app.locator("#net-edges li").count():                  # the static preview holds twelve runs; a fresh server may hold one
+        app.select_option("#net-rule", "N1")
+        pw.expect(app.locator("#net-edges")).to_contain_text("limitation:")
+        app.select_option("#net-rule", "all")
+    else:
+        assert app.mode == "server"
+        pw.expect(app.locator("#net-edges")).to_contain_text("No pair of investigations")
+
+
+def test_i3_adversary_and_causality(app):
+    _intel(app, "adversary")
+    app.locator("details[data-advq][open] [data-chal]").first.wait_for(timeout=30000)
+    first = app.locator("details[data-advq][open] [data-chal]").first
+    cid = first.get_attribute("data-chal")
+    first.locator(".adv-note").fill("seen: the reference ratio scatter")
+    first.locator(".adv-ack").click()
+    pw.expect(app.locator(f"[data-chal='{cid}']")).to_contain_text("acknowledged")
+    nxt = app.locator("details[data-advq][open] [data-chal]", has=app.locator(".out-warn", has_text="open")).first
+    nxt.locator(".adv-resolve").click()
+    app.locator("#toast", has_text="Resolving needs a recorded item").wait_for()
+    pw.expect(app.locator("#adv-inst tr[data-inst=I1]")).to_contain_text("ruled out by rule")
+    app.click("[data-ipanel=causal]")
+    app.locator("#cl-models tbody tr").first.wait_for(timeout=30000)
+    assert app.locator("#cl-models tbody td.cl-crit[title^='C5']", has_text="✓").count() == 0, "experimental support is never reached"
+    app.locator("#cl-models tr[data-model=V-CALIB]").click()
+    pw.expect(app.locator("#cl-selected")).to_contain_text("Confounders (common causes in the graph): detector, epoch")
+    app.select_option("#cl-from", "calibration")
+    app.select_option("#cl-rel", "causes")
+    app.select_option("#cl-to", "flux_difference")
+    app.click("#cl-add")
+    app.locator("#cl-warn li", has_text="user-proposed causal claim").wait_for(timeout=30000)
+
+
+def test_i4_whatif_and_oracle(app):
+    _intel(app, "whatif")
+    pw.expect(app.locator("[data-whatif=W3]")).to_contain_text("no valid method")
+    pw.expect(app.locator("[data-whatif=W1]")).to_contain_text("computed here")
+    app.fill("#wi-dt", "2")
+    app.click("#wi-run")
+    app.locator("#wi-snr").wait_for()
+    pw.expect(app.locator("#wi-out")).to_contain_text("Hypothetical")
+    app.click("#wi-record")
+    app.locator("#toast", has_text="hypothetical scenario").wait_for()
+    app.click("[data-ipanel=oracle]")
+    app.select_option("#or-q", "motion")
+    app.click("#or-run")
+    app.locator("#or-table tbody tr").nth(1).wait_for(timeout=30000)
+    pw.expect(app.locator("#or-out")).to_contain_text("not computed: bits of information need prior probabilities")
+    app.locator(".or-cand .or-years").first.fill("99")
+    app.click("#or-run")
+    app.locator("#or-out .withheld", has_text="added_years_after_last").wait_for()
+    app.locator(".or-cand .or-years").first.fill("1")
+    assert app.locator("#or-neg tbody tr").count() >= 1
+
+
+def test_i5_research_cycle_permissions_and_gate(app):
+    _intel(app, "cycle")
+    app.select_option("#cy-level", "advisory")
+    app.locator("#cy-steps li").first.wait_for(timeout=30000)
+    assert app.locator("#cy-steps .cy-run").count() == 0, "advisory executes nothing"
+    app.select_option("#cy-level", "supervised")
+    app.locator("#cy-steps li[data-step=check_quality] .cy-run").click()
+    app.locator("#cy-steps li[data-step=check_quality]", has_text="completed").wait_for(timeout=60000)
+    pw.expect(app.locator("#cy-log")).to_contain_text("approved this step")
+    app.select_option("#cy-level", "restricted")
+    app.click("#cy-start")
+    app.locator("#toast", has_text="Tick the authorization").wait_for()
+    app.check("#cy-auth")
+    app.click("#cy-start")
+    app.locator("#cy-log tr", has_text="reproduce_independent").wait_for(timeout=180000)
+    pw.expect(app.locator("#cy-log")).to_contain_text("authorized the predefined workflow")
+    with app.expect_download() as d:
+        app.click("#cy-report")
+    assert "No conclusion in this report is established by the cycle" in Path(d.value.path()).read_text()
+    app.select_option("#cy-level", "advisory")
+    app.click("[data-ipanel=gate]")
+    app.locator("#gt-table tr[data-req=G3]").wait_for(timeout=30000)
+    pw.expect(app.locator("#gt-table tr[data-req=G3]")).to_contain_text("met")
+    assert app.locator("#gt-table tbody tr").count() == 8
+    pw.expect(app.locator("#gt-mark")).to_be_disabled()
+
+
+def test_i6_memory_reproduction_and_preservation(app):
+    _intel(app, "memory")
+    app.fill("#mem-query", "why did the brightness calibration fail")
+    app.click("#mem-search")
+    pw.expect(app.locator("#mem-concepts")).to_contain_text("Calibration")
+    assert app.locator("#mem-results li").count() > 0
+    assert app.locator("#mem-results li", has=app.locator(".out-ok", has_text="verified")).filter(has_text="explanation").count() == 0
+    app.select_option("#mem-action", "variability")
+    app.locator("#mem-warnings li").first.wait_for()
+    assert app.locator("#mem-evolution tbody tr").count() >= 1 and app.locator("#mem-hyp tbody tr").count() >= 5
+    app.click("[data-ipanel=repro]")
+    m = _dl_json(app, "#rp-manifest")
+    assert m["schema"] == "skytrace.reproduction/1" and m["manifest_digest"]
+    app.fill("#rp-paste", json.dumps(m))
+    app.click("#rp-compare-paste")
+    pw.expect(app.locator("#rp-status")).to_contain_text("exact match")
+    m["outcomes"]["variability"]["category"] = "edited"
+    app.fill("#rp-paste", json.dumps(m))
+    app.click("#rp-compare-paste")
+    app.locator("#rp-out .withheld", has_text="digest does not match").wait_for()
+    if app.locator("#rp-other option").count() > 1:            # another run of this target is held (always in the static preview)
+        app.select_option("#rp-other", index=1)
+        app.click("#rp-compare-run")
+        pw.expect(app.locator("#rp-status")).to_contain_text("methodological")
+    else:
+        assert app.mode == "server"
+    app.click("[data-ipanel=gate]")
+    c = _dl_json(app, "#gt-capsule")
+    assert c["schema"] == "skytrace.capsule/1" and len(c["digest"]) == 64
+    app.locator("#gt-capsules tbody tr").first.wait_for(timeout=30000)
+    k = _dl_json(app, "#gt-export")
+    assert k["schema"] == "skytrace.knowledge/1" and k["entities"] and all(e["status"] for e in k["entities"])
+    with app.expect_download() as d:
+        app.click("#gt-handoff")
+    assert "## How to reproduce" in Path(d.value.path()).read_text()
+    app.click("[data-ipanel=command]")

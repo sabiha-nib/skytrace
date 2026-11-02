@@ -270,3 +270,30 @@ def test_phase8_epistemic_reproduce_integrity(base):
     assert post(base, "/api/simulation-audit", {"scenario": {}, "seeds": [1, 2, 3, 4]}).status_code == 400
     sp = get(base, "/api/specs").json()["epistemic"]
     assert len(sp["statuses"]) == 10 and len(sp["kinds"]) == 15 and len(sp["stress"]["modes"]) == 10
+
+
+def test_phase9_intelligence_corpus_oracle_whatif_reproduction(base):
+    iid = post(base, "/api/targets/syn-var-1/analyze", {"params": {}}).json()["investigation_id"]
+    iid2 = post(base, "/api/targets/syn-hpm-1/analyze", {"params": {}}).json()["investigation_id"]
+    d = get(base, f"/api/investigations/{iid}/intelligence").json()
+    assert {"entities", "genomes", "adversary", "gate", "debt", "causal", "oracle", "negotiation", "instrumental", "fingerprint", "budget",
+            "whatif", "reproduction", "unknown"} <= set(d)
+    assert d["entities"]["errors"] == [] and d["gate"]["outcome"] == "not ready" and len(d["unknown"]["regions"]) == 8
+    c = get(base, "/api/intelligence/corpus").json()
+    assert c["n"] >= 2 and c["memory"]["items"] and all(x["status"] != "verified" for x in c["memory"]["items"] if x["kind"] == "explanation")
+    o = post(base, "/api/oracle", {"investigation_id": iid2, "spec": {"question": "motion", "candidates": [{"added_years_after_last": [1.0]}]}}).json()
+    assert o["available"] and o["information_gain"] is None and o["hypothetical"]
+    assert post(base, "/api/oracle", {"investigation_id": iid2, "spec": {"question": "motion", "candidates": [{"added_years_after_last": [99]}]}}).status_code == 400
+    v = post(base, "/api/whatif/visit", {"investigation_id": iid2, "dt_years": 1.0, "position": "static"}).json()
+    assert v["hypothetical"] and v["after"]["snr"] < v["before"]["snr"]
+    assert post(base, "/api/whatif/visit", {"investigation_id": iid2, "dt_years": 99}).status_code == 400
+    m = get(base, f"/api/investigations/{iid}/reproduction-manifest").json()
+    m2 = get(base, f"/api/investigations/{iid2}/reproduction-manifest").json()
+    assert m == d["reproduction"]
+    assert post(base, "/api/reproduction/compare", {"a": m, "b": m}).json()["status"] == "exact match"
+    assert "different input data" in post(base, "/api/reproduction/compare", {"a": m, "b": m2}).json()["classes"]
+    bad = dict(m, outcomes={})
+    assert post(base, "/api/reproduction/compare", {"a": bad, "b": m}).status_code == 400
+    assert get(base, f"/api/investigations/{iid}/intelligence").json()["content_hash"] == d["content_hash"]
+    sp = get(base, "/api/specs").json()["intelligence"]
+    assert len(sp["entity"]["types"]) >= 22 and len(sp["unknown"]["regions"]) == 8 and len(sp["gate"]["requirements"]) == 8

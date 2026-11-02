@@ -74,6 +74,8 @@ const serverApi = {
   epistemic: (iid) => req(`/api/investigations/${iid}/epistemic`),
   reproduceX: (iid) => req(`/api/investigations/${iid}/reproduce-x`, { method: "POST", body: "{}" }),
   lineage: (iid, rid) => req(`/api/investigations/${iid}/lineage?result=${encodeURIComponent(rid)}`),
+  intelligence: (iid) => req(`/api/investigations/${iid}/intelligence`),
+  corpus: () => req("/api/intelligence/corpus"),
   simAudit: (scenario, seeds) => req("/api/simulation-audit", { method: "POST", body: JSON.stringify(seeds ? { scenario, seeds } : { scenario }) }),
 };
 

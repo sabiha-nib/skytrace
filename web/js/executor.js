@@ -133,6 +133,16 @@ const ACTIONS = {
     await S.log("repro.run", `REPRO-1: ${r.verdict}${r.recorded_at_build ? " (recorded at build)" : ""}`, null, { create: true });
     return { status: "completed", result: { verdict: r.verdict, failed: r.checks.filter((c) => c.outcome === "fail").length, recorded_at_build: !!r.recorded_at_build } };
   },
+  async reproduce_independent() {
+    needRun();
+    const r = await api.reproduceX(state.inv.investigation_id);
+    await S.update("debug.reproduce", `Reproduction: ${r.verdict}`, (s) => {
+      s.debug = [...(s.debug || []), { kind: "reproduction", verdict: r.verdict, content_hash: r.content_hash, recorded_at_build: !!r.recorded_at_build,
+        at: new Date().toISOString().replace(/\.\d{3}Z$/, "+00:00") }].slice(-50);
+      return s;
+    }, r.content_hash);
+    return { status: "completed", result: { verdict: r.verdict, recorded_at_build: !!r.recorded_at_build } };
+  },
   async run_synthetic(inputs) {
     if (!inputs.scenario) { emit("goto", { ws: "synthetic" }); return { status: "needs_review", result: { opened: "Synthetic Observatory: choose a scenario" } }; }
     const r = await api.synthetic(inputs.scenario);

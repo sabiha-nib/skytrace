@@ -26,6 +26,8 @@ export const state = {
   plan: null,               // the plan on the planner canvas (also stored in the session)
   sequence: null,           // {id, index} the multi-epoch sequence open in the Time Machine
   frontier: null,
+  intelligence: null,       // {iid, data}: SCI-ENTITY-1, DGENOME-1, ADV-1, GATE-1, CAUSAL-1, ORACLE-1, INSTCHECK-1, FINGERPRINT-1, BUDGET-1, WHATIF-1, REPRONET-1, UNKNOWN-1
+  corpus: null,             // MEMORY-1 and MDNET-1 over every investigation held (the recorded runs in the static preview)
   epistemic: null,          // {iid, data}: EPI-1 graph, genome, SCI-COMP, boundary, stress, NEG-1, BLIND-1, UFLOW-1, lineage, models, future, decisions           // {key, data}: SPE-1, HORIZON-1, ASL-1, INFO-1, REVIEW-1, REPRO-1, twins for the current investigation
 };
 
@@ -60,6 +62,19 @@ export async function getEpistemic() {
   const iid = state.inv.investigation_id;
   if (state.epistemic?.iid !== iid) state.epistemic = { iid, data: await api.epistemic(iid) };
   return state.epistemic.data;
+}
+
+export async function getIntelligence() {
+  if (!state.inv) return null;
+  const iid = state.inv.investigation_id;
+  if (state.intelligence?.iid !== iid) state.intelligence = { iid, data: await api.intelligence(iid) };
+  return state.intelligence.data;
+}
+
+/** The corpus is refetched whenever the set of runs may have changed (a new run, an opened record). */
+export async function getCorpus(force = false) {
+  if (!state.corpus || force) state.corpus = await api.corpus();
+  return state.corpus;
 }
 
 export function emptyContext() { return { question: null, question_text: "", hypotheses: [] }; }

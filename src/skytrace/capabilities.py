@@ -324,6 +324,9 @@ ACTIONS += [
      "produces": [], "confirm": False, "cost": "instant", "static": "precomputed", "inputs": {"t": "obj", "f": {}, "extra": False}},
     {"id": "reproduce", "capabilities": ["reproducibility"], "title": "Run the Reproducibility Challenge (re-execute)", "preconditions": ["has_run", "server"],
      "produces": [], "confirm": True, "cost": "a few seconds (re-executes the pipeline)", "static": "precomputed", "inputs": {"t": "obj", "f": {}, "extra": False}},
+    {"id": "reproduce_independent", "capabilities": ["reproducibility"], "title": "Run the independent reproduction (REPROX-1, five verdicts)",
+     "preconditions": ["has_run", "server_or_precomputed"], "produces": [], "confirm": True, "cost": "a few seconds (re-executes the pipeline and compares every stage)",
+     "static": "precomputed", "inputs": {"t": "obj", "f": {}, "extra": False}},
     {"id": "run_synthetic", "capabilities": ["synthetic_observatory"], "title": "Generate and analyse a synthetic scenario",
      "preconditions": ["server_or_precomputed"], "produces": [], "confirm": True, "cost": "about 5 s (writes a synthetic bundle, runs the analysis)",
      "static": "precomputed", "inputs": {"t": "obj", "f": {"scenario": [{"t": "json", "max_bytes": 4000, "depth": 4}, True]}, "extra": False}},
@@ -335,7 +338,8 @@ PERMISSION = {"run_analysis": "analysis", "run_stability": "analysis", "compare_
               "build_sequences": "inspect", "evaluate_hypotheses": "inspect", "decompose_uncertainty": "inspect", "check_quality": "inspect",
               "inspect_ledger": "inspect", "scan_radar": "inspect", "verify_provenance": "analysis", "run_experiment": "analysis",
               "build_package": "export", "acquire_data": "network", "run_counterfactual": "analysis", "challenge_interpretation": "inspect",
-              "rank_tests": "inspect", "review_investigation": "inspect", "reproduce": "analysis", "run_synthetic": "analysis"}
+              "rank_tests": "inspect", "review_investigation": "inspect", "reproduce": "analysis", "reproduce_independent": "analysis",
+              "run_synthetic": "analysis"}
 for _a in ACTIONS:
     _a["permission"] = PERMISSION[_a["id"]]
 AUTOPILOT_LEVELS = [{"id": "inspect", "name": "Inspect only", "allows": ["inspect"], "plans": False},
@@ -343,6 +347,15 @@ AUTOPILOT_LEVELS = [{"id": "inspect", "name": "Inspect only", "allows": ["inspec
                     {"id": "local", "name": "Execute approved local analysis", "allows": ["inspect", "analysis"], "plans": True},
                     {"id": "batch", "name": "Execute approved batch workflows", "allows": ["inspect", "analysis"], "plans": True, "batch": True},
                     {"id": "export", "name": "Export results", "allows": ["inspect", "analysis", "export"], "plans": True, "batch": True}]
+# Phase 9 bounded autonomy (the research cycle): three named levels, each mapped onto the CAPREG-3 level it corresponds to.
+# Advisory proposes and executes nothing; supervised executes one approved step at a time; restricted automation executes the
+# predefined, auditable workflow below after one authorization that lists every step. No level allows network or export.
+AUTONOMY_LEVELS = [{"id": "advisory", "name": "Advisory", "allows": [], "capreg3": "plan", "executes": "nothing: proposes actions only"},
+                   {"id": "supervised", "name": "Supervised", "allows": ["inspect", "analysis"], "capreg3": "local",
+                    "executes": "each step you approve, one at a time"},
+                   {"id": "restricted", "name": "Restricted automation", "allows": ["inspect", "analysis"], "capreg3": "local",
+                    "executes": "the predefined workflow, after one authorization that lists every step"}]
+RESTRICTED_WORKFLOW = ["check_quality", "evaluate_hypotheses", "decompose_uncertainty", "challenge_interpretation", "reproduce_independent"]
 ACTION_IDS = {a["id"] for a in ACTIONS}
 
 
@@ -357,7 +370,8 @@ def registry(availability: dict | None = None) -> dict:
                     "availability_note": {"local": "runs wherever the record is present",
                                           "server": "needs the running Skytrace server" + ("" if ok else " (not available here)"),
                                           "network": "needs external services" + (" (blocked here)" if ok is False else "")}[ex]})
-    return {"version": REGISTRY_VERSION, "capabilities": out, "actions": ACTIONS, "facts": FACTS, "autopilot_levels": AUTOPILOT_LEVELS}
+    return {"version": REGISTRY_VERSION, "capabilities": out, "actions": ACTIONS, "facts": FACTS, "autopilot_levels": AUTOPILOT_LEVELS,
+            "autonomy_levels": AUTONOMY_LEVELS, "restricted_workflow": RESTRICTED_WORKFLOW}
 
 
 def method_ids() -> set[str]:

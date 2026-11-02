@@ -171,6 +171,7 @@ def main() -> int:
         write("connectors.json", con)
 
         n_files = 0
+        all_runs = []
         for t in targets["targets"]:
             tid = t["target_id"]
             if not t.get("kind"):
@@ -214,6 +215,7 @@ def main() -> int:
                         cfs.append({"key": canon.dumps({"kind": pr["kind"], "change": pr["change"]}), "label": pr["label"], "result": r})
                     write(f"t/{tid}/counterfactuals.json", cfs)
                     print(f"  {tid}: {len(cfs)} counterfactual scenarios")
+                all_runs.append((tid, iid))
                 runs.append({"iid": iid, "label": label, "params": params, "default": not params,
                              "content_hash": s["record"]["content_hash"]})
                 print(f"  {tid}: {label} -> {iid}")
@@ -225,6 +227,12 @@ def main() -> int:
                 exps[key] = ok(post("/api/experiments", {"target_id": tid, **cfg})).json()
                 print(f"  {tid}: experiment {key} -> {exps[key]['evaluation'].get('passed')}")
             write(f"t/{tid}/experiments.json", exps)
+        # Phase 9: written after every run exists, so the unknown map's sibling runs and the memory corpus are complete
+        for tid, iid in all_runs:
+            write(f"t/{tid}/run/{iid}/intelligence.json", ok(get(f"/api/investigations/{iid}/intelligence")).json())
+        corpus = ok(get("/api/intelligence/corpus")).json()
+        write("corpus.json", corpus)
+        print(f"  intelligence: {len(all_runs)} runs; memory {corpus['memory']['counts']}; network {len(corpus['network']['edges'])} edges")
         syn = []                                       # Synthetic Observatory templates and one schedule comparison
         for t_ in synthobs.TEMPLATES:
             sc = t_["scenario"]

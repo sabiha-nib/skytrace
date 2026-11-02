@@ -43,6 +43,7 @@ import { renderNegative } from "./negativeui.js";
 import { renderIntegrity } from "./integrityui.js";
 import { BLIND_ALLOWED, blindActive, renderProtocol } from "./protocolui.js";
 import { renderArgue } from "./argueui.js";
+import { renderIntel, setIntelPanel } from "./intelui.js";
 import { $, $$, el, fmtDate, toast } from "./util.js";
 
 const RENDER = { command: renderCommand, discovery: renderDiscovery, explorer: renderExplorer, time: renderTime, lab: renderLab, arena: renderArena,
@@ -50,7 +51,7 @@ const RENDER = { command: renderCommand, discovery: renderDiscovery, explorer: r
                  radar: renderRadar, notebook: renderNotebook, horizon: renderHorizon, counterfactual: renderCounterfactual, synthetic: renderSynthetic,
                  adversarial: renderAdversarial, autopilot: renderAutopilot, atlas: renderAtlas, knowledge: renderKnowledge, review: renderReview,
                  reasoning: renderReasoning, compiler: renderCompiler, claims: renderClaims, debugger: renderDebugger, models: renderModels, uflow: renderUflow,
-                 future: renderFuture, decide: renderDecide, negative: renderNegative, integrity: renderIntegrity, protocol: renderProtocol, argue: renderArgue };
+                 future: renderFuture, decide: renderDecide, negative: renderNegative, integrity: renderIntegrity, protocol: renderProtocol, argue: renderArgue, intel: renderIntel };
 const WS_LABEL = { command: "Command Center", explorer: "Sky Explorer", time: "Time Machine", quality: "Data Quality Observatory", planner: "Investigation Planner",
                    discovery: "Discovery Engine", lab: "Discovery Lab", arena: "Hypothesis Arena", experiments: "Experiment Studio", graph: "Evidence Ledger",
                    radar: "Discovery Radar", notebook: "Research Notebook", records: "Vault & Reports", horizon: "Discovery Horizon",
@@ -58,13 +59,13 @@ const WS_LABEL = { command: "Command Center", explorer: "Sky Explorer", time: "T
                    atlas: "Cosmic Atlas", knowledge: "Knowledge Atlas", review: "Review Room & Discovery Story", reasoning: "Reasoning Graph & Lineage-X",
                    compiler: "Scientific Compiler & Method Genome", claims: "Claims: Boundary, Stress Test & Blindspots", debugger: "Scientific Debugger",
                    models: "Model Arena", uflow: "Uncertainty Flow", future: "FutureLab", decide: "Questions & Next Steps", negative: "Negative Space",
-                   integrity: "Integrity Firewall", protocol: "Protocol & Blind Analysis", argue: "Reasoning Lab" };
+                   integrity: "Integrity Firewall", protocol: "Protocol & Blind Analysis", argue: "Reasoning Lab", intel: "Scientific Intelligence" };
 const LEVELS = ["explore", "investigate", "research"];
 const minLevel = (ws) => document.querySelector(`.nav button[data-ws=${ws}]`)?.dataset.minLevel || "explore";
 const visibleWs = () => $$(".nav button[data-ws]").map((b) => b.dataset.ws).filter((ws) => LEVELS.indexOf(minLevel(ws)) <= LEVELS.indexOf(state.level));
 const LOGGED = { arena: "arena.view", radar: null, quality: null, graph: null, planner: "planner.view", notebook: "notebook.view", experiments: "experiments.view",
                  counterfactual: "counterfactual.view", adversarial: "adversarial.view", review: "review.view", synthetic: "synthetic.view", autopilot: "autopilot.view",
-                 compiler: "compiler.view", claims: "claims.view", debugger: "debugger.view", reasoning: "reasoning.view" };
+                 compiler: "compiler.view", claims: "claims.view", debugger: "debugger.view", reasoning: "reasoning.view", intel: "intel.view" };
 
 /** Render a workspace, unless a blind analysis is active and the workspace would show hidden results (BLINDLAB-1). The cover
  *  is drawn over the section; the workspace's own renderer is not called, so nothing hidden is computed or drawn. */
@@ -166,7 +167,7 @@ function renderHeader() {
 
 async function loadTarget(tid, { keepSelection = null, push = true } = {}) {
   if (state.targetId !== tid) state.context = state.session ? state.context : emptyContext();   // a session's context spans its targets
-  state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null;
+  state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null; state.intelligence = null; state.corpus = null;
   state.targetId = tid;
   state.target = null; state.inv = null; state.model = null; state.prevInv = null; state.selectedKey = null; state.partnerKey = null;
   resetCopilot();
@@ -194,7 +195,7 @@ async function runAnalysis(params, { quiet = false } = {}) {
     const prev = state.inv ? { record: state.inv.record, model: state.model } : null;
     const r = await api.analyze(state.targetId, params || {});
     state.prevInv = prev;
-    state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null;
+    state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null; state.intelligence = null; state.corpus = null;
     if (state.session) S.attachRun(r, Object.keys(params || {}).length ? "re-run with changed parameters" : "analysis");
     const o = state.model.outcomes.map((x) => `${x.question.replace("_", " ")}: ${x.category.replaceAll("_", " ")}`).join(" · ");
     if (!quiet) toast(`Analysis complete. ${o}`, 5000);
@@ -252,6 +253,7 @@ function bind() {
     if (tab && ws === "claims") setClaimsTab(tab);
     if (tab && ws === "debugger") setDebuggerTab(tab);
     if (tab && ws === "decide") setDecideTab(tab);
+    if (tab && ws === "intel") setIntelPanel(tab);
     if (qtab) setQualityTab(qtab);
     if (question) setPlannerQuestion(question);
     renderRuler();
@@ -278,7 +280,7 @@ function bind() {
     if (state.targetId !== d.target_id) await loadTarget(d.target_id);
     try {
       const r = await api.investigation(d.investigation_id);
-      state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null;
+      state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null; state.intelligence = null; state.corpus = null;
       state.context = sanitizeContext(d.context);   // restored as saved (untrusted, so only known fields); nothing is filled in
       resetCopilot();
       $("#thread").append(el("p", { class: "faint" }, `Reopened “${d.name}”, saved ${d.saved_at}. Earlier conversation:`));

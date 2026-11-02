@@ -25,7 +25,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.routing import Route
 
-from .. import (adversary, budget, bundle as bmod, canon, causal, dgenome, discovery, entities as E, fingerprint, gate, instcheck, mdnet, memory,
+from .. import (adversary, autonomy, budget, bundle as bmod, canon, causal, dgenome, discovery, entities as E, fingerprint, gate, instcheck, mdnet, memory,
                 oracle, repronet, reprox, unknownmap, whatif)
 
 _CACHE: dict[str, dict] = {}
@@ -120,7 +120,17 @@ def corpus_from(entries: list[dict]) -> dict:
         c = _ctx(x["e"])
         items.append({"iid": x["iid"], "record": x["e"]["record"], "epistemic": c["rep"], "hypotheses": c["disc"]["hypotheses"], "origin": x["origin"],
                       "saved": x.get("saved")})
-    out = {"key": key, "memory": memory.build(items), "network": mdnet.build(items), "n": len(items)}
+    gen = {x["record"]["content_hash"]: {g["question"]: g for g in dgenome.genomes(x["record"], x["epistemic"], x["hypotheses"])} for x in items}
+    steps = {x["record"]["content_hash"]: {ev["step"] for ev in x["record"]["events"]} for x in items}
+    hs = sorted(gen)
+    cmps = {}
+    for i, ha in enumerate(hs):
+        for hb in hs[i + 1:]:
+            for q in dgenome.QUESTIONS:
+                ga, gb = gen[ha].get(q), gen[hb].get(q)
+                if ga and gb and ga.get("available") and gb.get("available"):
+                    cmps[f"{ha[:16]}|{hb[:16]}|{q}"] = dgenome.compare(ga, gb, steps[hb], steps[ha])
+    out = {"key": key, "memory": memory.build(items), "network": mdnet.build(items), "n": len(items), "genome_comparisons": cmps}
     if len(_CORPUS) > 8:
         _CORPUS.clear()
     _CORPUS[key] = out
@@ -148,7 +158,8 @@ async def intelligence_route(request: Request):
 
     def work():
         r = intelligence_report(e)
-        return {**r, "unknown": unknown_for(e, corpus_entries())}
+        u = unknown_for(e, corpus_entries())
+        return {**r, "unknown": u, "cycle": autonomy.propose(r, u)}
     return a._json(await run_in_threadpool(work))
 
 
@@ -218,7 +229,7 @@ def specs() -> dict:
             "methods": {"entity": E.METHOD, "memory": memory.METHOD, "genome": dgenome.METHOD, "unknown": unknownmap.METHOD, "adversary": adversary.METHOD,
                         "gate": gate.METHOD, "debt": gate.METHOD_DEBT, "causal": causal.METHOD, "oracle": oracle.METHOD, "negotiation": oracle.METHOD_NEG,
                         "network": mdnet.METHOD, "reproduction": repronet.METHOD, "whatif": whatif.METHOD, "fingerprint": fingerprint.METHOD,
-                        "instrumental": instcheck.METHOD, "budget": budget.METHOD}}
+                        "instrumental": instcheck.METHOD, "budget": budget.METHOD, "cycle": autonomy.METHOD}}
 
 
 _ = bmod  # bundles are reached through app._bundle_dirs

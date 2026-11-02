@@ -321,6 +321,9 @@ export const staticApi = {
       throw new PreviewLimit("only the recorded audit of the first template is precomputed in the preview; other audits generate files and need python run.py.");
     return { ...a, recorded_at_build: true };
   },
+  // Phase 9: recorded by the server at build time, after every run existed (so sibling runs and the corpus are complete)
+  intelligence: (iid) => getJSON(`t/${runTarget.get(iid)}/run/${iid}/intelligence.json`),
+  corpus: () => getJSON("corpus.json"),
   async provenance() { throw new PreviewLimit("provenance verification re-reads the stored files and re-runs the analysis: it needs the local server (python run.py)."); },
   connectors: () => getJSON("connectors.json"),
   async connectorPreview() { throw new PreviewLimit("request previews are built by the server's acquisition code; run python run.py to preview a query."); },
