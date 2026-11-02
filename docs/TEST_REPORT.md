@@ -1,7 +1,82 @@
-# Test report: v0.8.0 (2026-10-31)
+# Test report: v0.9.0 (2026-11-02)
 
 Statuses: **PASS** means executed and met. **FAIL** means executed and not met. **BLOCKED** means it could not be executed here, and
 the reason is named. **NOT RUN** means it was not attempted. **PARTIAL** says which part ran.
+
+## Gates (v0.9.0, at release commit `7bf7c38`)
+
+| # | Gate (§9 of the Phase 9 brief) | Command / evidence | Status |
+|---|---|---|---|
+| G1 | Repository baseline inspected; existing functionality intact (§9.1) | `docs/PHASE9_AUDIT.md` §1–2: 0.8.0 at `9c76db1`, clean tree, 323 passed / 2 skipped, e2e 107. Every earlier test still runs and passes; record hashes unchanged | PASS |
+| G2 | Unit, integration, robustness and parity tests (§9.11) | `verify.py`: **348 passed, 2 skipped** (astropy not installed). New: `test_intelligence.py` (21), `test_phase9_catalogue.py` (3), `test_api.py::test_phase9_intelligence_corpus_oracle_whatif_reproduction` | PASS |
+| G3 | Python/browser parity (§8) | `test_intelligence.py::test_browser_intelligence_functions_match_python` runs `tests/js/intel_parity.mjs` in Node: recall, failure warnings, ledger and gate overlays, oracle spec and evaluation, motion refit and hypothetical visit, reproduction validation and comparison, session entities, causal warnings | PASS |
+| G4 | Shared architecture, provenance and epistemic status (§9.2, 9.4, 9.5) | `test_entities_have_ids_versions_provenance_and_statuses` (zero unresolved provenance references on both fixtures); `test_memory_statuses_never_promote_explanations_and_flag_tampering` | PASS |
+| G5 | Counterfactual isolation (§9.6) | `test_whatif_is_isolated_validated_and_refuses_without_a_method` (record hash unchanged, baseline recomputed, refusals where no method exists); Phase 7 `test_counterfactuals_are_isolated_and_labelled` | PASS |
+| G6 | Permissions and audit logs for autonomous actions (§9.7) | `test_research_cycle_proposes_registered_actions_by_rule_and_levels_bound_execution` (no level allows network or write; restricted workflow within the allowed classes); e2e `i5` (advisory runs nothing, supervised runs an approved step, restricted needs authorization; every step logged in the session) | PASS |
+| G7 | Reproduction packages validated (§9.8) | `test_reproduction_manifests_validate_and_comparison_classes` (tampered digest rejected; all six classes produced); e2e `i6` | PASS |
+| G8 | Browser workflows, both modes (§9.3, 9.10) | `pytest -m e2e tests/e2e`: **119 passed** (baseline 107; `i1`–`i6` added in server and static mode); `test_r` and `test_y` extended to the new workspace | PASS |
+| G9 | Responsive behaviour inspected | e2e `test_r` (no horizontal page scroll at 820 and 390 px, including Scientific Intelligence); `phase9_screenshots.py` checks scrollWidth = clientWidth at 390 px. Inspecting the phone screenshots **found a defect**: the gate's requirement column wrapped to one letter per line. Fixed (`7bf7c38`) and re-inspected: tables keep whole words and scroll inside their frame | PASS (defect found and fixed) |
+| G10 | Local preview launched and inspected (§9.13) | `dist/preview` served on 127.0.0.1 and opened in Chromium (Playwright, headless, in this workspace): all twelve panels captured at 1440 px and two at 390 px (`docs/screenshots/phase9-*.png`), images looked at, **no console errors**. The static-mode e2e run exercised the same build | PASS |
+| G11 | Whole-system verification (§9.11) | `python scripts/verify.py --e2e` at `7bf7c38`: **VERIFIED 18/18**, 4 warnings (no astropy, no real bundles, no Meta key, smoke test never run) | PASS |
+| G12 | Static preview integrity | `verify.py`: 231 files match `PREVIEW_MANIFEST.json` (built from `7bf7c38`) | PASS |
+| G13 | Accessibility (automated) | `test_accessibility.py`; e2e `test_y` (every visible control named, including the twelve panels), the Unknown Universe bands are keyboard buttons (e2e `i2` uses focus and Enter) | PASS |
+| G14 | Accessibility with a screen reader | — | NOT RUN |
+| G15 | Performance measured | `python scripts/measure_performance.py` → `docs/performance.json` (below) | PASS |
+| G16 | Documentation updated (§9.12) | Phase 9 audit, architecture, scientific methods (pointer), generated intelligence methods, limitations, traceability, provenance, reproducibility, preview (availability classes), troubleshooting, feature catalogue (pointer), Phase 9 catalogue, release notes, README, CLAUDE.md, this report | PASS |
+| G17 | Release artifacts validated (§9.14) | `scripts/make_release.py`: RELEASE OK (below). Earlier artifacts 0.2.0–0.8.0 untouched (0.8.0 still `fcde43a0…`) | PASS |
+| G18 | Hosted preview | Published as **version 8** of the hosted artifact. `data/status.json` (0.9.0, commit `7bf7c38`), `js/intelui.js`, `css/app.css`, `data/corpus.json` and `data/t/syn-var-1/run/724e4a3cdd8ef4d9/intelligence.json` read back with SHA-256 identical to the local build. The hosted page was **not opened in a browser**: the computer linked to this session was not connected, so no browser outside this workspace was reachable. Per §9, the hosted preview is not claimed to work; the identical files were rendered locally (G10) | PARTIAL (files verified; hosted page not opened) |
+| G19 | Real SPHEREx acquisition, live archive tests, astropy cross-check | `diagnose_environment.py` (2026-11-02): IRSA SIA/TAP, SIMBAD, Gaia, Meta, PyPI and npm refused (proxy 403); astropy not installable | BLOCKED |
+| G20 | Live Meta API; multi-agent research; semantic recall with embeddings; dependency review | No key; API host, PyPI and OSV refused | BLOCKED |
+| G21 | Dockerfile build | Base images cannot be pulled | NOT RUN |
+
+Every Phase 9 result is computed on synthetic fixtures. A synthetic test is not evidence of an astronomical discovery; a gate
+marked "ready" is not a statement that the conclusions are true; a repeated calculation is not a valid physical interpretation.
+
+## Release (0.9.0)
+
+| Version | Commit | Archive (sha256) | Preview archive (sha256) | Hosted artifact |
+|---|---|---|---|---|
+| 0.9.0 | `7bf7c38` | `dist/skytrace-0.9.0.zip` (`1388418fe632fcaae798c5a92a690f5e7e6842993e986e82248b213afc1e9423`, 543 files, 31.6 MB; zip integrity verified, no forbidden files, bundle checksums OK) | `dist/skytrace-preview-0.9.0.zip` (`2db9f41f3a2c39c02da4917a565a118b3fec1fcce6283b330ba8fa019f023b15`, 6.7 MB) | version 8 (G18) |
+
+The manifest is kept as `dist/RELEASE_MANIFEST-0.9.0.json`. Nothing was pushed.
+
+## New tests in v0.9
+
+Unit/API: `test_intelligence.py` (21 functions, including the Node parity test `tests/js/intel_parity.mjs`), `test_phase9_catalogue.py`
+(3: 600 distinct concepts in 50 domains, every field present; every A concept cites existing evidence and an existing test function;
+generated documents match the script), `integration/test_api.py::test_phase9_intelligence_corpus_oracle_whatif_reproduction`.
+Browser (both modes, `e2e/test_controls.py`): `i1` command center, genome and fingerprint; `i2` unknown universe and network;
+`i3` adversary and causality; `i4` what-if and oracle; `i5` research cycle permissions and gate; `i6` memory, reproduction and
+preservation. `test_r` and `test_y` were extended to the new workspace. No assertion of an earlier test was changed.
+
+## Performance (v0.9.0; this machine, 2 CPUs, median of 3; `docs/performance.json`)
+
+| Fixture | Analysis | Intelligence report, first call | Intelligence report, cached | Corpus (memory, network, genome comparisons) |
+|---|---|---|---|---|
+| syn-var-1 | 5.651 s | 0.384 s | 0.02 s | 1.584 s |
+| syn-hpm-1 | 4.963 s | 0.526 s | 0.021 s | 2.268 s |
+
+| Phase 9 panel, click to rendered panel | Server mode | Static preview |
+|---|---|---|
+| Command Center | 0.093 s | 0.091 s |
+| Discovery Genome | 0.11 s | 0.107 s |
+| Unknown Universe | 0.107 s | 0.129 s |
+| Multi-Discovery Network | 0.164 s | 0.201 s |
+| Scientific Adversary | 0.112 s | 0.138 s |
+| Causality Lab | 0.127 s | 0.113 s |
+| What-if Lab | 0.109 s | 0.124 s |
+| Observation Oracle | 0.109 s | 0.124 s |
+| Research Cycle | 0.102 s | 0.097 s |
+| Research Memory | 0.139 s | 0.128 s |
+| Reproduction Network | 0.111 s | 0.119 s |
+| Integrity Gate | 0.099 s | 0.129 s |
+
+Page load: server 0.46 s, static 0.486 s; first result in the static preview 0.704 s. Static preview: 231 files plus its manifest,
+29.4 MB. The corpus is computed once per set of records and cached. All earlier measurements are in `docs/performance.json`.
+
+---
+
+# Test report: v0.8.0 (2026-10-31)
 
 ## Gates (v0.8.0, at release commit `9af3ec4`)
 
