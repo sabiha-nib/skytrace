@@ -30,7 +30,7 @@ BLOCK_TYPES = ["heading", "paragraph", "observation", "measurement", "evidence",
                "warning", "parameters", "citation", "question", "conclusion"]
 REF_KINDS = ["observation", "measurement", "claim", "graph_node", "hypothesis", "user_hypothesis", "experiment",
              "figure", "run", "dataset", "pair", "test", "challenge", "scenario", "opportunity", "twin",
-             "node", "argument", "negative", "review_item", "check"]
+             "node", "argument", "negative", "review_item", "check", "entity", "memory", "capsule"]
 STEP_STATUS = ["suggested", "ready", "running", "completed", "blocked", "failed", "needs_review"]
 
 _REF = O({"kind": (S(enum=REF_KINDS), True), "id": (S(300, 1), True)})
@@ -88,6 +88,13 @@ SESSION_SCHEMA = O({
     "blind": ({"t": "json", "max_bytes": 6000, "depth": 4}, False),
     "arguments": (A({"t": "json", "max_bytes": 12000, "depth": 6}, 30), False),
     "debug": (A({"t": "json", "max_bytes": 4000, "depth": 4}, 50), False),
+    # v0.9 (optional): challenge-ledger statuses you set (ADV-1: acknowledged with a note, or resolved with a reference to a
+    # recorded item), the investigation's completion (GATE-1 outcome when you marked it complete), frozen time capsules
+    # (CAPSULE-1 digests of what was known), autonomous research-cycle runs (permission level, every step) and handoffs
+    "challenges": (A({"t": "json", "max_bytes": 3000, "depth": 3}, 300), False),
+    "completion": ({"t": "json", "max_bytes": 6000, "depth": 4}, False),
+    "capsules": (A({"t": "json", "max_bytes": 20000, "depth": 6}, 20), False),
+    "cycles": (A({"t": "json", "max_bytes": 12000, "depth": 6}, 20), False),
     "examined": (A(S(200, 1), 500), True),
     "history": (A(O({"seq": (INT(1, 10 ** 9), True), "at": (ISO, True), "kind": (S(40, 1, r"^[a-z_.]{1,40}$"), True),
                      "summary": (S(300), True), "ref": (OPT(S(300)), True), "h": (HEX64, False)}), 2000), True),

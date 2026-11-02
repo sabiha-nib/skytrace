@@ -668,5 +668,7 @@ from . import frontier as _frontier  # noqa: E402  (Phase 7 routes)
 routes[-1:-1] = _frontier.routes
 from . import epistemic as _epistemic  # noqa: E402  (Phase 8 routes)
 routes[-1:-1] = _epistemic.routes
+from . import intelligence as _intelligence  # noqa: E402  (Phase 9 routes)
+routes[-1:-1] = _intelligence.routes
 
 app = SecurityHeaders(Starlette(routes=routes, exception_handlers={APIError: api_error, Exception: server_error}))
