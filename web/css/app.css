@@ -819,5 +819,7 @@ dl.genome dt { color: var(--muted); text-transform: capitalize; }
 .cy-steps li.cy-completed { border-color: color-mix(in srgb, var(--ok) 50%, var(--line)); } .cy-steps li.cy-failed { border-color: color-mix(in srgb, var(--bad) 50%, var(--line)); }
 .or-cand input[type=text].or-label { min-width: 200px; } .or-cand .or-years { width: 110px; } .or-cand .or-factor, .or-cand .or-err { width: 90px; }
 #rp-paste { width: 100%; }
-#intel-body td, #intel-body th { white-space: normal; overflow-wrap: anywhere; }
+#intel-body td, #intel-body th { white-space: normal; overflow-wrap: break-word; }
+#intel-body th { min-width: 5.5em; }
+#intel-body td.mono, #intel-body .mono { overflow-wrap: anywhere; }
 #cl-models td.cl-crit { text-align: center; width: 36px; } #cl-models td, #cl-models th { overflow-wrap: normal; word-break: normal; }

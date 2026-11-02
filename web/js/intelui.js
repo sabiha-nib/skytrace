@@ -316,7 +316,7 @@ async function gatePanel(out, { d, spec, rerender }) {
     pkg.digest = await digest(pkg);
     if (await download(`skytrace-knowledge-${short(d.content_hash)}.json`, JSON.stringify(pkg, null, 1), "application/json")) toast("Knowledge package exported");
   });
-  put(out, card("Discovery integrity gate", el("h3", { id: "gt-outcome" }, pill(G.outcome), " ", G.outcome), el("p", { class: "muted small" }, G.meaning),
+  put(out, card("Discovery integrity gate", el("h3", { id: "gt-outcome" }, pill(G.outcome)), el("p", { class: "muted small" }, G.meaning),
     table(["Requirement", "State", "Detail"], G.requirements.map((r) => el("tr", { "data-req": r.id, class: r.state === "met" ? "" : "flag" }, el("th", { scope: "row" }, `${r.id} ${r.name}`), el("td", {}, pill(r.state)),
       el("td", { class: "small wrap" }, r.detail, r.id === "G3" && r.state !== "met" ? el("span", {}, " ", goButton("Research cycle", "cycle")) : null,
         ["G6", "G7"].includes(r.id) && r.state !== "met" ? el("span", {}, " ", goButton("Examine challenges", "adversary")) : null))), { id: "gt-table" }),
