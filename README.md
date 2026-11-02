@@ -19,7 +19,26 @@ The static preview says on every screen that it is a preview of precomputed resu
 an explanation; pair comparisons, image registration and record-hash checks run in the browser with code that is
 tested for parity with the Python implementation.
 
-## Status (v0.8.0, 2026-10-31)
+## Status (v0.9.0, 2026-11-02)
+
+Phase 9 added a scientific intelligence layer: one *Scientific Intelligence* workspace with twelve panels in six layers
+(observation, discovery, reasoning, experimental, knowledge, integrity) over a shared entity model. It includes:
+
+- research memory across investigations that never turns a hypothesis into a fact, with concept recall and memory of failure
+- discovery genomes (thirteen cited fields, structural comparison, no score) with a sensitivity fingerprint and an uncertainty
+  budget
+- an unknown-universe map of eight rule-defined regions and a multi-discovery network whose every edge states its rule, basis and
+  limitation
+- a scientific adversary whose every challenge names its rule, an instrumental reality check, and a causality lab that never
+  infers causation from correlation
+- a what-if lab that answers only where a method exists, and an observation oracle of hypothetical plans under a validated model
+- a research cycle with advisory, supervised and restricted-automation levels and an audit log
+- reproduction manifests with comparison classes, and an integrity gate with research debt, time capsules, handoffs and a
+  knowledge export
+
+Every panel labels what it shows as real, synthetic, simulated, hypothetical, unverified or verified. The data are still
+synthetic. See [docs/PHASE9_AUDIT.md](docs/PHASE9_AUDIT.md), [docs/INTELLIGENCE_METHODS.md](docs/INTELLIGENCE_METHODS.md) and the
+[Phase 9 catalogue](docs/PHASE9_CATALOGUE.md) (600 concepts, a roadmap).
 
 Phase 8 added an epistemic layer: Skytrace now shows how each conclusion is built and tests it. It includes:
 
@@ -70,6 +89,7 @@ Phase 3 (validation): [docs/PHASE3_GATES.md](docs/PHASE3_GATES.md).
 | Part | State |
 |---|---|
 | Application (API + web interface) | Works end to end offline, in both the server and the static-preview mode; every control is exercised by browser tests (counts in [docs/TEST_REPORT.md](docs/TEST_REPORT.md)) |
+| Scientific intelligence layer (v0.9) | Entity envelope (SCI-ENTITY-1), Research Memory (MEMORY-1), Discovery Genome (DGENOME-1), sensitivity fingerprint (FINGERPRINT-1), uncertainty budget (BUDGET-1), Unknown Universe (UNKNOWN-1), Multi-Discovery Network (MDNET-1), Scientific Adversary (ADV-1), instrumental reality check (INSTCHECK-1), Causality Lab (CAUSAL-1), What-if Lab (WHATIF-1), Observation Oracle (ORACLE-1, EVNEG-1), Research Cycle (CYCLE-1), Reproduction Network (REPRONET-1), Integrity Gate (GATE-1, DEBT-1, CAPSULE-1) |
 | Epistemic layer (v0.8) | Reasoning graph (EPI-1), Lineage-X (LINEAGE-1), Scientific Compiler (SCICOMP-1), Method Genome (METHOD-DNA-1), Scientific Debugger (SCIDEBUG-1), independent reproduction (REPROX-1), knowledge boundary (KBOUND-1), claim stress tests (CLAIMX-1), blindspots (BLIND-1), Negative Space (NEG-1), Model Arena (MODELS-1), Uncertainty Flow (UFLOW-1), FutureLab (FUTURE-1), Questions & Next Steps (NEXTX-1, QFORGE-1), Integrity Firewall (INTEG-1), Protocol & Blind Analysis, Reasoning Lab, evidence vault (VAULT-1), simulation audit (SIMCHECK-1), review board (REVIEWX-1) |
 | Frontier laboratory (v0.7) | Counterfactual Lab (CF-1), Synthetic Observatory (SYNOBS-1), Observation Design Lab (OBSDES-1), Adversarial Lab (ASL-1), information analysis (INFO-1), Review Room (REVIEW-1), reproducibility challenge (REPRO-1), astro-twins (TWIN-1), Discovery Horizon (SPE-1, HORIZON-1), Research Autopilot (CAPREG-3 permission levels), Cosmic Atlas, Knowledge Atlas |
 | Research operating system (v0.6) | Research sessions (SESSION-1), capability registry with actions (CAPREG-2), Investigation Planner (PLAN-1), Command Center, sequences (SEQ-1), compatibility matrix (COMPAT-1), data quality (DQ-1), evidence ledger (LEDGER-1), Discovery Radar (RADAR-1), Experiment Studio (EXP-1), workflows (WF-1), missions (MISSION-1), notebook, figure studio (FIG-2), knowledge graph (KG-1), connector previews (ACQ-2), Copilot 2.0 |
@@ -114,6 +134,22 @@ pytest -m live tests/live -s                # confirms the archive interfaces an
 Each target becomes a bundle in `data/bundles/<target>/`: the original files byte for byte, a manifest with SHA-256 checksums and provenance, the archive search results with the reason for every excluded image, and the real FITS structure as read. Restart Skytrace and the targets appear with their observations. See [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md).
 
 ## What you can do in the app
+
+New in 0.9: **Scientific Intelligence** (after Command Center, research level). A strip of six layers opens twelve panels:
+
+- **Command Center**: the investigations the server holds, the gate outcome and the open items of the current one.
+- **Discovery Genome**: thirteen cited fields per question, comparison with another run, the sensitivity fingerprint and the
+  uncertainty budget, with export.
+- **Unknown Universe** and **Multi-Discovery Network**: what is unknown, region by region (each item opens its evidence), and
+  relationships between investigations filtered by rule.
+- **Scientific Adversary** and **Causality Lab**: the challenge ledger by question (acknowledge, note, resolve with a reference),
+  the instrumental reality check, the causal graph with confounders and criteria, and your own proposed relations with wording
+  warnings.
+- **What-if Lab**, **Observation Oracle** and **Research Cycle**: the six what-if questions and a hypothetical extra visit;
+  candidate observation plans you can edit, with evidence negotiation; proposals by rule, run at the level you choose and logged.
+- **Research Memory** and **Reproduction Network**: concept recall, memory of failure, knowledge and hypothesis evolution;
+  reproduction manifests and their comparison.
+- **Integrity Gate**: eight requirements, marking complete, research debt, time capsules, handoffs and the knowledge export.
 
 New in 0.8. Workspaces are grouped in eight modes: Observatory · Evidence · Analyze · Challenge · Experiment · Plan · Knowledge ·
 Publish.

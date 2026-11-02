@@ -157,6 +157,46 @@
   and audits of other scenarios are refused with a reason.
 - **Catalogue.** 79 Phase 8 concepts are deferred, 1 blocked and 5 out of scope. See [PHASE8_CATALOGUE.md](PHASE8_CATALOGUE.md).
 
+## Scientific intelligence layer (v0.9)
+
+- **Synthetic data only, still.** Every Phase 9 result (memory, genomes, the unknown map, the ledger, the gate, causal criteria,
+  oracle plans, network relations, reproduction comparisons, what-if scenarios) was computed on the two synthetic fixtures. None
+  is evidence about the sky, and agreement on generated data does not validate real-data performance.
+- **A small corpus.** Memory and the multi-discovery network see only the investigations the server holds: runs made in this
+  process and saved records whose bundle exists (the preview records the fixture runs). With two targets, cross-investigation
+  relations are exercised but cannot show real patterns. Memory is per installation; nothing is shared between machines or users.
+- **Memory statuses are rules.** *Verified* means a recorded value from a record whose content hash recomputes, not that the value is
+  right. Explanations are never promoted, however often they are remembered as consistent. Recall uses a fixed vocabulary of
+  concepts; a word outside it is matched only literally. No embeddings are used (no verified provider).
+- **Genomes and network relations are structural.** A genome comparison lists shared fields; a network edge needs one of nine
+  rules. Neither says two sources are physically alike, and there is no similarity score.
+- **The unknown map is a map of defined rules.** It places items the record and the reports contain. Unknowns no rule describes are
+  not on it, and no completeness percentage is computed. *Unexplored parameter regions* use the documented ranges of the analysis
+  parameters, not physical parameter space.
+- **The adversary raises what its rules raise.** Absence of a challenge is not support. Severity is fixed per rule.
+- **The gate is a checklist.** *Ready to mark complete* means its eight requirements are met. It is not peer review and does not mean
+  the conclusions are true. Three requirements (reproducibility, wording, challenges examined) need your action in the session.
+- **The causal graph is an assumption.** It documents how the measurement process is believed to work; it was not learned and is
+  not tested. C5 (experimentally supported) is never met, because archival data allow no intervention on the sky. Interventions
+  listed are re-analyses.
+- **The oracle plans under one model.** Plans are evaluated under the measurement model that reproduces the recorded fit (white,
+  independent errors). Information gain in bits is not computed, because no defensible prior exists. Plans are hypothetical; Skytrace
+  has no telescope or survey-scheduling integration.
+- **What-if answers only where a method exists.** W3 (background model) has no valid method here; W4 and W5 are routed to the
+  instrumental check and the hypotheses rather than recomputed. Hypothetical visits are labelled and never stored as observations.
+- **The fingerprint, the instrumental check and the budget cover what they list.** Six dimensions, nine checks and three classes.
+  Ruling out every listed instrumental explanation does not make a signal astrophysical. No total error budget is computed while
+  effects remain unquantified.
+- **Bounded autonomy is local and small.** The research cycle proposes and runs only registered actions in the browser, with the
+  permission classes inspect and analysis. It cannot stop a running step part-way, has no step or time budget, and has no
+  scheduler: nothing runs when the page is closed.
+- **Time capsules, handoffs and knowledge packages are exports.** A capsule's digest makes later edits detectable; it is not a
+  signature. There is no importer that validates a knowledge package or a capsule yet. A handoff is a Markdown file; there is no
+  live collaboration.
+- **The copilot does not read the intelligence report.** Its sixteen tools are unchanged.
+- **Catalogue.** Of 600 Phase 9 concepts, 286 are implemented and tested (most from earlier phases), 114 implementable now but not
+  built, 127 need data or infrastructure, and 73 are speculative or out of scope. See [PHASE9_CATALOGUE.md](PHASE9_CATALOGUE.md).
+
 ## Product
 
 - Single-user: no accounts, and saved investigations are visible to anyone who can reach the server.

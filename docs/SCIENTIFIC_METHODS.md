@@ -7,7 +7,9 @@ from the code and from runs on the synthetic fixtures. Phase 7 methods (CF-1, SY
 TWIN-1, SPE-1, HORIZON-1, CAPREG-3) are in [FRONTIER_METHODS.md](FRONTIER_METHODS.md). Phase 8 methods (EPI-1, METHOD-DNA-1,
 SCICOMP-1, SCIDEBUG-1, KBOUND-1, CLAIMX-1, NEG-1, BLIND-1, UFLOW-1, LINEAGE-1, MODELS-1, FUTURE-1, NEXTX-1, QFORGE-1,
 INTEG-1, REVIEWX-1, REPROX-1, SIMCHECK-1, VAULT-1, PROTOCOL-1, BLINDLAB-1, ARG-1) are in
-[EPISTEMIC_METHODS.md](EPISTEMIC_METHODS.md). None of them measures; none produces a probability or a score.
+[EPISTEMIC_METHODS.md](EPISTEMIC_METHODS.md). Phase 9 methods (SCI-ENTITY-1, MEMORY-1, DGENOME-1, UNKNOWN-1, ADV-1, GATE-1,
+DEBT-1, ORACLE-1, EVNEG-1, CAUSAL-1, MDNET-1, REPRONET-1, WHATIF-1, FINGERPRINT-1, INSTCHECK-1, BUDGET-1, CYCLE-1, CAPSULE-1) are in
+[INTELLIGENCE_METHODS.md](INTELLIGENCE_METHODS.md). None of them measures; none produces a probability or a score.
 
 Every method has a version ID. Each ID is written into every result that uses it, so a result always names the exact rule that produced it. Thresholds are fixed constants, not tuned per target. All numbers below come from runs of the code at commit time (see [TEST_REPORT.md](TEST_REPORT.md)).
 

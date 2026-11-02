@@ -117,3 +117,18 @@ full application, then *Replay*.
   `docs/EPISTEMIC_METHODS.md` from the fixtures.
 * **Simulation audit** (SIMCHECK-1) regenerates a scenario with up to three seeds. It reports whether each verdict is stable
   across them, alongside the generator version, ground truth, assumptions and validity domain.
+
+## Reproduction network and the intelligence layer (v0.9)
+
+* **Manifests.** `GET /api/investigations/{iid}/reproduction-manifest` (or *Reproduction Network → Download this run's reproduction manifest*) writes a
+  `skytrace.reproduction/1` manifest: data hashes, software and environment, configuration, seed, stage hashes, limitations and a
+  digest. Validation checks the required fields and recomputes the digest.
+* **Comparison classes.** Two manifests compare into the first class that applies: exact match, different input data,
+  methodological (configuration or seed), missing dependency, numerical (stage hashes differ but values agree within 1e-9) or
+  unexplained divergence. The browser port is parity-tested. Every result says that repeating a calculation shows it repeats, not
+  that it is valid.
+* **`reproduce_independent`** is a registered action (permission *analysis*): it runs REPROX-1 and records the verdict in the
+  session, so the integrity gate's *Reproducible* requirement can be met. In the static preview the default run's reproduction is
+  recorded.
+* **Determinism.** The intelligence report and the corpus are deterministic functions of the records; `python
+  scripts/gen_intelligence_methods.py` regenerates `docs/INTELLIGENCE_METHODS.md` from the fixtures.

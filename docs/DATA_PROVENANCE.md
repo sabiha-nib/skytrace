@@ -121,3 +121,22 @@ files were produced by the server at build time and are listed in `PREVIEW_MANIF
 * **History hash chain** (VAULT-1): every history entry carries `h`, the SHA-256 of the previous link and the canonical entry
   (SKY-CANON-1), starting from a fixed genesis value. `session.verify` reports broken links. A save with a broken link is refused.
   Corrections are new entries with a `seq:` reference to the corrected entry.
+
+## Scientific intelligence layer (v0.9)
+
+* **Entities** (SCI-ENTITY-1): every object the intelligence layer shows has a stable id, a version, provenance references, a
+  creation time, an epistemic status and a validation result. Provenance references are graph ids, record paths or session items;
+  `entities.validate` reports any reference that does not resolve (zero on both fixtures).
+* **The intelligence report** carries the record's content hash and is cached by it. The corpus (memory and network) is keyed by
+  the sorted set of content hashes it covers. Memory items name their source record (`iid`, content hash, origin: run in this
+  session or saved record) and the record path they came from. A record whose hash does not recompute makes its items
+  *unverifiable*.
+* **Genome fields** cite graph objects or record paths. **Challenge entries** name the rule that raised them and the object they
+  concern. **Network edges** name their rule, basis and limitation.
+* **Reproduction manifests** (REPRONET-1) record data-file SHA-256 from the bundle manifest, software and environment, the
+  configuration, the seed, the stage hashes and the limitations recorded in the assessment, with a digest over the manifest.
+* **Session additions** (optional): `challenges` (acknowledgements, notes and resolutions with references), `completion` (the gate
+  state when you marked an investigation complete), `capsules` (digest, time, record, gate outcome) and `cycles` (each research-
+  cycle step with level, approval, status and times). All are appended to the hash-chained history.
+* **Labels.** Synthetic sources keep the status *simulated*; hypothetical visits and plans are labelled *hypothetical*; causal
+  models and explanations are *unverified interpretations*. These labels come from origin and method, not wording.

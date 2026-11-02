@@ -1,5 +1,57 @@
 # Release notes
 
+## 0.9.0 — 2026-11-02 · the scientific intelligence layer
+
+Skytrace now connects what it knows across investigations and helps decide what to do next, within stated rules. One new
+workspace, *Scientific Intelligence*, holds twelve panels in six layers (observation, discovery, reasoning, experimental,
+knowledge, integrity) over one shared entity model. Every panel labels what it shows as real data, synthetic data, simulated
+output, hypothetical scenario, unverified interpretation or verified computation. Nothing in this release measures anything new,
+invents a probability, scores a discovery or calls a model, and the bundled data are still synthetic. Real-data acquisition, the
+Meta model, multi-agent research and semantic search are still blocked in the build environment.
+
+**New**
+* **Shared entity envelope** (SCI-ENTITY-1): every object has a stable id, version, provenance, creation time, epistemic status
+  and validation. Status rules E1–E6 cover objects outside the reasoning graph.
+* **Research Memory** (MEMORY-1): remembered observations, conclusions, explanations, failures, questions and assumptions across
+  the investigations the server holds, with statuses M1–M6. Explanations are never promoted to facts. Recall uses a fixed concept
+  vocabulary; **memory of failure** quotes the recorded reason before you repeat an action that failed on the same target;
+  superseded conclusions are marked outdated; knowledge evolution shows how each conclusion moved between runs.
+* **Discovery Genome** (DGENOME-1): thirteen cited fields per question, structural comparison without a score, a **sensitivity
+  fingerprint** (FINGERPRINT-1, six recomputed dimensions) and an **uncertainty budget** (BUDGET-1: measured, estimated and
+  unquantified terms).
+* **Unknown Universe** (UNKNOWN-1): eight regions placed by rules U1–U8, each item with its basis, keyboard-operable.
+* **Multi-Discovery Network** (MDNET-1): nine relationship rules, each edge with its basis and limitation; shared keywords never
+  create an edge.
+* **Scientific Adversary** (ADV-1): a challenge ledger organised by eight questions, every entry backed by a rule, resolved only
+  with a reference; with the **instrumental reality check** (INSTCHECK-1, nine checks).
+* **Causality Lab** (CAUSAL-1): a documented causal graph of the measurement process, confounders, temporal association,
+  interventions as re-analyses and five separate criteria; "experimentally supported" is never met on archival data. Your
+  proposed relations are checked for causal wording.
+* **What-if Lab** (WHATIF-1): the six questions of the brief, answered only where a method exists, with a hypothetical extra visit
+  for motion; the baseline is never modified.
+* **Observation Oracle** (ORACLE-1, EVNEG-1): hypothetical observation plans under the validated measurement model, expected
+  significance and Δχ², no information gain without defensible priors, and evidence negotiation between explanations. Never
+  presented as scheduled.
+* **Research Cycle** (CYCLE-1): registered actions proposed by rules A1–A6 under three autonomy levels (advisory, supervised,
+  restricted automation), every step logged in the session. New registered action `reproduce_independent`.
+* **Reproduction Network** (REPRONET-1): reproduction manifests with validation and six comparison classes; execution is not
+  validity.
+* **Integrity Gate** (GATE-1, DEBT-1, CAPSULE-1): eight requirements before marking complete ("ready" is not "true"), research debt,
+  time capsules with a digest, Markdown handoffs and a `skytrace.knowledge/1` export.
+* API: `GET /api/investigations/{iid}/intelligence`, `GET …/reproduction-manifest`, `GET /api/intelligence/corpus`,
+  `POST /api/oracle`, `POST /api/whatif/visit`, `POST /api/reproduction/compare`. The static preview records the intelligence
+  report for every run and the corpus.
+* Session fields `challenges`, `completion`, `capsules` and `cycles`; 0.5–0.8 sessions stay valid.
+* Generated documentation: [INTELLIGENCE_METHODS.md](INTELLIGENCE_METHODS.md), the [Phase 9 catalogue](PHASE9_CATALOGUE.md) (600
+  concepts in 50 domains: 286 implemented and tested, 114 implementable now, 127 needing data or infrastructure, 73 speculative or
+  out of scope) and the [Phase 9 audit](PHASE9_AUDIT.md) with build, compose and defer decisions for systems A–X.
+
+**Partial or deferred** (see the audit): decision-theory workbench (K), per-event hypothesis timeline (U), importers for knowledge
+packages and capsules (W, N), a stop control and budgets for automation.
+
+**Unchanged**: the pipeline and record hashes, the copilot's tools and guard, and every earlier workspace and test. Earlier
+release artifacts are kept.
+
 ## 0.8.0 — 2026-10-31 · the epistemic frontier
 
 Skytrace can now show how each conclusion is built and test it the way software is tested. Every claim traces back to its files,

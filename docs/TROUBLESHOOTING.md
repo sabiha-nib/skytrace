@@ -48,4 +48,12 @@
 | Copilot says it is paused | a blind analysis is active; its answers would reveal outcomes | unblind first |
 | Session save refused: "evidence-vault chain broken at entry N" | an earlier history entry was edited outside Skytrace | restore an unedited export; corrections must be appended, not edited in |
 | Integrity firewall "needs attention" on my notebook | a high-severity check failed (for example a number not in the record, or "discovered") | each failing check lists the items; the firewall never changes your text |
+| Scientific Intelligence shows "Run the analysis first" | the panels read a finished investigation | run the analysis (or open a saved record) |
+| Integrity Gate "not ready" on a fixture | *Reproducible*, *Wording within the evidence* and *Challenges examined* need your action | run the *reproduce independently* step in the Research Cycle, check the report wording, and acknowledge or resolve the open challenges; *ready* still does not mean true |
+| A challenge cannot be resolved | resolution needs a reference to a recorded item | add a reference (a graph id, session item or record path), or acknowledge it instead |
+| Research Cycle runs nothing | the level is *Advisory*, or (restricted) the authorization box is not ticked | choose *Supervised* and approve a step, or tick the authorization; steps the level does not allow are skipped with a reason |
+| Observation Oracle shows a reason instead of a plan table | no measurement model reproduces the recorded fit for that question, so no plan can be evaluated | expected; the reason is shown and nothing is estimated instead |
+| What-if "no valid method" | the question has no method that can recompute it from the record | expected (for example W3, the background model); the reason is shown |
+| Multi-Discovery Network or genome comparison is empty (full application) | the server holds only one investigation | run a stability perturbation or another parameter set, or save records |
+| Memory warning about an earlier failure | the same action failed before on this target; the reason is quoted | read the reason before repeating; the warning never blocks |
 | Protocol says "locked after results were visible" | the lock was made after the analysis ran | expected: a late lock is labelled so; lock before running to record a pre-analysis plan |

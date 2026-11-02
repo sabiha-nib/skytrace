@@ -223,6 +223,51 @@ still validate and are chained on their next save. While a blind analysis is act
 
 Methods: [EPISTEMIC_METHODS.md](EPISTEMIC_METHODS.md).
 
+## Phase 9 additions (v0.9): the scientific intelligence layer
+
+Phase 9 engines are deterministic readers too. They read the record, the epistemic report (EPI-1 and its readers), DISC-1 and
+the frontier report, built once per record; none of them changes a record, calls a model, uses a probability or produces a
+score. Every object they expose shares one envelope (SCI-ENTITY-1: stable id, version, provenance, creation time, epistemic
+status, validation), so memory, genomes, the unknown map, the ledger and the gate refer to the same objects.
+
+```
+ browser (Scientific Intelligence workspace)                     server (server/intelligence.py)
+ ┌──────────────────────────────────────────────────────────┐   ┌──────────────────────────────────────────────────────┐
+ │ state.getIntelligence() ─────────────────────────────────────┼──►│ GET /api/investigations/{iid}/intelligence           │
+ │                                                          │◄──│   SCI-ENTITY-1, DGENOME-1, ADV-1, GATE-1 + DEBT-1,     │
+ │ intelcore.js (parity-tested): recall · failureWarnings · │   │   CAUSAL-1, ORACLE-1 context + examples, EVNEG-1,     │
+ │   overlayLedger · overlayGate · oracleEvaluate ·         │   │   INSTCHECK-1, FINGERPRINT-1, BUDGET-1, WHATIF-1,     │
+ │   motionRefit · hypotheticalVisit · reproCompare ·       │   │   REPRONET-1 manifest (cached by content hash);       │
+ │   sessionEntities · causalWarnings                       │   │   + UNKNOWN-1 (reads sibling runs) + CYCLE-1          │
+ │ state.getCorpus() ───────────────────────────────────────────┼──►│ GET /api/intelligence/corpus: MEMORY-1, MDNET-1,     │
+ │                                                          │   │   genome comparisons (cached by the set of hashes)    │
+ │ intelui.js · intelui2.js · intelbits.js (12 panels)      │   │ POST /api/oracle · /api/whatif/visit ·                │
+ │ executor.reproduce_independent ──────────────────────────────┼──►│   /api/reproduction/compare; GET …/reproduction-manifest│
+ └──────────────────────────────────────────────────────────┘   └──────────────────────────────────────────────────────┘
+   static preview: intelligence.json per recorded run and corpus.json; the browser core answers edited plans, hypothetical
+   visits, reproduction comparison and session overlays with the same rules
+```
+
+| Layer | Panels | Engines |
+|---|---|---|
+| 1 Observation | Command Center, Discovery Genome (with sensitivity fingerprint and uncertainty budget) | DGENOME-1, FINGERPRINT-1, BUDGET-1 |
+| 2 Discovery | Unknown Universe, Multi-Discovery Network | UNKNOWN-1, MDNET-1 |
+| 3 Reasoning | Scientific Adversary (with instrumental reality check), Causality Lab | ADV-1, INSTCHECK-1, CAUSAL-1 |
+| 4 Experimental | What-if Lab, Observation Oracle (with evidence negotiation), Research Cycle | WHATIF-1, ORACLE-1, EVNEG-1, CYCLE-1 |
+| 5 Knowledge | Research Memory, Reproduction Network | MEMORY-1, REPRONET-1 |
+| 6 Integrity | Integrity Gate (research debt, time capsule, handoff, knowledge export) | GATE-1, DEBT-1, CAPSULE-1 |
+
+Every panel carries the data-kind legend: real data, synthetic data, simulated output, hypothetical scenario, unverified
+interpretation, verified computation. The workspace sits after Command Center in the navigation (research level).
+
+Bounded autonomy: CYCLE-1 proposes registered actions by rules A1–A6. `capabilities.AUTONOMY_LEVELS` binds execution: advisory
+executes nothing; supervised runs each approved step; restricted automation runs `RESTRICTED_WORKFLOW` after one authorization.
+No level allows the network or write permission classes. Each step is logged in the session (`cycles`) with level, approval and
+times. The session gained optional `challenges`, `completion`, `capsules` and `cycles` fields and the reference kinds `entity`,
+`memory` and `capsule`; earlier sessions still validate.
+
+Methods: [INTELLIGENCE_METHODS.md](INTELLIGENCE_METHODS.md). Audit and decisions: [PHASE9_AUDIT.md](PHASE9_AUDIT.md).
+
 ## Layers and their rules
 
 | Layer | Code | May | May not |

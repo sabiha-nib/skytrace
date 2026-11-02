@@ -64,6 +64,7 @@ def page_timings(base: str, mode: str) -> dict:
                               "cosmic_atlas", "knowledge_atlas")}
         p8 = {k: [] for k in ("reasoning_graph", "scientific_compiler", "claims", "scientific_debugger", "model_arena", "uncertainty_flow",
                               "futurelab", "next_steps", "negative_space", "integrity_check", "protocol", "reasoning_lab")}
+        p9 = {k: [] for k in ("command", "genome", "unknown", "network", "adversary", "causal", "whatif", "oracle", "cycle", "memory", "repro", "gate")}
         for _ in range(N):
             ctx = b.new_context(viewport={"width": 1440, "height": 900})
             pg = ctx.new_page()
@@ -126,6 +127,11 @@ def page_timings(base: str, mode: str) -> dict:
             pg.click(".nav button[data-ws=integrity]")
             pg.locator("#integ-run").wait_for(timeout=60000)
             p8["integrity_check"].append(timed(lambda: (pg.click("#integ-run"), pg.locator("#integ-outcome").wait_for(timeout=60000))))
+            # Phase 9: the first panel fetches the intelligence report (computed once per record, then cached) and the corpus
+            pg.click(".nav button[data-ws=intel]")
+            pg.locator("#intel-layers").wait_for(timeout=300000)
+            for k in p9:
+                p9[k].append(timed(lambda: (pg.click(f"[data-ipanel={k}]"), pg.locator(f"#intel-panel[data-panel={k}]").wait_for(timeout=300000))))
             ctx.close()
         b.close()
     out["page_load_s"] = med(loads)
@@ -139,6 +145,11 @@ def page_timings(base: str, mode: str) -> dict:
     out["phase7_render_first_iteration_s"] = {k: round(v[0], 3) for k, v in p7.items()}
     out["phase8_render_s"] = {k: med(v) for k, v in p8.items()}
     out["phase8_render_first_iteration_s"] = {k: round(v[0], 3) for k, v in p8.items()}
+    out["phase9_render_s"] = {k: med(v) for k, v in p9.items()}
+    out["phase9_render_first_iteration_s"] = {k: round(v[0], 3) for k, v in p9.items()}
+    out["phase9_note"] = ("median over runs, from click on a panel tab to the rendered panel; the intelligence report and the corpus are fetched when "
+                          "the workspace opens (server cost: server_api.*.intelligence_report_first_call_s, corpus_s)" if mode == "server" else
+                          "median over runs; the preview serves the intelligence report and corpus recorded at build time")
     out["phase8_note"] = ("median over runs, from click to first rendered element; the epistemic report is computed once per record and then served "
                           "from the server's cache (the uncached cost is server_api.*.epistemic_report_first_call_s). integrity_check fetches the "
                           "report Markdown and runs the twelve checks in the browser" if mode == "server" else
@@ -192,6 +203,13 @@ def main() -> int:
                 iid4 = r4.json()["investigation_id"]
                 er.append(timed(lambda: requests.get(base + f"api/investigations/{iid4}/epistemic", proxies=NOPROXY, timeout=600).raise_for_status()))
             erc = timed(lambda: requests.get(base + f"api/investigations/{iid4}/epistemic", proxies=NOPROXY, timeout=600).raise_for_status())
+            ir = []
+            for _ in range(N):                      # intelligence report: first call per record (new parameters → new content hash)
+                r5 = requests.post(base + f"api/targets/{tid}/analyze", json={"params": {"aperture_radius_px": 3.5 + 0.1 * (len(ir) + 1)}}, proxies=NOPROXY, timeout=600)
+                iid5 = r5.json()["investigation_id"]
+                ir.append(timed(lambda: requests.get(base + f"api/investigations/{iid5}/intelligence", proxies=NOPROXY, timeout=900).raise_for_status()))
+            irc = timed(lambda: requests.get(base + f"api/investigations/{iid5}/intelligence", proxies=NOPROXY, timeout=900).raise_for_status())
+            cp = timed(lambda: requests.get(base + "api/intelligence/corpus", proxies=NOPROXY, timeout=900).raise_for_status())
             rx = timed(lambda: requests.post(base + f"api/investigations/{iid}/reproduce-x", json={}, proxies=NOPROXY, timeout=900).raise_for_status())
             cfx = timed(lambda: requests.post(base + "api/counterfactuals", json={"target_id": tid, "baseline_investigation_id": iid,
                         "scenario": {"kind": "exclusion", "change": {"detectors": [1]}}}, proxies=NOPROXY, timeout=900).raise_for_status())
@@ -202,7 +220,8 @@ def main() -> int:
                         "package_zip_s": med(pk), "package_zip_bytes": size, "stability_check_s": round(st, 3),
                         "research_report_first_call_s": med(rr), "plan_s": med(pl),
                         "frontier_report_first_call_s": med(fr), "counterfactual_exclusion_s": round(cfx, 3), "reproduce_with_replay_s": round(rep, 3),
-                        "epistemic_report_first_call_s": med(er), "epistemic_report_cached_s": round(erc, 3), "independent_reproduction_s": round(rx, 3)}
+                        "epistemic_report_first_call_s": med(er), "epistemic_report_cached_s": round(erc, 3), "independent_reproduction_s": round(rx, 3),
+                        "intelligence_report_first_call_s": med(ir), "intelligence_report_cached_s": round(irc, 3), "corpus_s": round(cp, 3)}
         res["server_api"] = api
         res["server_page"] = page_timings(base, "server")
     finally:

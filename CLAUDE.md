@@ -12,7 +12,7 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
 - Meta check: `python scripts/meta_smoke_test.py` (needs `META_API_KEY` or `MODEL_API_KEY`)
 - Static preview: `python scripts/build_static.py` (`--web-only` to re-copy the interface) → `dist/preview/`
 - Docs generated from code: `python scripts/feature_catalogue.py` (0.5) · `python scripts/phase6_catalogue.py` (0.6) ·
-  `python scripts/phase7_catalogue.py` (0.7) · `python scripts/phase8_catalogue.py` (0.8) · `python scripts/gen_discovery_methods.py` · `python scripts/gen_research_methods.py` ·
+  `python scripts/phase7_catalogue.py` (0.7) · `python scripts/phase8_catalogue.py` (0.8) · `python scripts/phase9_catalogue.py` (0.9) · `python scripts/gen_intelligence_methods.py` · `python scripts/gen_discovery_methods.py` · `python scripts/gen_research_methods.py` ·
   `python scripts/gen_frontier_methods.py` · `python scripts/gen_epistemic_methods.py` · `python scripts/measure_performance.py`
 - Release: commit, rebuild the preview, then `python scripts/make_release.py` (never overwrites an earlier version)
 
@@ -36,6 +36,11 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
   MODELS-1, `futurelab.py` FUTURE-1, `decide.py` NEXTX-1/QFORGE-1, `integrity.py` INTEG-1, `reviewx.py` REVIEWX-1, `reprox.py`
   REPROX-1, `simcheck.py` SIMCHECK-1; session hash chain VAULT-1; routes in `server/epistemic.py` (one report per record, cached
   by hash); browser rules in `web/js/epistemiccore.js` (parity-tested); protocols, blind analysis and arguments in the browser.
+- v0.9 intelligence layer (readers; no probabilities, no scores, no model calls): `entities.py` SCI-ENTITY-1, `memory.py` MEMORY-1,
+  `dgenome.py` DGENOME-1, `unknownmap.py` UNKNOWN-1, `adversary.py` ADV-1, `gate.py` GATE-1/DEBT-1, `oracle.py` ORACLE-1/EVNEG-1,
+  `causal.py` CAUSAL-1, `mdnet.py` MDNET-1, `repronet.py` REPRONET-1, `whatif.py` WHATIF-1, `fingerprint.py`, `instcheck.py`,
+  `budget.py`, `autonomy.py` CYCLE-1 (levels in `capabilities.AUTONOMY_LEVELS`); routes in `server/intelligence.py` (report per
+  record, corpus over all held investigations); browser rules in `web/js/intelcore.js` (parity-tested); UI `intelui.js`, `intelui2.js`.
 - `server/app.py` (Starlette) + `web/` (ES modules, no build, strict CSP, no external requests).
 
 ## Rules
@@ -54,4 +59,7 @@ Evidence-first investigation of repeated SPHEREx observations. Built for Meta (n
   values; boundary regions are not confidence levels; failed work is never erased; no completeness percentages; tests are not
   scientific validity; the firewall advises, never blocks or rewrites; a hash chain is tamper-evident, not a signature; a lock is
   not preregistration; FutureLab is hypothetical.
+- Memory never promotes an explanation; genome and network matches are structural, never physical similarity; what-ifs and oracle
+  plans are hypothetical; C5 (experimentally supported) is never met on archival data; every challenge and edge names its rule;
+  autonomy levels never grant network or write; repeating a calculation is not validity.
 - A gate passes only when its acceptance checks were executed and recorded (docs/TEST_REPORT.md).

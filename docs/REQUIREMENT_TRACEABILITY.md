@@ -1,4 +1,4 @@
-# Requirement traceability (v0.8.0, 2026-10-31)
+# Requirement traceability (v0.9.0, 2026-11-02)
 
 `IMPLEMENTED` means the code exists and its deterministic tests pass. `VERIFIED` means it is also confirmed on real data or a live service. `BLOCKED` names the missing access. Hackathon submission requirements were retired when the project moved to Meta.
 
@@ -177,3 +177,30 @@ mode. `test_epistemic.py` is `tests/unit/test_epistemic.py`.
 | P8.34 | §32 Documentation and release; methods generated from code; new version only; no push | `gen_epistemic_methods.py`, `make_release.py` | see TEST_REPORT v0.8.0 | see TEST_REPORT | not pushed |
 | P8.35 | §33 Working preview with the five capability classes stated | `docs/PREVIEW.md` | e2e static mode | see TEST_REPORT v0.8.0 | publication is not proof of rendering |
 
+## Phase 9 (v0.9)
+
+Section numbers follow the Phase 9 brief. Tests named `i1`–`i6` are in `tests/e2e/test_controls.py` and run in server and static
+mode. `test_intelligence.py` is `tests/unit/test_intelligence.py`.
+
+| ID | Requirement | Location | Test | Status | Evidence / blocker |
+|---|---|---|---|---|---|
+| P9.01 | §0 Inspect the repository; preserve working functionality; no mockups | `docs/PHASE9_AUDIT.md` §1–2 | baseline at `9c76db1`: 323/2, e2e 107; all earlier tests still run | DONE | record hashes identical; no earlier test removed or weakened |
+| P9.02 | §1 Six intelligence layers sharing data and provenance | `server/intelligence.py`, `intelui.js` LAYERS | e2e `i1`–`i6` | IMPLEMENTED | every engine reads the same epistemic report and entity envelope |
+| P9.03 | §2A Cosmic Memory; never promotes a hypothesis | `memory.py`, `intelcore.recall`, `failureWarnings` | `test_intelligence.py::test_memory_statuses_never_promote_explanations_and_flag_tampering`, `::test_memory_marks_superseded_conclusions_outdated`, `::test_recall_uses_the_concept_vocabulary_and_failure_warnings_quote_reasons`, e2e `i6` | IMPLEMENTED | corpus is small (two synthetic targets) |
+| P9.04 | §2B Discovery Genome (13 fields); visual similarity is not proof | `dgenome.py` | `test_intelligence.py::test_genomes_have_every_field_and_cite_real_objects`, `::test_genome_comparison_is_structural_and_unscored`, e2e `i1` | IMPLEMENTED |  |
+| P9.05 | §2C What-If engine (8 steps); hypothetical; never overwrites | `whatif.py`, `counterfactual.py`, `intelcore.hypotheticalVisit` | `test_intelligence.py::test_whatif_is_isolated_validated_and_refuses_without_a_method`, e2e `i4` | IMPLEMENTED | W3 has no valid method; W4/W5 routed |
+| P9.06 | §2D Causality Lab; never causality from correlation | `causal.py`, `intelcore.causalWarnings` | `test_intelligence.py::test_causal_confounders_and_criteria_never_claim_causation`, parity, e2e `i3` | IMPLEMENTED | C5 never met |
+| P9.07 | §2E Unknown Universe (8 regions, traceable) | `unknownmap.py` | `test_intelligence.py::test_unknown_map_regions_have_rules_and_every_item_a_basis`, e2e `i2` | IMPLEMENTED |  |
+| P9.08 | §2F Observation Oracle; no telescope scheduling | `oracle.py`, `intelcore.oracleEvaluate` | `test_intelligence.py::test_oracle_known_answers_and_refusals`, parity, e2e `i4` | IMPLEMENTED | information gain not computed (no defensible priors) |
+| P9.09 | §2G Scientific Adversary; no manufactured objections | `adversary.py`, `intelcore.overlayLedger` | `test_intelligence.py::test_adversary_raises_only_rule_backed_challenges`, e2e `i3` | IMPLEMENTED |  |
+| P9.10 | §2H Research Autopilot: three levels, audit trail | `autonomy.py`, `capabilities.AUTONOMY_LEVELS`, `intelui2.cyclePanel` | `test_intelligence.py::test_research_cycle_proposes_registered_actions_by_rule_and_levels_bound_execution`, e2e `i5` | IMPLEMENTED | no stop control or budgets (deferred) |
+| P9.11 | §2I Reproduction Network; execution is not validity | `repronet.py`, `intelcore.reproCompare` | `test_intelligence.py::test_reproduction_manifests_validate_and_comparison_classes`, API test, e2e `i6` | IMPLEMENTED | cross-machine reproduction not run |
+| P9.12 | §2J Multi-Discovery Network; no keyword similarity | `mdnet.py` | `test_intelligence.py::test_network_edges_need_a_rule_and_state_basis_and_limitation`, e2e `i2` | IMPLEMENTED |  |
+| P9.13 | §3 K–X selectively implemented | `docs/PHASE9_AUDIT.md` §3 | L, M, O, P, T, X unit tests; N, Q, V, W e2e `i1`, `i5`, `i6` | PARTIAL | K and U partial; R and S composed from Phase 8; N and W export without importers |
+| P9.14 | §4 Unified workspace of twelve parts; data kinds distinguished | `intelui.js`, `intelui2.js`, `intelbits.KINDS` | e2e `i1`–`i6`, `r`, `y` | IMPLEMENTED | no live multi-user collaboration |
+| P9.15 | §5 Shared entities with id, version, provenance, time, status, validation | `entities.py`, `intelcore.sessionEntities` | `test_intelligence.py::test_entities_have_ids_versions_provenance_and_statuses`, `::test_session_entities_follow_rules_and_count_versions` | IMPLEMENTED | zero unresolved references on both fixtures |
+| P9.16 | §6 Catalogue of 600 capabilities in ≥50 domains, categories A–D | `scripts/phase9_catalogue.py`, `docs/PHASE9_CATALOGUE.md` | `test_phase9_catalogue.py` (A cites existing evidence and tests) | DONE | a roadmap, not a build list |
+| P9.17 | §7 Staged implementation | commits `0515f18`, `b8b7c0b` and the release commit | — | DONE |  |
+| P9.18 | §8 Tests for every listed area; parity; responsive; accessibility | `tests/` | `test_intelligence.py::test_browser_intelligence_functions_match_python`, e2e `r`, `y` | IMPLEMENTED | see TEST_REPORT v0.9.0 |
+| P9.19 | §9.13 A real local preview launched and inspected | `dist/preview/` | static-mode e2e; screenshots | see TEST_REPORT v0.9.0 |  |
+| P9.20 | Real astronomical data | — | — | **BLOCKED** | IRSA, SIMBAD and Gaia refused (proxy 403) |

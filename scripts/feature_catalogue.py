@@ -389,8 +389,9 @@ def markdown(cat: dict) -> str:
            "The domain list and the seven dimensions below are this project's own breakdown; they were written for this catalogue "
            "rather than copied from the brief.", "",
            "This is the Phase 5 (0.5) catalogue. Later phases have their own, each deduplicated against the earlier ones: "
-           "[PHASE6_CATALOGUE.md](PHASE6_CATALOGUE.md) (0.6), [PHASE7_CATALOGUE.md](PHASE7_CATALOGUE.md) (0.7) and "
-           "[PHASE8_CATALOGUE.md](PHASE8_CATALOGUE.md) (0.8, the epistemic layer).", "",
+           "[PHASE6_CATALOGUE.md](PHASE6_CATALOGUE.md) (0.6), [PHASE7_CATALOGUE.md](PHASE7_CATALOGUE.md) (0.7), "
+           "[PHASE8_CATALOGUE.md](PHASE8_CATALOGUE.md) (0.8, the epistemic layer) and [PHASE9_CATALOGUE.md](PHASE9_CATALOGUE.md) "
+           "(0.9, the scientific intelligence layer: 600 concepts in 50 domains, a roadmap with categories A–D).", "",
            f"**{c['concepts']} concepts in {c['domains']} domains.** Status: " +
            ", ".join(f"{v} {k}" for k, v in c["by_status"].items()) + ". Tiers: " + ", ".join(f"{k} {v}" for k, v in c["by_tier"].items()) + ".", "",
            "Scores (1–5): " + ", ".join(f"**{l}** {d}" for l, d in zip("SUDFRVK", cat["dimensions"])) + " (5 = little risk of misleading).",
