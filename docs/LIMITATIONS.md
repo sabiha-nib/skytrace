@@ -208,6 +208,8 @@
   in English where no catalogue message covers the whole.
 - **Cross-language search is not semantic.** It matches exact text, the 48 TERM-1 terms and their synonyms, and shared word stems.
   A query that uses a word outside the terminology base in another language finds nothing in English text.
+- **Switching language takes about two seconds** on a 2-CPU machine (the language file is loaded and every text node of the open
+  document translated); switching back to English is immediate.
 - No right-to-left scripts; Hindi uses Western digits (its CLDR default); Bangla digits are the default for Bangla, switchable.
 - **Signal Intelligence on the bundled data is mostly refusals.** Every synthetic series has four points, so the periodogram,
   Fourier, wavelet, DCF and change-point methods correctly do not apply and BIC is not reported. The methods are validated on

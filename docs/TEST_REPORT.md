@@ -1,3 +1,103 @@
+# Test report: v0.10.0 (2026-11-03)
+
+Statuses: **PASS** means executed and met. **FAIL** means executed and not met. **BLOCKED** means it could not be executed here, and
+the reason is named. **NOT RUN** means it was not attempted. **PARTIAL** says which part ran.
+
+## Gates (v0.10.0, at release commit `e86e826`; Phase 10 code at `0f661b5`)
+
+| # | Gate | Command / evidence | Status |
+|---|---|---|---|
+| G1 | Repository baseline inspected; existing functionality intact | `docs/PHASE10_AUDIT.md` §1–2: 0.9.0 at `01fa057`, clean tree, 348 passed / 2 skipped, e2e 119. Every earlier test still runs and passes; record hashes unchanged; English reports byte-identical to 0.9.0 (both fixtures, rendered with `report.py` from `01fa057` and from this release) | PASS |
+| G2 | Unit, integration, robustness and parity tests | `pytest`: **373 passed, 2 skipped** (astropy not installed). New: `test_phase10.py` (21), `test_phase10_catalogue.py` (3), `test_api.py::test_phase10_universal_and_multilingual_report` | PASS |
+| G3 | Python/browser parity | `test_phase10.py::test_browser_translation_search_and_handoff_match_python` runs `tests/js/phase10_parity.mjs` in Node: translation of catalogue samples in five languages (including the connective-pattern rule), keyed messages with plurals, cross-language search, handoff build and validation | PASS |
+| G4 | **Gate A** — six languages: completeness, persistence, terminology, reports, no untranslated major interface | completeness: 3,668 interface + 16 keyed messages in 5 languages, 0 missing (release-blocking test); persistence: e2e `l1` (reload, `localStorage`, Settings) and `phase10_screenshots.py` (choose → reload without parameter → same language, all six); terminology: 48 terms, 685 messages consistent / 0 inconsistent per language; reports: `report.md?lang=` for all six with every number unchanged (unit and API tests), e2e `l3` downloads the Bangla report in the static preview; untranslated: no navigation label left in English except the product name "FutureLab" (kept on purpose), and engine narrative stays English by design (I18N.md §2). Translations **not reviewed by native speakers** | PASS (with the review gap stated) |
+| G5 | Six-language responsive validation (§33) | `scripts/phase10_screenshots.py` against `dist/preview` built at `0f661b5`: 6 languages × desktop 1440×900 (5 views), tablet 834×1112 (2), phone 390×844 (4) = 66 screenshots in `docs/screenshots/phase10/`, `checks.json`: **no horizontal page scroll, no clipped label, no console error** in any view; only deliberate ellipsis (the copilot status pill, full text in its tooltip). Screenshots were looked at (below) | PASS (defects found and fixed) |
+| G6 | **Gate B** — scientific integrity of the new engines | unit tests: BIC only when assumptions hold; no interpolation; known answers for the signal methods; convergence never counts repeated data; nine negative-space distinctions each say what they do not mean; world-model edges carry a basis; sources "not connected"; marketplace recommends only with a known-answer test; explanations keyed in six languages; four separate kinds of time; handoff validation. e2e `l2` and `l4` show the same statements in the interface | PASS |
+| G7 | Imports and exports validated | handoff round trip and five refusal cases (edited content → digest, synthetic label, schema, version, extra field) in Python, the browser validator against Python (parity), e2e `l3` (a re-chosen edited file is refused: digest); session preferences validate; reports carry their language header | PASS |
+| G8 | Browser workflows, both modes | `pytest -m e2e tests/e2e`: **127 passed** (baseline 119; `l1`–`l4` added in server and static mode) | PASS |
+| G9 | Local preview launched and inspected (Part VIII ph. 9) | `dist/preview` served on 127.0.0.1 and opened in Chromium (Playwright, headless, in this workspace): every language, three sizes, the new workspaces, Settings, explanations, the gateway's six-language reports; **no console errors** | PASS |
+| G10 | Whole-system verification | `python scripts/verify.py --e2e` at `e86e826`: **VERIFIED 18/18**, 4 warnings (no astropy, no real bundles, no Meta key, smoke test never run); unit 373 passed / 2 skipped, browser 127 passed | PASS |
+| G11 | Static preview integrity | 251 files match `PREVIEW_MANIFEST.json` (data and interface rebuilt at the release commit `e86e826` before packaging; the screenshots and performance figures were taken from the identical-data build at `0f661b5`) | PASS |
+| G12 | Accessibility (automated) | `test_accessibility.py`; e2e `test_y` (every visible control named); Settings is a dialog with focus return; Escape closes it even after a control re-renders (bug found and fixed); text-box placeholders translated; `lang` attributes on the document, language names and recorded English text | PASS |
+| G13 | Accessibility with a screen reader | — | NOT RUN |
+| G14 | Performance measured | `measure_performance.py` → `docs/performance.json` (below) | PASS |
+| G15 | Documentation | I18N, UNIVERSAL_METHODS, PHASE10_AUDIT, PHASE10_CATALOGUE, architecture, preview, limitations, traceability, release notes, README, CLAUDE.md, this report | PASS |
+| G16 | Release artifacts validated; earlier artifacts preserved | `scripts/make_release.py`: RELEASE OK: zip integrity verified, no missing required files, no forbidden files, bundle checksums OK; the preview archive was built from `e86e826`. Earlier artifacts untouched: 0.9.0 still `1388418f…`, preview 0.9.0 `2db9f41f…`, 0.8.0 `fcde43a0…` | PASS |
+| G17 | Hosted preview | Published as **version 9** of https://claude.ai/artifact/RoUxXMSEELpbxBHj8wgzpT (250 supporting files plus the page). `data/status.json` (0.10.0, commit `e86e826`), `js/i18n.js`, `i18n/bn.json`, `css/app.css`, `data/t/syn-var-1/run/724e4a3cdd8ef4d9/intelligence.json` (with the universal report) and `fonts/NotoSansBengali-Regular.woff` read back with SHA-256 identical to the local build. The hosted page was **not opened in a browser**: no computer is linked to this session, and opening it from this workspace's headless browser would have required disabling TLS verification, which was refused and not attempted another way. Per the brief, the hosted preview is not claimed to work; the identical files were rendered locally (G9) | PARTIAL (files verified; hosted page not opened) |
+| G18 | Native-speaker review of the five translations | no reviewers in this environment | NOT RUN |
+| G19 | Real SPHEREx acquisition, live archive tests, astropy cross-check | IRSA, SIMBAD, Gaia, Meta, PyPI and npm refused by the proxy; astropy not installable | BLOCKED |
+| G20 | Live Meta API; semantic search with embeddings; monitoring of external sources | no key, no route, no embedding model | BLOCKED |
+| G21 | Dockerfile build | base images cannot be pulled | NOT RUN |
+
+Every Phase 10 result is computed on synthetic fixtures. A synthetic test is not evidence of an astronomical discovery.
+
+### Defects found by testing and fixed before release
+
+| Found by | Defect | Fix |
+|---|---|---|
+| e2e `test_j` (existing) | the language picker and ⚙ pushed the Run button past the right edge at 1280 px | the top bar wraps at every width; below 1500 px the "Target" caption (kept for screen readers) and the ⌘K hint are dropped first |
+| e2e `test_k` (existing) | the new World Model became the 8th workspace at the Researcher level, moving the Alt+8 shortcut | World Model sits at the Advanced level; Alt+1–9 keep their 0.9 targets |
+| e2e `l1` | Escape no longer closed Settings after changing the numerals (the control re-renders and focus was lost) | focus is restored to the re-rendered control and Escape closes Settings from anywhere |
+| e2e `l3` | choosing the same handoff file again after editing it was ignored | the file input is reset after reading |
+| screenshot inspection | the Settings level switch collapsed to a 2-px line | grid rows sized to content; e2e `l1` now checks the switch's height |
+| screenshot inspection | the copilot box placeholder stayed English (text boxes were skipped entirely) | attributes of skipped text boxes are translated, their content is not |
+| screenshot inspection | four list items ending in ";" and 45 patterns beginning with "{0}:" were never extracted (e.g. the convergence headings) | extractor fixed; 49 messages translated into five languages |
+| screenshot inspection | "3666 of 3666" in the quality table was not localised; a generic "{0} of {1}" would have matched recorded English sentences | connective-only patterns match numbers only (Python and browser, tested) |
+| full e2e run | `h2` read the previous answer while the new one was still arriving (timing) | waits for the new answer; Phase 10 tests compare only the errors raised during the test |
+
+### What was looked at in the screenshots
+
+Bangla conjuncts and line breaking (navigation, headings, explanations, the warning banner, the quality observatory), Devanagari
+rendering and matras in headings and buttons, German compounds and hyphenation (`hyphens: auto`; "Entdeckungsma-schine",
+"Forschungs-Copilot"), French spacing before colons and Spanish accents, scientific symbols (µm, σ, |z|, ≥, ±, χ²) in translated
+text, Bengali digits on the wavelength ruler and in tables, mixed English engine text inside translated cards, wide tables (scroll
+inside their frame), the Settings dialog at phone width, the six-language report buttons. Remaining observations (not defects
+blocking release): the ruler's last tick "5 µm" keeps Western digits in Bangla while the other ticks use Bengali digits; outcome
+statements and engine readings remain English inside translated cards by design; on phones the top bar takes four to five rows.
+
+## Release (0.10.0)
+
+| Version | Commit | Archive (sha256) | Preview archive (sha256) | Hosted artifact |
+|---|---|---|---|---|
+| 0.10.0 | `e86e826` | `dist/skytrace-0.10.0.zip` (`2ac20c995a2f3e10fee865507e6d9dceb24518e292cf128be300b0e2ac264637`, 654 files, 37.3 MB; zip integrity verified, no forbidden files, bundle checksums OK) | `dist/skytrace-preview-0.10.0.zip` (`2d0ca5c43fffe5fc52d2a5942be5c93898ac4eb09139cc12c9f99b9435a2234c`, 7.9 MB) | version 9 (G17) |
+
+The manifest is kept as `dist/RELEASE_MANIFEST-0.10.0.json`. The archive was first built before the preview had been rebuilt from the
+release commit (preview skipped); after the rebuild it was built again with `--force` from the same commit, and `git archive`
+produced a byte-identical archive (same SHA-256). Nothing was pushed or published outside the private artifact.
+
+## New tests in v0.10
+
+Unit/API: `test_phase10.py` (21 functions, including the Node parity test `tests/js/phase10_parity.mjs`), `test_phase10_catalogue.py`
+(3: 800 ideas in 65 domains with ten fields; every A idea cites an existing file and test function; generated documents match the
+script), `integration/test_api.py::test_phase10_universal_and_multilingual_report`. Browser (both modes, `e2e/test_controls.py`):
+`l1` language switch, persistence, Settings, numerals, cross-language search; `l2` signal, world model, convergence, leads,
+timeline, explanations, terminology, quality; `l3` handoff export/import/refusal, six-language report, flight recorder, bundle;
+`l4` negative-space distinctions, compiler statuses, external sources, director approvals, marketplace, agents.
+`scripts/phase10_screenshots.py` is a checked script (exit 1 on console errors, persistence failure or horizontal scroll). No
+assertion of an earlier test was weakened; `h2` was made to wait for its own answer.
+
+## Performance (v0.10.0; this machine, 2 CPUs, median of 3; `docs/performance.json`)
+
+| Fixture | Analysis | Universal report, first call | Universal report, cached | report.md en / bn / de |
+|---|---|---|---|---|
+| syn-var-1 | 6.568 s | 0.306 s | 0.014 s | 0.029 / 0.032 / 0.042 s |
+| syn-hpm-1 | 5.849 s | 0.32 s | 0.023 s | 0.04 / 0.065 / 0.05 s |
+
+| Phase 10, click or choice to rendered result | Server mode | Static preview |
+|---|---|---|
+| Signal Intelligence | 0.158 s | 0.171 s |
+| World Model | 0.155 s | 0.123 s |
+| Multilingual Research | 0.158 s | 0.138 s |
+| Open Science Gateway | 0.099 s | 0.091 s |
+| Switch language to Bangla | 2.186 s | 2.098 s |
+| Switch language to German | 2.257 s | 2.046 s |
+| Switch back to English | 0.132 s | 0.152 s |
+
+Page load: server 0.563 s, static 0.432 s; first result in the static preview 0.689 s. Static preview: 251 files plus its manifest, 34.0 MB. Switching to Bangla or German takes about two seconds on this machine: the language file is loaded and every text node of the open document is translated. That is the slowest interaction added in this release; it is recorded here rather than hidden. All earlier measurements are in `docs/performance.json`.
+
+---
+
+
 # Test report: v0.9.0 (2026-11-02)
 
 Statuses: **PASS** means executed and met. **FAIL** means executed and not met. **BLOCKED** means it could not be executed here, and

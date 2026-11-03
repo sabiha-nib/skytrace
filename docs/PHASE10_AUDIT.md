@@ -107,5 +107,6 @@ ideas added. Classes: A 372 implemented and tested (every A cites an existing fi
 
 ## 5. Commits
 
-Phase 10 was written in this session after the baseline above, and committed as one commit on `master` (local; nothing
-pushed). See TEST_REPORT v0.10.0 for the commit id, the gates and the release.
+Phase 10 was written in this session after the baseline above and committed on `master` (local; nothing pushed): `0f661b5`
+(code, translations, tests and documentation), `e86e826` (six-language screenshots and checks, performance, preview documentation;
+the release commit) and a final commit with the test report. See TEST_REPORT v0.10.0 for the gates and the release.
