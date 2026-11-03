@@ -1,0 +1,1027 @@
+{
+ "results": {
+  "en": {
+   "persisted": [
+    "en",
+    "en",
+    "en"
+   ],
+   "desktop/lab": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/signal": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/world": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/explain": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/settings": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/convergence": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/gateway": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/lab": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/menu": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/search": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/settings": {
+    "lang": "en",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: local assistant"
+    ],
+    "nav_still_english": [],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   }
+  },
+  "bn": {
+   "persisted": [
+    "bn",
+    "bn",
+    "bn"
+   ],
+   "desktop/lab": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/signal": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/world": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/explain": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/settings": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/convergence": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/gateway": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/lab": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/menu": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/search": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/settings": {
+    "lang": "bn",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: কোপাইলট: স্থানীয় সহকারী"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   }
+  },
+  "hi": {
+   "persisted": [
+    "hi",
+    "hi",
+    "hi"
+   ],
+   "desktop/lab": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/signal": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/world": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/explain": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/settings": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/convergence": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/gateway": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/lab": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/menu": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/search": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/settings": {
+    "lang": "hi",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Bengali",
+     "Skytrace Devanagari",
+     "Skytrace Devanagari"
+    ]
+   }
+  },
+  "es": {
+   "persisted": [
+    "es",
+    "es",
+    "es"
+   ],
+   "desktop/lab": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/signal": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/world": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/explain": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/settings": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/convergence": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/gateway": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/lab": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/menu": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/search": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/settings": {
+    "lang": "es",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copiloto: asistente local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   }
+  },
+  "fr": {
+   "persisted": [
+    "fr",
+    "fr",
+    "fr"
+   ],
+   "desktop/lab": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/signal": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/world": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/explain": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/settings": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/convergence": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/gateway": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/lab": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/menu": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/search": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/settings": {
+    "lang": "fr",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilote : assistant local"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   }
+  },
+  "de": {
+   "persisted": [
+    "de",
+    "de",
+    "de"
+   ],
+   "desktop/lab": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/signal": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/world": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/explain": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "desktop/settings": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/convergence": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "tablet/gateway": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/lab": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/menu": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/search": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   },
+   "phone/settings": {
+    "lang": "de",
+    "hscroll": false,
+    "clipped": [],
+    "ellipsis": [
+     "span#model-pill: Copilot: lokaler Assistent"
+    ],
+    "nav_still_english": [
+     "FutureLab"
+    ],
+    "fonts_loaded": [
+     "Skytrace Bengali",
+     "Skytrace Devanagari"
+    ]
+   }
+  }
+ },
+ "console_errors": [],
+ "failures": []
+}

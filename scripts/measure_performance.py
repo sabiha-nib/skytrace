@@ -65,6 +65,7 @@ def page_timings(base: str, mode: str) -> dict:
         p8 = {k: [] for k in ("reasoning_graph", "scientific_compiler", "claims", "scientific_debugger", "model_arena", "uncertainty_flow",
                               "futurelab", "next_steps", "negative_space", "integrity_check", "protocol", "reasoning_lab")}
         p9 = {k: [] for k in ("command", "genome", "unknown", "network", "adversary", "causal", "whatif", "oracle", "cycle", "memory", "repro", "gate")}
+        p10 = {k: [] for k in ("signal", "world", "languages", "gateway", "switch_to_bn", "switch_to_de", "switch_to_en")}
         for _ in range(N):
             ctx = b.new_context(viewport={"width": 1440, "height": 900})
             pg = ctx.new_page()
@@ -132,6 +133,13 @@ def page_timings(base: str, mode: str) -> dict:
             pg.locator("#intel-layers").wait_for(timeout=300000)
             for k in p9:
                 p9[k].append(timed(lambda: (pg.click(f"[data-ipanel={k}]"), pg.locator(f"#intel-panel[data-panel={k}]").wait_for(timeout=300000))))
+            # Phase 10: the first new workspace fetches the universal report (computed once per record, then cached)
+            for k, sel in (("signal", "#sig-selection tbody tr"), ("world", "#wq-count"), ("languages", "#xs-input"), ("gateway", "#ho-export")):
+                p10[k].append(timed(lambda: (pg.click(f".nav button[data-ws={k}]"), pg.locator(sel).first.wait_for(timeout=300000))))
+            # switching language: from choosing it until the navigation is relabelled (catalogue, language file, whole document)
+            for code, label in (("bn", "কমান্ড সেন্টার"), ("de", "Kommandozentrale"), ("en", "Command Center")):
+                p10[f"switch_to_{code}"].append(timed(lambda: (pg.select_option("#lang-select", code),
+                                                               pg.locator(".nav button[data-ws=command]", has_text=label).wait_for(timeout=60000))))
             ctx.close()
         b.close()
     out["page_load_s"] = med(loads)
@@ -147,6 +155,10 @@ def page_timings(base: str, mode: str) -> dict:
     out["phase8_render_first_iteration_s"] = {k: round(v[0], 3) for k, v in p8.items()}
     out["phase9_render_s"] = {k: med(v) for k, v in p9.items()}
     out["phase9_render_first_iteration_s"] = {k: round(v[0], 3) for k, v in p9.items()}
+    out["phase10_render_s"] = {k: med(v) for k, v in p10.items()}
+    out["phase10_render_first_iteration_s"] = {k: round(v[0], 3) for k, v in p10.items()}
+    out["phase10_note"] = ("median over runs, from click to first rendered element; switch_to_* runs from choosing the language until the "
+                           "navigation is relabelled (the whole open document is translated)")
     out["phase9_note"] = ("median over runs, from click on a panel tab to the rendered panel; the intelligence report and the corpus are fetched when "
                           "the workspace opens (server cost: server_api.*.intelligence_report_first_call_s, corpus_s)" if mode == "server" else
                           "median over runs; the preview serves the intelligence report and corpus recorded at build time")
@@ -210,6 +222,14 @@ def main() -> int:
                 ir.append(timed(lambda: requests.get(base + f"api/investigations/{iid5}/intelligence", proxies=NOPROXY, timeout=900).raise_for_status()))
             irc = timed(lambda: requests.get(base + f"api/investigations/{iid5}/intelligence", proxies=NOPROXY, timeout=900).raise_for_status())
             cp = timed(lambda: requests.get(base + "api/intelligence/corpus", proxies=NOPROXY, timeout=900).raise_for_status())
+            ur = []
+            for _ in range(N):                      # universal report (Phase 10): first call per record
+                r6 = requests.post(base + f"api/targets/{tid}/analyze", json={"params": {"aperture_radius_px": 4.0 + 0.1 * (len(ur) + 1)}}, proxies=NOPROXY, timeout=600)
+                iid6 = r6.json()["investigation_id"]
+                ur.append(timed(lambda: requests.get(base + f"api/investigations/{iid6}/universal", proxies=NOPROXY, timeout=900).raise_for_status()))
+            urc = timed(lambda: requests.get(base + f"api/investigations/{iid6}/universal", proxies=NOPROXY, timeout=900).raise_for_status())
+            rmd = {lang: timed(lambda: requests.get(base + f"api/investigations/{iid}/report.md?lang={lang}", proxies=NOPROXY, timeout=300).raise_for_status())
+                   for lang in ("en", "bn", "de")}
             rx = timed(lambda: requests.post(base + f"api/investigations/{iid}/reproduce-x", json={}, proxies=NOPROXY, timeout=900).raise_for_status())
             cfx = timed(lambda: requests.post(base + "api/counterfactuals", json={"target_id": tid, "baseline_investigation_id": iid,
                         "scenario": {"kind": "exclusion", "change": {"detectors": [1]}}}, proxies=NOPROXY, timeout=900).raise_for_status())
@@ -221,7 +241,9 @@ def main() -> int:
                         "research_report_first_call_s": med(rr), "plan_s": med(pl),
                         "frontier_report_first_call_s": med(fr), "counterfactual_exclusion_s": round(cfx, 3), "reproduce_with_replay_s": round(rep, 3),
                         "epistemic_report_first_call_s": med(er), "epistemic_report_cached_s": round(erc, 3), "independent_reproduction_s": round(rx, 3),
-                        "intelligence_report_first_call_s": med(ir), "intelligence_report_cached_s": round(irc, 3), "corpus_s": round(cp, 3)}
+                        "intelligence_report_first_call_s": med(ir), "intelligence_report_cached_s": round(irc, 3), "corpus_s": round(cp, 3),
+                        "universal_report_first_call_s": med(ur), "universal_report_cached_s": round(urc, 3),
+                        "report_md_s": {k: round(v, 3) for k, v in rmd.items()}}
         res["server_api"] = api
         res["server_page"] = page_timings(base, "server")
     finally:
