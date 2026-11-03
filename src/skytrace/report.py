@@ -93,42 +93,49 @@ def _with_unit(key: str, v) -> str:
     return f"{v:.6g} {unit}".rstrip()
 
 
-def render_markdown(inv: Investigation) -> str:
+def render_markdown(inv: Investigation, lang: str = "en") -> str:
+    """The investigation report in Markdown. ``lang`` translates the report's own wording (I18N-1); every value, identifier,
+    unit and statement recorded by the engines is written unchanged, so the numbers are identical in every language."""
+    from .i18n import _t, header_comment, meta, valid
+    lang = valid(lang)
     d = inv.to_dict()
     origins = sorted(inv.data_origins())
-    lines = [f"# Investigation: {inv.target}", ""]
+    lines = [f"# {_t('Investigation: {0}', lang, inv.target)}", ""]
+    if lang != "en":
+        mt = meta(lang)
+        lines = [header_comment(lang), ""] + lines + [
+            "> " + _t("Language: {0} ({1}). The report's wording was machine-translated by an AI model and has not been reviewed by a native speaker. Numbers, identifiers, units, method names and the statements recorded by the scientific engines are given unchanged in English, their original language.", lang, mt["name"], mt["lang"]), ""]
     if "synthetic" in origins:
-        lines += ["> **SYNTHETIC DATA.** This report was produced from generated test images. "
-                  "It is a software test, not an astronomical result.", ""]
+        lines += ["> **" + _t("SYNTHETIC DATA.", lang) + "** " + _t("This report was produced from generated test images. It is a software test, not an astronomical result.", lang), ""]
     if "fixture" in origins:
-        lines += ["> Contains **fixture** data (committed demo files), not a live archive retrieval.", ""]
-    lines += [f"- Data origins: {', '.join(origins) or 'none recorded'}",
-              f"- Content hash: `{d['content_hash']}`",
-              f"- Software: skytrace {d['software']['skytrace']}, numpy {d['software']['numpy']}, "
-              f"scipy {d['software']['scipy']}, astropy {d['software']['astropy']}",
+        lines += ["> " + _t("Contains **fixture** data (committed demo files), not a live archive retrieval.", lang), ""]
+    lines += ["- " + _t("Data origins: {0}", lang, ", ".join(origins) or _t("none recorded", lang)),
+              "- " + _t("Content hash: {0}", lang, f"`{d['content_hash']}`"),
+              "- " + _t("Software: {0}", lang, f"skytrace {d['software']['skytrace']}, numpy {d['software']['numpy']}, "
+                                                f"scipy {d['software']['scipy']}, astropy {d['software']['astropy']}"),
               ""]
     # Outcomes, verbatim from the assessment (ASSESS-2): statement, criteria, sensitivity and limitations
     assess = next((e for e in d["events"] if e["step"] == "assess"), None)
     outcomes = ((assess or {}).get("data") or {}).get("outcomes") or []
     if outcomes:
-        lines += ["## Outcomes and limitations", "",
-                  "Each outcome is decided by fixed rules (ASSESS-2). A candidate is not a discovery; an absence is bounded by the stated sensitivity.", ""]
+        lines += ["## " + _t("Outcomes and limitations", lang), "",
+                  _t("Each outcome is decided by fixed rules (ASSESS-2). A candidate is not a discovery; an absence is bounded by the stated sensitivity.", lang), ""]
         for o in outcomes:
             lines += [f"### {o.get('question')}: {o.get('category')}", "", o.get("statement") or "", ""]
             if o.get("criteria"):
-                lines += ["- Criteria: " + "; ".join(o["criteria"])]
+                lines += ["- " + _t("Criteria: {0}", lang, "; ".join(o["criteria"]))]
             sens = o.get("sensitivity") or {}
             if sens:
-                lines += ["- Sensitivity: " + "; ".join(f"{k} = {_with_unit(k, v)}" for k, v in sens.items() if not isinstance(v, (dict, list)))]
-            lines += [f"- Limitation: {lim}" for lim in o.get("limitations") or []] + [""]
-    lines += ["## Parameters", "", "```json", json.dumps(d["parameters"], indent=2, sort_keys=True), "```",
-              "", "## Steps", "", "| # | Step | Status | Detail |", "|---|---|---|---|"]
+                lines += ["- " + _t("Sensitivity: {0}", lang, "; ".join(f"{k} = {_with_unit(k, v)}" for k, v in sens.items() if not isinstance(v, (dict, list))))]
+            lines += ["- " + _t("Limitation: {0}", lang, lim) for lim in o.get("limitations") or []] + [""]
+    lines += ["## " + _t("Parameters", lang), "", "```json", json.dumps(d["parameters"], indent=2, sort_keys=True), "```",
+              "", "## " + _t("Steps", lang), "", "| # | " + _t("Step", lang) + " | " + _t("Status", lang) + " | " + _t("Detail", lang) + " |", "|---|---|---|---|"]
     for i, e in enumerate(d["events"], 1):
         lines.append(f"| {i} | {e['step']} | {e['status']} | {e['detail'].replace('|', '/')} |")
     rejected = [e for e in d["events"] if e["status"] in ("rejected", "failed")]
-    lines += ["", f"## Rejected or failed ({len(rejected)})", ""]
-    lines += [f"- **{e['step']}**: {e['detail']}" for e in rejected] or ["- none"]
-    lines += ["", "## Sources", ""]
+    lines += ["", "## " + _t("Rejected or failed ({0})", lang, len(rejected)), ""]
+    lines += [f"- **{e['step']}**: {e['detail']}" for e in rejected] or ["- " + _t("none", lang)]
+    lines += ["", "## " + _t("Sources", lang), ""]
     seen = set()
     for e in d["events"]:
         for p in e["provenance"]:
@@ -137,7 +144,7 @@ def render_markdown(inv: Investigation) -> str:
                 continue
             seen.add(key)
             lines.append(f"- {p['source']} [{p['origin']}] {p.get('release') or ''} {p.get('dataset_id') or ''} "
-                         f"retrieved {p['retrieved_at']}: {p['source_url'] or '(derived)'}")
+                         + _t("retrieved {0}: {1}", lang, p["retrieved_at"], p["source_url"] or _t("(derived)", lang)))
     if not seen:
-        lines.append("- none")
+        lines.append("- " + _t("none", lang))
     return "\n".join(lines) + "\n"

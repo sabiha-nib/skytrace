@@ -101,10 +101,10 @@ def preview_caps(reg: dict) -> dict:
 
 
 def copy_web() -> None:
-    for sub in ("css", "js"):
+    for sub in ("css", "js", "i18n", "fonts"):
         if (OUT / sub).exists():
             shutil.rmtree(OUT / sub)
-        shutil.copytree(ROOT / "web" / sub, OUT / sub)
+        shutil.copytree(ROOT / "web" / sub, OUT / sub, ignore=shutil.ignore_patterns("source.json"))   # the extraction inventory stays out
     html = (ROOT / "web" / "index.html").read_text()
     html = html.replace('href="/static/css/app.css"', 'href="css/app.css"').replace('src="/static/js/main.js"', 'src="js/main.js"')
     html = html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  <meta name="skytrace-mode" content="static">', 1)
@@ -229,7 +229,9 @@ def main() -> int:
             write(f"t/{tid}/experiments.json", exps)
         # Phase 9: written after every run exists, so the unknown map's sibling runs and the memory corpus are complete
         for tid, iid in all_runs:
-            write(f"t/{tid}/run/{iid}/intelligence.json", ok(get(f"/api/investigations/{iid}/intelligence")).json())
+            intel = ok(get(f"/api/investigations/{iid}/intelligence")).json()
+            intel["universal"] = ok(get(f"/api/investigations/{iid}/universal")).json()      # Phase 10, carried inside (file limit)
+            write(f"t/{tid}/run/{iid}/intelligence.json", intel)
         corpus = ok(get("/api/intelligence/corpus")).json()
         write("corpus.json", corpus)
         print(f"  intelligence: {len(all_runs)} runs; memory {corpus['memory']['counts']}; network {len(corpus['network']['edges'])} edges")

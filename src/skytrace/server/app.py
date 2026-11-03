@@ -352,13 +352,13 @@ async def graph(request: Request):
     return _json(evidence_graph(_view(e), e["target_id"]))
 
 
-def _report_md(e: dict) -> str:
+def _report_md(e: dict, lang: str = "en") -> str:
     from ..report import Event, Investigation
     rec = e["record"]
     inv = Investigation(rec["target"], rec["parameters"])
     inv.events = [Event(**{k: ev[k] for k in ("step", "status", "detail", "data", "provenance")}) for ev in rec["events"]]
     inv.created_at = rec["created_at"]
-    return render_markdown(inv)
+    return render_markdown(inv, lang)
 
 
 def availability() -> dict:
@@ -409,10 +409,14 @@ async def investigation_package(request: Request):
 
 
 async def report(request: Request):
+    from ..i18n import valid
     e = _inv(request.path_params["iid"])
-    md = _report_md(e)
+    lang = valid(request.query_params.get("lang"))
+    md = _report_md(e, lang)
+    suffix = "" if lang == "en" else f".{lang}"
     return PlainTextResponse(md, media_type="text/markdown; charset=utf-8",
-                             headers={"Content-Disposition": f'attachment; filename="skytrace-{e["target_id"]}-{request.path_params["iid"]}.md"'})
+                             headers={"Content-Disposition": f'attachment; filename="skytrace-{e["target_id"]}-{request.path_params["iid"]}{suffix}.md"',
+                                      "Content-Language": lang})
 
 
 async def ask(request: Request):
@@ -670,5 +674,7 @@ from . import epistemic as _epistemic  # noqa: E402  (Phase 8 routes)
 routes[-1:-1] = _epistemic.routes
 from . import intelligence as _intelligence  # noqa: E402  (Phase 9 routes)
 routes[-1:-1] = _intelligence.routes
+from . import universal as _universal  # noqa: E402  (Phase 10 routes)
+routes[-1:-1] = _universal.routes
 
 app = SecurityHeaders(Starlette(routes=routes, exception_handlers={APIError: api_error, Exception: server_error}))

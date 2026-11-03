@@ -6,6 +6,7 @@ import { emit, getResearch, state } from "./state.js";
 import * as S from "./session.js";
 import { execute } from "./executor.js";
 import { clear, el, renderToken, toast, $ } from "./util.js";
+import { radarExtras } from "./universalui.js";
 
 const SIGNAL = { R1: "significant pair to inspect", R2: "unresolved explanation", R3: "untestable explanation", R4: "unused measurements",
                  R5: "sensitivity not examined", R6: "evidence conflict", R7: "data-quality gap", R8: "unobserved interval", R9: "relationship gap" };
@@ -62,6 +63,7 @@ export async function renderRadar() {
           el("dt", {}, "Cannot establish"), el("dd", {}, x.cannot_establish), el("dt", {}, "Rank"), el("dd", { class: "faint" }, x.rank_reason)),
         act ? el("div", { class: "controls" }, act) : null);
     })));
+  radarExtras(body);
 }
 
 function actionLabel(x) {

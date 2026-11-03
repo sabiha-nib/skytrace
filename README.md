@@ -19,7 +19,27 @@ The static preview says on every screen that it is a preview of precomputed resu
 an explanation; pair comparisons, image registration and record-hash checks run in the browser with code that is
 tested for parity with the Python implementation.
 
-## Status (v0.9.0, 2026-11-02)
+## Status (v0.10.0, 2026-11-03)
+
+Phase 10 made Skytrace multilingual and added a signal workbench, a world model and an open science gateway. It includes:
+
+- six interface languages — English, বাংলা, हिन्दी, Español, Français, Deutsch — chosen in the navigation or Settings and
+  remembered; every interface message translated (tested), a 48-term scientific terminology base, and reports in all six
+  languages with every number unchanged. **The translations were made by an AI model and have not been reviewed by native
+  speakers**; the interface and every translated report say so ([docs/I18N.md](docs/I18N.md))
+- cross-language search by exact text, terminology mapping and lexical matching — labelled as such: it is **not** semantic search
+- a translation quality observatory (counts per language, terminology consistency, clipped-text check)
+- Signal Intelligence: ten time-series methods, each shown as applicable or not with its reason; BIC only when its assumptions hold
+- a World Model with discovery convergence (repeated use of the same data is never confirmation), research leads from
+  contradictions, a multimodal table and a timeline that keeps four kinds of time apart
+- negative space in nine distinctions, compiler statuses, a director that asks before each step, role agents with a debate
+  record (not independent confirmation), an experiment marketplace, explanations in eight layers
+- an Open Science Gateway: a validated handoff protocol, a flight recorder (tamper-evident, not cryptographic), a
+  reproducibility bundle and reports in any language — nothing is uploaded
+
+External sources (IRSA releases, Gaia alerts, TNS, ATel, arXiv, ADS) are listed as **not connected**. The data are still
+synthetic. See [docs/PHASE10_AUDIT.md](docs/PHASE10_AUDIT.md), [docs/UNIVERSAL_METHODS.md](docs/UNIVERSAL_METHODS.md) and the
+[Phase 10 catalogue](docs/PHASE10_CATALOGUE.md) (800 ideas, a roadmap).
 
 Phase 9 added a scientific intelligence layer: one *Scientific Intelligence* workspace with twelve panels in six layers
 (observation, discovery, reasoning, experimental, knowledge, integrity) over a shared entity model. It includes:
@@ -89,6 +109,7 @@ Phase 3 (validation): [docs/PHASE3_GATES.md](docs/PHASE3_GATES.md).
 | Part | State |
 |---|---|
 | Application (API + web interface) | Works end to end offline, in both the server and the static-preview mode; every control is exercised by browser tests (counts in [docs/TEST_REPORT.md](docs/TEST_REPORT.md)) |
+| Six languages and universal frontier (v0.10) | Internationalisation (I18N-1), terminology (TERM-1), cross-language search (XSEARCH-1, not semantic), translation quality (I18N-Q1), Signal Intelligence (SIGNAL-1), World Model (WORLD-1), convergence (CONV-1), research leads (LEAD-1), multimodal table (MODAL-1), timeline (TIMES-1), negative space ×9 (NEGX-1), compiler statuses (KCOMP-1), opportunities with novelty scope (OPP-2), external sources not connected (EXTSRC-1), director (DIRECT-1), role agents (AGENTS-1), marketplace (EXPMKT-1), explanations (EXPLAIN-1), handoff (HANDOFF-1), flight recorder (FLIGHT-1), open science gateway (OSG-1) |
 | Scientific intelligence layer (v0.9) | Entity envelope (SCI-ENTITY-1), Research Memory (MEMORY-1), Discovery Genome (DGENOME-1), sensitivity fingerprint (FINGERPRINT-1), uncertainty budget (BUDGET-1), Unknown Universe (UNKNOWN-1), Multi-Discovery Network (MDNET-1), Scientific Adversary (ADV-1), instrumental reality check (INSTCHECK-1), Causality Lab (CAUSAL-1), What-if Lab (WHATIF-1), Observation Oracle (ORACLE-1, EVNEG-1), Research Cycle (CYCLE-1), Reproduction Network (REPRONET-1), Integrity Gate (GATE-1, DEBT-1, CAPSULE-1) |
 | Epistemic layer (v0.8) | Reasoning graph (EPI-1), Lineage-X (LINEAGE-1), Scientific Compiler (SCICOMP-1), Method Genome (METHOD-DNA-1), Scientific Debugger (SCIDEBUG-1), independent reproduction (REPROX-1), knowledge boundary (KBOUND-1), claim stress tests (CLAIMX-1), blindspots (BLIND-1), Negative Space (NEG-1), Model Arena (MODELS-1), Uncertainty Flow (UFLOW-1), FutureLab (FUTURE-1), Questions & Next Steps (NEXTX-1, QFORGE-1), Integrity Firewall (INTEG-1), Protocol & Blind Analysis, Reasoning Lab, evidence vault (VAULT-1), simulation audit (SIMCHECK-1), review board (REVIEWX-1) |
 | Frontier laboratory (v0.7) | Counterfactual Lab (CF-1), Synthetic Observatory (SYNOBS-1), Observation Design Lab (OBSDES-1), Adversarial Lab (ASL-1), information analysis (INFO-1), Review Room (REVIEW-1), reproducibility challenge (REPRO-1), astro-twins (TWIN-1), Discovery Horizon (SPE-1, HORIZON-1), Research Autopilot (CAPREG-3 permission levels), Cosmic Atlas, Knowledge Atlas |
@@ -134,6 +155,14 @@ pytest -m live tests/live -s                # confirms the archive interfaces an
 Each target becomes a bundle in `data/bundles/<target>/`: the original files byte for byte, a manifest with SHA-256 checksums and provenance, the archive search results with the reason for every excluded image, and the real FITS structure as read. Restart Skytrace and the targets appear with their observations. See [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md).
 
 ## What you can do in the app
+
+New in 0.10: **six languages** (selector in the top bar, or ⚙ Settings, which also offers Western digits), and four
+workspaces: **Signal Intelligence** (Analyze), **World Model** (Evidence, Advanced level: world, convergence, research leads, measurements,
+timeline), **Multilingual Research** (Knowledge: language, cross-language search, terminology, explanations, translation
+quality) and **Open Science Gateway** (Publish: handoff, flight recorder, reproducibility bundle, reports in six languages).
+Existing workspaces gained the nine negative-space distinctions, compiler statuses, research opportunities with novelty scope and
+external sources (not connected), the investigation director (Research Autopilot), role agents (Review & Story) and the
+experiment marketplace (Experiments). The levels are now Explorer, Researcher and Advanced.
 
 New in 0.9: **Scientific Intelligence** (after Command Center, research level). A strip of six layers opens twelve panels:
 

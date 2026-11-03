@@ -1,0 +1,36 @@
+{
+"schema": "skytrace.i18n/1",
+"lang": "en",
+"name": "English",
+"status": "source language",
+"keys": {
+"count.observations": {
+"one": "{n} observation",
+"other": "{n} observations"
+},
+"count.runs": {
+"one": "{n} run",
+"other": "{n} runs"
+},
+"count.results": {
+"one": "{n} result",
+"other": "{n} results"
+},
+"count.items": {
+"one": "{n} item",
+"other": "{n} items"
+},
+"explain.observed": "{n} exposures of {target} were measured on detectors {detectors}, between {t0} and {t1}.",
+"explain.measured.variability": "The target's flux was measured in every usable exposure by aperture photometry, and {n} wavelength-matched pairs were formed.",
+"explain.measured.motion": "The target's position was measured against {refs} Gaia reference stars and averaged within each of {epochs} visits.",
+"explain.measured.quality": "Each of {n} exposures was checked for usability before anything was measured.",
+"explain.method": "Methods, in the order they ran: {methods}.",
+"explain.compared.variability": "Only exposures at the same wavelength on the same detector were compared ({n} pairs); each difference was divided by its uncertainty after calibration against reference stars.",
+"explain.compared.motion": "Positions were compared across {baseline} years with a straight-line motion model.",
+"explain.compared.quality": "Usable and unusable exposures were counted by fixed rules.",
+"explain.result": "The rule-based outcome is “{category}”. The statement recorded by the engine follows unchanged.",
+"explain.certainty": "How certain: the thresholds, sensitivities and criteria behind the outcome are listed as recorded. None of them is a probability.",
+"explain.alternatives": "{n} explanations were tested by stated rules; each status is listed as recorded.",
+"explain.limits": "What this does not mean: a candidate is not a discovery, and an absence is bounded by the stated sensitivity. The recorded limitations follow."
+}
+}

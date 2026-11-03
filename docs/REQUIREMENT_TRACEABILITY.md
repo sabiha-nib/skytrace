@@ -1,4 +1,4 @@
-# Requirement traceability (v0.9.0, 2026-11-02)
+# Requirement traceability (v0.10.0, 2026-11-03)
 
 `IMPLEMENTED` means the code exists and its deterministic tests pass. `VERIFIED` means it is also confirmed on real data or a live service. `BLOCKED` names the missing access. Hackathon submission requirements were retired when the project moved to Meta.
 
@@ -204,3 +204,49 @@ mode. `test_intelligence.py` is `tests/unit/test_intelligence.py`.
 | P9.18 | §8 Tests for every listed area; parity; responsive; accessibility | `tests/` | `test_intelligence.py::test_browser_intelligence_functions_match_python`, e2e `r`, `y` | IMPLEMENTED | see TEST_REPORT v0.9.0 |
 | P9.19 | §9.13 A real local preview launched and inspected | `dist/preview/` | static-mode e2e; screenshots | see TEST_REPORT v0.9.0 |  |
 | P9.20 | Real astronomical data | — | — | **BLOCKED** | IRSA, SIMBAD and Gaia refused (proxy 403) |
+
+## Phase 10 (v0.10)
+
+Section numbers follow the Phase 10 brief. Tests named `l1`–`l4` are in `tests/e2e/test_controls.py` and run in server and static
+mode. `test_phase10.py` is `tests/unit/test_phase10.py`.
+
+| ID | Requirement | Location | Test | Status | Evidence / blocker |
+|---|---|---|---|---|---|
+| P10.01 | Part VIII ph.1 Repository audit; preserve working functionality | `docs/PHASE10_AUDIT.md` §1–2 | baseline `01fa057`: 348/2, e2e 119; every earlier test still runs | DONE | English reports byte-identical to 0.9.0; record hashes unchanged |
+| P10.02 | §1–2 Six languages; central i18n architecture; persistence | `i18n.py`, `web/js/i18n.js`, `web/i18n/`, `settingsui.js` | e2e `l1` (switch, reload, localStorage, settings, digits); `test_phase10.py::test_generated_i18n_files_are_up_to_date` | IMPLEMENTED | translations AI-made, not reviewed by native speakers |
+| P10.03 | §2 Completeness; no partially translated page | `web/i18n/*.json` | `test_phase10.py::test_every_message_is_translated_in_every_language_with_identical_placeholders` (release-blocking); `phase10_screenshots.py` nav check | IMPLEMENTED | engine narrative stays English by design (I18N.md §2) |
+| P10.04 | §3 Scientific terminology | `scripts/i18n_terms.py`, `web/i18n/terms.json` | `test_phase10.py::test_terminology_base_covers_six_languages_with_definitions_and_pronunciation`, `::test_quality_observatory_counts_and_terminology_consistency` | IMPLEMENTED | terms not reviewed by domain experts in those languages |
+| P10.05 | §4 Numbers, identifiers and scripts preserved | `i18n.js` number formatting | `test_phase10.py::test_translations_keep_numbers_and_method_identifiers`, `::test_bangla_and_hindi_translations_use_their_own_scripts` | IMPLEMENTED |  |
+| P10.06 | §5 Multilingual reports; translation never changes conclusions | `report.py`, `util.localizeExport`, `/report.md?lang=` | `test_phase10.py::test_report_in_six_languages_keeps_every_number_and_engine_statement`, `test_api.py::test_phase10_universal_and_multilingual_report`, e2e `l3` | IMPLEMENTED | engine statements kept in English and marked |
+| P10.07 | §6 Cross-language search; never called semantic | `xsearch.py`, `xsearch.js`, palette | `test_phase10.py::test_cross_language_search_maps_terms_and_never_claims_semantics`, parity, e2e `l1` | IMPLEMENTED | semantic search **BLOCKED** (no embedding model) |
+| P10.08 | §7 Translation Quality Observatory | `scripts/i18n_quality.py`, `languagesui.js` | `test_phase10.py::test_quality_observatory_counts_and_terminology_consistency`, e2e `l2` | IMPLEMENTED | counts, never percentages |
+| P10.09 | §8 World Model | `universal.world`, `world_query` | `test_phase10.py::test_world_model_relationships_have_a_basis_and_queries_are_exact`, e2e `l2` | IMPLEMENTED | structure of one investigation, not of the universe |
+| P10.10 | §9 Research Singularity Lab; local novelty only | `universal.opportunities` (OPP-2) | `test_phase10.py::test_opportunities_sources_compiler_agents_director_and_market_stay_honest` | IMPLEMENTED (composed into Radar) | literature novelty not evaluated |
+| P10.11 | §10 Signal Intelligence | `sigintel.py` | `test_phase10.py::test_signal_methods_known_answers`, `::test_bic_only_when_assumptions_hold`, `::test_signal_workbench_on_a_record_never_interpolates`, e2e `l2` | IMPLEMENTED | 4-point synthetic series: most methods correctly decline |
+| P10.12 | §11 Multimodal | `universal.multimodal` | `test_phase10.py::test_multimodal_rows_keep_units_and_compatibility_rules` | IMPLEMENTED | only modalities the record holds |
+| P10.13 | §12 Convergence; same data is not confirmation | `universal.convergence` | `test_phase10.py::test_convergence_groups_shared_exposures_and_never_counts_repeated_data`, e2e `l2` | IMPLEMENTED |  |
+| P10.14 | §13 Paradox engine as research leads | `universal.leads` | `test_phase10.py::test_convergence_groups_shared_exposures_and_never_counts_repeated_data` (method-disagreement lead), e2e `l2` | IMPLEMENTED | a lead is not a paradox |
+| P10.15 | §14 Negative space, nine distinctions | `universal.negative_space`, `negativeui.js` | `test_phase10.py::test_negative_space_nine_distinctions_say_what_they_do_not_mean`, e2e `l4` | IMPLEMENTED |  |
+| P10.16 | §15 Information Gain Oracle | INFO-1, ORACLE-1 (earlier phases) | Phase 7/9 tests | KEPT | no information-gain value without defensible priors |
+| P10.17 | §16 Model Arena; no single leaderboard | MODELS-1; `sigintel.model_comparison` | `test_phase10.py::test_bic_only_when_assumptions_hold` | IMPLEMENTED (composed) |  |
+| P10.18 | §17 Research digital twin | TWIN-1 (v0.7) | Phase 7 tests | KEPT | not validated as physically accurate; not renamed |
+| P10.19 | §18 Discovery Radar; no simulated monitoring | `universal.external_sources`, `radarui.js` | e2e `l4` (six sources, all not connected) | IMPLEMENTED | live monitoring **BLOCKED** (no network) |
+| P10.20 | §19 Peer review simulator; not a real reviewer | `universal.agents`, `reviewui.js` | e2e `l4` | IMPLEMENTED |  |
+| P10.21 | §20 Knowledge compiler statuses | `universal.compiler_statuses`, `compilerui.js` | `test_phase10.py::test_opportunities_sources_compiler_agents_director_and_market_stay_honest`, e2e `l4` | IMPLEMENTED | passing is not proof |
+| P10.22 | §21 Director with timeline and audit log | `universal.director_plan`, `universalui.directorCard` | e2e `l4` (execute disabled until approved; log) | IMPLEMENTED | runs no new computation |
+| P10.23 | §22 Agents with debate record; not independent | `universal.agents` | e2e `l4` | IMPLEMENTED | rule sets, no model calls |
+| P10.24 | §23 Experiment marketplace; unvalidated not recommended | `universal.MARKET`, `market()` | `test_phase10.py::test_opportunities_sources_compiler_agents_director_and_market_stay_honest`, e2e `l4` | IMPLEMENTED | validation on synthetic data |
+| P10.25 | §24 Flight recorder; not cryptographic | `universalui.renderGateway` (recorder) | e2e `l3` | IMPLEMENTED | tamper-evident only |
+| P10.26 | §25 Handoff protocol, versioned schema | `handoff.py`, `handoff.js` | `test_phase10.py::test_handoff_round_trip_and_validation`, `::test_browser_translation_search_and_handoff_match_python`, e2e `l3` | IMPLEMENTED |  |
+| P10.27 | §26 Accessibility levels | `index.html`, `settingsui.js` | e2e `l1` | IMPLEMENTED | Explorer / Researcher / Advanced |
+| P10.28 | §27 Explainability, 8 layers × 6 languages | `universal.explain`, `en.json` `explain.*` | `test_phase10.py::test_explanations_use_keyed_messages_present_in_every_language`, e2e `l2` | IMPLEMENTED |  |
+| P10.29 | §28 Research atlas | WORLD-1, KG-1, MDNET-1 | e2e `l2` and earlier | COMPOSED | no separate atlas |
+| P10.30 | §29 Timeline, separate kinds of time | `universal.timeline` | `test_phase10.py::test_timeline_keeps_four_kinds_of_time_apart`, e2e `l2` | IMPLEMENTED | event time not determined |
+| P10.31 | §30 Open Science Gateway; nothing published | `universalui.renderGateway` | e2e `l3` (checklist, ZIP) | IMPLEMENTED | no licence declared |
+| P10.32 | §31 Unified environment, command palette | `main.js`, `palette.js` | e2e `l1`, earlier palette tests | IMPLEMENTED |  |
+| P10.33 | §33 Six-language responsive validation | `scripts/phase10_screenshots.py` | 6 languages × desktop/tablet/phone; see TEST_REPORT v0.10.0 | see TEST_REPORT |  |
+| P10.34 | §34–37 Architecture, integrity, security, performance | ARCHITECTURE.md; `verify.py` | see TEST_REPORT v0.10.0 | see TEST_REPORT | no keys in code or preview |
+| P10.35 | Part VII 800 ideas, ≥60 domains, 10 fields, A–D | `scripts/phase10_catalogue.py` | `test_phase10_catalogue.py` | DONE | a roadmap, not a build list |
+| P10.36 | Part VIII ph.9 Real preview inspection | `dist/preview` | see TEST_REPORT v0.10.0 | see TEST_REPORT | a build is not a preview |
+| P10.37 | Native-speaker review of translations | — | — | **NOT DONE** | no reviewers available in this environment |
+| P10.38 | Real astronomical data | — | — | **BLOCKED** | IRSA, SIMBAD and Gaia refused (proxy 403) |

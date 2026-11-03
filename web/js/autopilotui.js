@@ -11,6 +11,7 @@ import { overlayHorizon } from "./frontiercore.js";
 import { emit, getFrontier, getSpecs, state } from "./state.js";
 import * as S from "./session.js";
 import { clear, el, renderToken, toast, $ } from "./util.js";
+import { directorCard } from "./universalui.js";
 
 let plan = null, level = "plan", running = false, cancel = false, log = [];
 
@@ -20,6 +21,7 @@ export async function renderAutopilot() {
   clear(body);
   const sp = (await getSpecs()).frontier.autopilot;
   if (!live()) return;
+  directorCard(body);
   const obj = el("textarea", { id: "ap-objective", rows: "2", "aria-label": "Research objective", placeholder: "e.g. Challenge my interpretation of the brightness change." }, plan?.question || "");
   const propose = el("button", { class: "btn primary", type: "button", id: "ap-propose" }, "Propose a workflow");
   propose.addEventListener("click", async () => {

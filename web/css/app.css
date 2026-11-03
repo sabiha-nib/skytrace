@@ -23,11 +23,22 @@
   --bad: #e06a6a;
   --syn: #d97fb6;
   --d1: #f3d27a; --d2: #f0a35e; --d3: #e07a5f; --d4: #c5609a; --d5: #8e6bd1; --d6: #5c83d9;
-  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, "URW Palladio L", Georgia, serif;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, "URW Palladio L", Georgia, "Skytrace Bengali", "Skytrace Devanagari", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Skytrace Bengali", "Skytrace Devanagari", sans-serif;
   --r-s: 4px; --r-m: 8px;
   color-scheme: dark;
 }
+
+/* Bangla and Devanagari: Noto Sans (SIL Open Font License, web/fonts/OFL.txt), served from this origin and loaded only when a
+   character in those scripts is shown. Latin, Greek, symbols and digits keep the system font. */
+@font-face { font-family: "Skytrace Bengali"; src: url("../fonts/NotoSansBengali-Regular.woff") format("woff"); font-weight: 400; font-display: swap;
+  unicode-range: U+0980-09FF, U+0964-0965, U+200C-200D, U+25CC; }
+@font-face { font-family: "Skytrace Bengali"; src: url("../fonts/NotoSansBengali-SemiBold.woff") format("woff"); font-weight: 500 700; font-display: swap;
+  unicode-range: U+0980-09FF, U+0964-0965, U+200C-200D, U+25CC; }
+@font-face { font-family: "Skytrace Devanagari"; src: url("../fonts/NotoSansDevanagari-Regular.woff") format("woff"); font-weight: 400; font-display: swap;
+  unicode-range: U+0900-097F, U+A8E0-A8FF, U+1CD0-1CFF, U+200C-200D, U+25CC; }
+@font-face { font-family: "Skytrace Devanagari"; src: url("../fonts/NotoSansDevanagari-SemiBold.woff") format("woff"); font-weight: 500 700; font-display: swap;
+  unicode-range: U+0900-097F, U+A8E0-A8FF, U+1CD0-1CFF, U+200C-200D, U+25CC; }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -823,3 +834,54 @@ dl.genome dt { color: var(--muted); text-transform: capitalize; }
 #intel-body th { min-width: 5.5em; }
 #intel-body td.mono, #intel-body .mono { overflow-wrap: anywhere; }
 #cl-models td.cl-crit { text-align: center; width: 36px; } #cl-models td, #cl-models th { overflow-wrap: normal; word-break: normal; }
+
+/* ------------------------------------------------------------------ languages (I18N-1) */
+html:lang(bn) body, html:lang(hi) body { line-height: 1.62; }
+html:lang(bn) .nav button, html:lang(hi) .nav button { line-height: 1.45; }
+html:lang(de) body, html:lang(fr) body, html:lang(es) body { hyphens: auto; }
+h1, h2, h3, h4, .nav button, .btn, th, label, .pill, .kind { overflow-wrap: break-word; }
+.lang-picker select { max-width: 118px; padding: 4px 6px; background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--r-s); font-size: 13px; }
+#settings-btn { flex-shrink: 0; padding-inline: 9px; }
+.topbar > .lang-picker { flex-shrink: 0; }
+.dialog.settings { padding: 0 0 14px; max-width: 640px; }
+.dialog.settings header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line-soft); }
+.dialog.settings h2 { font-family: var(--serif); font-weight: 500; font-size: 18px; margin: 0; }
+#settings-body { overflow: auto; padding: 4px 16px; display: grid; gap: 8px; }
+#settings-body h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 12px 0 2px; }
+#settings-body select { max-width: 320px; background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--r-s); padding: 5px 8px; }
+.set-langs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.set-lang { display: grid; gap: 1px; text-align: left; background: var(--ink-2); border: 1px solid var(--line-soft); border-radius: var(--r-s); padding: 8px 10px; cursor: pointer; }
+.set-lang.current { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.set-native { font-size: 15px; }
+.i18n-note { font-size: 12px; }
+
+/* ---------------------------------------------------------------- Phase 10: signal, world model, languages, gateway */
+.debate { border-left: 3px solid var(--line, #2a3446); padding: 0.2rem 0 0.2rem 0.8rem; margin: 0.8rem 0; }
+.debate ol { margin: 0.3rem 0 0.4rem 1.2rem; }
+.debate li { margin: 0.25rem 0; line-height: 1.5; }
+.explain-layer { padding: 0.4rem 0 0.6rem; border-top: 1px solid var(--line, #2a3446); }
+.explain-layer:first-of-type { border-top: 0; }
+.explain-layer h4 { margin: 0.2rem 0; font-size: 0.92rem; }
+.explain-layer .recorded { margin: 0.2rem 0 0 1.1rem; color: var(--muted, #9aa7bd); }
+.terms-defs dt { font-weight: 600; margin-top: 0.6rem; }
+.terms-defs dd { margin: 0.15rem 0 0 0; line-height: 1.55; }
+#term-table td { vertical-align: top; min-width: 7.5em; }
+#palette-method { margin: 0.2rem 0.8rem; min-height: 1em; }
+.linkish { background: none; border: 0; padding: 0; color: var(--accent, #8fb3ff); text-decoration: underline; cursor: pointer; font: inherit; text-align: start; }
+.controls.wrap { flex-wrap: wrap; }
+.controls label select, .controls label input { margin-inline-start: 0.35rem; }
+
+/* Phase 10: the language picker and settings button made the one-line top bar too wide below ~1400 px, and translated labels
+   vary in length; the bar now wraps at every width instead of pushing the Run and Copilot buttons past the right edge. */
+.topbar { flex-wrap: wrap; row-gap: 8px; }
+/* …and below 1500 px it gives up a little decoration first, so that English and most translations still fit on one line at
+   1440 px: the visible "Target" caption (the select keeps its label for screen readers), the ⌘K hint and some spacing. */
+@media (max-width: 1500px) {
+  .topbar { gap: 10px; }
+  .target-picker > label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  #target-select { max-width: 200px; }
+  #palette-btn kbd { display: none; }
+}
+/* The settings body scrolls; without this its grid rows shrank the level switch (overflow: hidden) to a 2-px line. */
+#settings-body { grid-auto-rows: max-content; }
+#settings-body .segmented { justify-self: start; }

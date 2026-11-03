@@ -21,6 +21,8 @@ import { renderNotebook } from "./notebook.js";
 import { renderLedger, setLedgerTab } from "./ledgerui.js";
 import { openSequence } from "./timemachine.js";
 import * as S from "./session.js";
+import { initI18n, setLang, getLang } from "./i18n.js";
+import { bindSettings, closeSettings, setLevelHook } from "./settingsui.js";
 import { bindSessions, closeSessions, openSessions, renderSessionBox } from "./sessionsui.js";
 import { setHooks } from "./executor.js";
 import { renderHorizon } from "./horizonui.js";
@@ -44,6 +46,9 @@ import { renderIntegrity } from "./integrityui.js";
 import { BLIND_ALLOWED, blindActive, renderProtocol } from "./protocolui.js";
 import { renderArgue } from "./argueui.js";
 import { renderIntel, setIntelPanel } from "./intelui.js";
+import { renderGateway, renderSignal, renderWorld, setWorldTab } from "./universalui.js";
+import { renderLanguages, setLanguagesTab } from "./languagesui.js";
+import { onLangChange } from "./i18n.js";
 import { $, $$, el, fmtDate, toast } from "./util.js";
 
 const RENDER = { command: renderCommand, discovery: renderDiscovery, explorer: renderExplorer, time: renderTime, lab: renderLab, arena: renderArena,
@@ -51,7 +56,8 @@ const RENDER = { command: renderCommand, discovery: renderDiscovery, explorer: r
                  radar: renderRadar, notebook: renderNotebook, horizon: renderHorizon, counterfactual: renderCounterfactual, synthetic: renderSynthetic,
                  adversarial: renderAdversarial, autopilot: renderAutopilot, atlas: renderAtlas, knowledge: renderKnowledge, review: renderReview,
                  reasoning: renderReasoning, compiler: renderCompiler, claims: renderClaims, debugger: renderDebugger, models: renderModels, uflow: renderUflow,
-                 future: renderFuture, decide: renderDecide, negative: renderNegative, integrity: renderIntegrity, protocol: renderProtocol, argue: renderArgue, intel: renderIntel };
+                 future: renderFuture, decide: renderDecide, negative: renderNegative, integrity: renderIntegrity, protocol: renderProtocol, argue: renderArgue, intel: renderIntel,
+                 signal: renderSignal, world: renderWorld, languages: renderLanguages, gateway: renderGateway };
 const WS_LABEL = { command: "Command Center", explorer: "Sky Explorer", time: "Time Machine", quality: "Data Quality Observatory", planner: "Investigation Planner",
                    discovery: "Discovery Engine", lab: "Discovery Lab", arena: "Hypothesis Arena", experiments: "Experiment Studio", graph: "Evidence Ledger",
                    radar: "Discovery Radar", notebook: "Research Notebook", records: "Vault & Reports", horizon: "Discovery Horizon",
@@ -59,13 +65,16 @@ const WS_LABEL = { command: "Command Center", explorer: "Sky Explorer", time: "T
                    atlas: "Cosmic Atlas", knowledge: "Knowledge Atlas", review: "Review Room & Discovery Story", reasoning: "Reasoning Graph & Lineage-X",
                    compiler: "Scientific Compiler & Method Genome", claims: "Claims: Boundary, Stress Test & Blindspots", debugger: "Scientific Debugger",
                    models: "Model Arena", uflow: "Uncertainty Flow", future: "FutureLab", decide: "Questions & Next Steps", negative: "Negative Space",
-                   integrity: "Integrity Firewall", protocol: "Protocol & Blind Analysis", argue: "Reasoning Lab", intel: "Scientific Intelligence" };
+                   integrity: "Integrity Firewall", protocol: "Protocol & Blind Analysis", argue: "Reasoning Lab", intel: "Scientific Intelligence",
+                   signal: "Signal Intelligence", world: "World Model", languages: "Multilingual Research", gateway: "Open Science Gateway" };
+const LEVEL_NAME = { explore: "Explorer", investigate: "Researcher", research: "Advanced" };
 const LEVELS = ["explore", "investigate", "research"];
 const minLevel = (ws) => document.querySelector(`.nav button[data-ws=${ws}]`)?.dataset.minLevel || "explore";
 const visibleWs = () => $$(".nav button[data-ws]").map((b) => b.dataset.ws).filter((ws) => LEVELS.indexOf(minLevel(ws)) <= LEVELS.indexOf(state.level));
 const LOGGED = { arena: "arena.view", radar: null, quality: null, graph: null, planner: "planner.view", notebook: "notebook.view", experiments: "experiments.view",
                  counterfactual: "counterfactual.view", adversarial: "adversarial.view", review: "review.view", synthetic: "synthetic.view", autopilot: "autopilot.view",
-                 compiler: "compiler.view", claims: "claims.view", debugger: "debugger.view", reasoning: "reasoning.view", intel: "intel.view" };
+                 compiler: "compiler.view", claims: "claims.view", debugger: "debugger.view", reasoning: "reasoning.view", intel: "intel.view",
+                 signal: "signal.view", world: "world.view", gateway: "gateway.view" };
 
 /** Render a workspace, unless a blind analysis is active and the workspace would show hidden results (BLINDLAB-1). The cover
  *  is drawn over the section; the workspace's own renderer is not called, so nothing hidden is computed or drawn. */
@@ -118,7 +127,7 @@ function setWorkspace(ws, { push = true } = {}) {
   const need = minLevel(ws);
   if (LEVELS.indexOf(need) > LEVELS.indexOf(state.level)) {
     setLevel(need);
-    toast(`Switched to the ${need[0].toUpperCase() + need.slice(1)} level to open the ${WS_LABEL[ws]}.`);
+    toast(`Switched to the ${LEVEL_NAME[need]} level to open the ${WS_LABEL[ws]}.`);
   }
   if (LOGGED[ws]) S.log(LOGGED[ws], `${WS_LABEL[ws]} opened`);
   if (state.ws === "time" && ws !== "time") stopBlink();
@@ -167,7 +176,7 @@ function renderHeader() {
 
 async function loadTarget(tid, { keepSelection = null, push = true } = {}) {
   if (state.targetId !== tid) state.context = state.session ? state.context : emptyContext();   // a session's context spans its targets
-  state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null; state.intelligence = null; state.corpus = null;
+  state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null; state.intelligence = null; state.corpus = null; state.universal = null;
   state.targetId = tid;
   state.target = null; state.inv = null; state.model = null; state.prevInv = null; state.selectedKey = null; state.partnerKey = null;
   resetCopilot();
@@ -195,7 +204,7 @@ async function runAnalysis(params, { quiet = false } = {}) {
     const prev = state.inv ? { record: state.inv.record, model: state.model } : null;
     const r = await api.analyze(state.targetId, params || {});
     state.prevInv = prev;
-    state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null; state.intelligence = null; state.corpus = null;
+    state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null; state.intelligence = null; state.corpus = null; state.universal = null;
     if (state.session) S.attachRun(r, Object.keys(params || {}).length ? "re-run with changed parameters" : "analysis");
     const o = state.model.outcomes.map((x) => `${x.question.replace("_", " ")}: ${x.category.replaceAll("_", " ")}`).join(" · ");
     if (!quiet) toast(`Analysis complete. ${o}`, 5000);
@@ -254,6 +263,8 @@ function bind() {
     if (tab && ws === "debugger") setDebuggerTab(tab);
     if (tab && ws === "decide") setDecideTab(tab);
     if (tab && ws === "intel") setIntelPanel(tab);
+    if (tab && ws === "world") setWorldTab(tab);
+    if (tab && ws === "languages") setLanguagesTab(tab);
     if (qtab) setQualityTab(qtab);
     if (question) setPlannerQuestion(question);
     renderRuler();
@@ -280,7 +291,7 @@ function bind() {
     if (state.targetId !== d.target_id) await loadTarget(d.target_id);
     try {
       const r = await api.investigation(d.investigation_id);
-      state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null; state.intelligence = null; state.corpus = null;
+      state.inv = r; state.model = deriveModel(r.record); state.discovery = null; state.research = null; state.frontier = null; state.epistemic = null; state.intelligence = null; state.corpus = null; state.universal = null;
       state.context = sanitizeContext(d.context);   // restored as saved (untrusted, so only known fields); nothing is filled in
       resetCopilot();
       $("#thread").append(el("p", { class: "faint" }, `Reopened “${d.name}”, saved ${d.saved_at}. Earlier conversation:`));
@@ -295,6 +306,7 @@ function bind() {
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("#palette").hidden ? openPalette() : closePalette(); return; }
     if (!$("#sessions").hidden) { if (e.key === "Escape") { e.preventDefault(); closeSessions(); } return; }
+    if (!$("#settings").hidden) { if (e.key === "Escape" && !$("#settings").contains(e.target)) { e.preventDefault(); closeSettings(); } return; }
     if (!$("#palette").hidden || !$("#help").hidden) return;
     if (e.key === "Escape" && $("#app").classList.contains("copilot-open-narrow")) { setCopilotOpen(false); return; }
     if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
@@ -309,6 +321,10 @@ function bind() {
   $$(".level-switch button").forEach((b) => b.addEventListener("click", () => { setLevel(b.dataset.level); renderWs(state.ws); }));
   $("#palette-btn").addEventListener("click", openPalette);
   $("#help-btn").addEventListener("click", openHelp);
+  bindSettings();
+  setLevelHook((l) => { setLevel(l); renderWs(state.ws); });
+  $$(".nav button[data-ws]").forEach((b) => { b.dataset.wsEn = WS_LABEL[b.dataset.ws] || ""; });   // English label for cross-language search
+  onLangChange(() => { if (["languages", "gateway"].includes(state.ws)) renderWs(state.ws); });   // keyed text (t()) is re-rendered, not re-translated
   bindPalette(paletteCommands);
   on("context-changed", () => { renderLoop(); S.syncSessionFromContext(); });
 }
@@ -327,7 +343,7 @@ function paletteCommands() {
     { group: "Action", label: "Test hypotheses", hint: "HYPO-1", disabled: !inv, run: () => setWorkspace("arena") },
     { group: "Action", label: "Reproducibility package and reports", disabled: !inv, run: () => { setWorkspace("records"); setTimeout(() => $("#studio")?.scrollIntoView(), 50); } },
     { group: "Action", label: "Ask the copilot", run: () => { setCopilotOpen(true); $("#ask-input").focus(); } },
-    ...["explore", "investigate", "research"].map((l) => ({ group: "View", label: `Level: ${l[0].toUpperCase() + l.slice(1)}`,
+    ...["explore", "investigate", "research"].map((l) => ({ group: "View", label: `Level: ${LEVEL_NAME[l]}`,
       run: () => { setLevel(l); renderWs(state.ws); } })),
     { group: "Help", label: "Glossary and keyboard shortcuts", hint: "?", run: openHelp },
     { group: "Session", label: "Research sessions…", hint: state.session ? state.session.name : "none yet", run: openSessions },
@@ -339,11 +355,20 @@ function paletteCommands() {
     { group: "Action", label: "Contradiction inspector", hint: "LEDGER-1", disabled: !inv, run: () => { setLedgerTab("contradictions"); setWorkspace("graph"); } },
     { group: "Action", label: "Research opportunities", hint: "RADAR-1", disabled: !inv, run: () => setWorkspace("radar") },
     { group: "Action", label: "Run an experiment", hint: "EXP-1", disabled: !state.target, run: () => setWorkspace("experiments") },
-    { group: "Action", label: "Archive connectors", hint: "ACQ-2", run: () => { setQualityTab("connectors"); setWorkspace("quality"); } });
+    { group: "Action", label: "Archive connectors", hint: "ACQ-2", run: () => { setQualityTab("connectors"); setWorkspace("quality"); } },
+    { group: "Action", label: "Time-series methods", hint: "SIGNAL-1", disabled: !inv, run: () => setWorkspace("signal") },
+    { group: "Action", label: "Research leads (contradictions)", hint: "LEAD-1", disabled: !inv, run: () => { setWorldTab("leads"); setWorkspace("world"); } },
+    { group: "Action", label: "Independent lines of evidence", hint: "CONV-1", disabled: !inv, run: () => { setWorldTab("convergence"); setWorkspace("world"); } },
+    { group: "Action", label: "Explain the outcomes in my language", hint: "EXPLAIN-1", disabled: !inv, run: () => { setLanguagesTab("explain"); setWorkspace("languages"); } },
+    { group: "Action", label: "Search across languages", hint: "XSEARCH-1", run: () => { setLanguagesTab("search"); setWorkspace("languages"); } },
+    { group: "Action", label: "Translation quality", hint: "I18N-Q1", run: () => { setLanguagesTab("quality"); setWorkspace("languages"); } },
+    { group: "Action", label: "Export a handoff", hint: "HANDOFF-1", disabled: !inv, run: () => setWorkspace("gateway") },
+    { group: "Settings", label: "Interface language and numerals", run: () => $("#settings-btn").click() });
   return cmds;
 }
 
 async function init() {
+  await initI18n();
   let lvl = "investigate";
   try { lvl = localStorage.getItem("skytrace.level") || lvl; } catch { /* storage may be unavailable */ }
   setLevel(lvl, false);
@@ -359,6 +384,10 @@ async function init() {
   }
   if (STATIC) $("#preview-note").hidden = false;
   await S.restoreSession();
+  const pref = state.session?.preferences?.language;
+  if (pref && pref !== getLang() && !new URLSearchParams(location.search).get("lang")) {
+    try { if (!localStorage.getItem("skytrace.lang")) await setLang(pref); } catch { await setLang(pref); }
+  }
   renderSessionBox();
   const sel = $("#target-select");
   const real = state.targets.filter((t) => t.real_target), syn = state.targets.filter((t) => !t.real_target);

@@ -1,0 +1,477 @@
+{
+ "schema": "skytrace.i18n-quality/1",
+ "method": "I18N-Q1",
+ "n_messages": 3668,
+ "n_keyed": 16,
+ "n_terms": 48,
+ "languages": {
+  "bn": {
+   "name": "বাংলা",
+   "status": "machine-translated by an AI model; not reviewed by a native speaker",
+   "translator": "Claude (Anthropic AI model), Skytrace Phase 10",
+   "version": "0.10.0",
+   "reviewed": false,
+   "translated": 3668,
+   "missing": [],
+   "n_missing": 0,
+   "keyed_translated": 16,
+   "placeholder_mismatches": [],
+   "unicode_problems": [],
+   "not_nfc": [],
+   "identical_symbols": 12,
+   "identical_words": 49,
+   "identical_words_sample": [
+    "$.steps[{0}].inputs",
+    "(mas)",
+    "+{0} mas",
+    ", doi:{0}",
+    "Alt+1 … Alt+9",
+    "Alt+{0}",
+    "Content-Type",
+    "Dec (°)",
+    "Deutsch",
+    "English",
+    "Esc",
+    "Español",
+    "Français",
+    "FutureLab",
+    "H1 |μ| (mas/yr)",
+    "HYPO-1 ({0})",
+    "Lineage-X",
+    "PLAN-1 ({0}):",
+    "Pearson r",
+    "RA {0}°, Dec {1}° (ICRS)"
+   ],
+   "numbers_changed": [],
+   "identifiers_changed": [],
+   "without_native_script": 2,
+   "without_native_script_sample": [
+    "Skytrace {0}.",
+    "handoff.json (skytrace.handoff/1), checklist.json."
+   ],
+   "terminology": {
+    "consistent": 685,
+    "inconsistent": 0,
+    "examples": []
+   },
+   "expansion": {
+    "median_ratio": 0.961,
+    "max_ratio": 2.143,
+    "longest": [
+     {
+      "key": "b1f606b6ed",
+      "en": "Brief exported",
+      "ratio": 2.14
+     },
+     {
+      "key": "0a672f0ba5",
+      "en": "no target chosen",
+      "ratio": 2.12
+     },
+     {
+      "key": "8249c258e0",
+      "en": "Select a test",
+      "ratio": 2.0
+     },
+     {
+      "key": "59200c777d",
+      "en": "No plan yet.",
+      "ratio": 2.0
+     },
+     {
+      "key": "74881c61e8",
+      "en": "Map exported",
+      "ratio": 1.92
+     },
+     {
+      "key": "277c924370",
+      "en": "Mark reviewed",
+      "ratio": 1.77
+     },
+     {
+      "key": "90e0350f72",
+      "en": "— none chosen —",
+      "ratio": 1.73
+     },
+     {
+      "key": "f1e23d7c5c",
+      "en": "Select a node",
+      "ratio": 1.69
+     }
+    ]
+   }
+  },
+  "hi": {
+   "name": "हिन्दी",
+   "status": "machine-translated by an AI model; not reviewed by a native speaker",
+   "translator": "Claude (Anthropic AI model), Skytrace Phase 10",
+   "version": "0.10.0",
+   "reviewed": false,
+   "translated": 3668,
+   "missing": [],
+   "n_missing": 0,
+   "keyed_translated": 16,
+   "placeholder_mismatches": [],
+   "unicode_problems": [],
+   "not_nfc": [],
+   "identical_symbols": 12,
+   "identical_words": 49,
+   "identical_words_sample": [
+    "$.steps[{0}].inputs",
+    "(mas)",
+    "+{0} mas",
+    ", doi:{0}",
+    "Alt+1 … Alt+9",
+    "Alt+{0}",
+    "Content-Type",
+    "Dec (°)",
+    "Deutsch",
+    "English",
+    "Esc",
+    "Español",
+    "Français",
+    "FutureLab",
+    "H1 |μ| (mas/yr)",
+    "HYPO-1 ({0})",
+    "Lineage-X",
+    "PLAN-1 ({0}):",
+    "Pearson r",
+    "RA {0}°, Dec {1}° (ICRS)"
+   ],
+   "numbers_changed": [],
+   "identifiers_changed": [],
+   "without_native_script": 0,
+   "without_native_script_sample": [],
+   "terminology": {
+    "consistent": 685,
+    "inconsistent": 0,
+    "examples": []
+   },
+   "expansion": {
+    "median_ratio": 0.933,
+    "max_ratio": 2.083,
+    "longest": [
+     {
+      "key": "74881c61e8",
+      "en": "Map exported",
+      "ratio": 2.08
+     },
+     {
+      "key": "4a404d5a31",
+      "en": "test not run",
+      "ratio": 1.83
+     },
+     {
+      "key": "91e5e56ddd",
+      "en": "No data to plot",
+      "ratio": 1.8
+     },
+     {
+      "key": "5806261be6",
+      "en": "Test hypotheses",
+      "ratio": 1.8
+     },
+     {
+      "key": "643f84c973",
+      "en": "Validated by",
+      "ratio": 1.75
+     },
+     {
+      "key": "4b71ecf8c8",
+      "en": "not reported",
+      "ratio": 1.75
+     },
+     {
+      "key": "b6eec6f780",
+      "en": "no compared pairs",
+      "ratio": 1.71
+     },
+     {
+      "key": "4716866cd2",
+      "en": "Duplicate {0}",
+      "ratio": 1.69
+     }
+    ]
+   }
+  },
+  "es": {
+   "name": "Español",
+   "status": "machine-translated by an AI model; not reviewed by a native speaker",
+   "translator": "Claude (Anthropic AI model), Skytrace Phase 10",
+   "version": "0.10.0",
+   "reviewed": false,
+   "translated": 3668,
+   "missing": [],
+   "n_missing": 0,
+   "keyed_translated": 16,
+   "placeholder_mismatches": [],
+   "unicode_problems": [],
+   "not_nfc": [],
+   "identical_symbols": 13,
+   "identical_words": 67,
+   "identical_words_sample": [
+    "$.steps[{0}].inputs",
+    "(mas)",
+    "+{0} mas",
+    ", doi:{0}",
+    "Alt+1 … Alt+9",
+    "Alt+{0}",
+    "Content-Type",
+    "Dec (°)",
+    "Detector",
+    "Detector D1–D6",
+    "Deutsch",
+    "English",
+    "Error",
+    "Error ×",
+    "Esc",
+    "Español",
+    "Experimental",
+    "Français",
+    "FutureLab",
+    "HYPO-1 ({0})"
+   ],
+   "numbers_changed": [],
+   "identifiers_changed": [],
+   "without_native_script": null,
+   "without_native_script_sample": [],
+   "terminology": {
+    "consistent": 685,
+    "inconsistent": 0,
+    "examples": []
+   },
+   "expansion": {
+    "median_ratio": 1.16,
+    "max_ratio": 2.231,
+    "longest": [
+     {
+      "key": "8665d5ce7e",
+      "en": "Discovery Lab",
+      "ratio": 2.23
+     },
+     {
+      "key": "87a3d4e2fa",
+      "en": "Input dataset",
+      "ratio": 2.15
+     },
+     {
+      "key": "17a825fa31",
+      "en": "Reasoning Lab",
+      "ratio": 2.08
+     },
+     {
+      "key": "38181a0902",
+      "en": "Planning hints",
+      "ratio": 2.07
+     },
+     {
+      "key": "f0d49be0ba",
+      "en": "Claim stress test",
+      "ratio": 1.94
+     },
+     {
+      "key": "7816ccf341",
+      "en": "Display stretch",
+      "ratio": 1.93
+     },
+     {
+      "key": "6a58b85ff9",
+      "en": "Causality Lab",
+      "ratio": 1.92
+     },
+     {
+      "key": "75deb906c4",
+      "en": "All exposures usable",
+      "ratio": 1.9
+     }
+    ]
+   }
+  },
+  "fr": {
+   "name": "Français",
+   "status": "machine-translated by an AI model; not reviewed by a native speaker",
+   "translator": "Claude (Anthropic AI model), Skytrace Phase 10",
+   "version": "0.10.0",
+   "reviewed": false,
+   "translated": 3668,
+   "missing": [],
+   "n_missing": 0,
+   "keyed_translated": 16,
+   "placeholder_mismatches": [],
+   "unicode_problems": [],
+   "not_nfc": [],
+   "identical_symbols": 11,
+   "identical_words": 118,
+   "identical_words_sample": [
+    "$.steps[{0}].inputs",
+    "(mas)",
+    "+{0} mas",
+    ", doi:{0}",
+    "2. Motivation",
+    "Action",
+    "Active",
+    "Alt+1 … Alt+9",
+    "Alt+{0}",
+    "Annotation",
+    "Applicable",
+    "Association",
+    "Capsule",
+    "Catalogue",
+    "Cause",
+    "Coefficients",
+    "Compilation",
+    "Conclusion",
+    "Content-Type",
+    "Contradictions"
+   ],
+   "numbers_changed": [],
+   "identifiers_changed": [],
+   "without_native_script": null,
+   "without_native_script_sample": [],
+   "terminology": {
+    "consistent": 685,
+    "inconsistent": 0,
+    "examples": []
+   },
+   "expansion": {
+    "median_ratio": 1.167,
+    "max_ratio": 2.455,
+    "longest": [
+     {
+      "key": "f73e80cca9",
+      "en": "Record hash recomputes",
+      "ratio": 2.45
+     },
+     {
+      "key": "4d333d8b5b",
+      "en": "Time Machine",
+      "ratio": 2.25
+     },
+     {
+      "key": "65de52fe81",
+      "en": "Branch session",
+      "ratio": 2.21
+     },
+     {
+      "key": "4657c8a179",
+      "en": "needs new data",
+      "ratio": 2.14
+     },
+     {
+      "key": "74f3595c8d",
+      "en": "Causal claim warnings",
+      "ratio": 2.1
+     },
+     {
+      "key": "bb2fcd46ab",
+      "en": "Epoch outlier clip (σ)",
+      "ratio": 2.09
+     },
+     {
+      "key": "33f3ef7d5c",
+      "en": "no match: {0}",
+      "ratio": 2.08
+     },
+     {
+      "key": "17a825fa31",
+      "en": "Reasoning Lab",
+      "ratio": 2.08
+     }
+    ]
+   }
+  },
+  "de": {
+   "name": "Deutsch",
+   "status": "machine-translated by an AI model; not reviewed by a native speaker",
+   "translator": "Claude (Anthropic AI model), Skytrace Phase 10",
+   "version": "0.10.0",
+   "reviewed": false,
+   "translated": 3668,
+   "missing": [],
+   "n_missing": 0,
+   "keyed_translated": 16,
+   "placeholder_mismatches": [],
+   "unicode_problems": [],
+   "not_nfc": [],
+   "identical_symbols": 12,
+   "identical_words": 79,
+   "identical_words_sample": [
+    "$.steps[{0}].inputs",
+    "(mas)",
+    "+{0} mas",
+    ", doi:{0}",
+    "- Experiment (EXP-1): {0}",
+    "2. Motivation",
+    "Alt+1 … Alt+9",
+    "Alt+{0}",
+    "Compiler",
+    "Content-Type",
+    "Copilot",
+    "Copilot: Meta {0}",
+    "Debugger",
+    "Dec (°)",
+    "Detail",
+    "Deutsch",
+    "Digest",
+    "Dimension",
+    "English",
+    "Esc"
+   ],
+   "numbers_changed": [],
+   "identifiers_changed": [],
+   "without_native_script": null,
+   "without_native_script_sample": [],
+   "terminology": {
+    "consistent": 685,
+    "inconsistent": 0,
+    "examples": []
+   },
+   "expansion": {
+    "median_ratio": 1.133,
+    "max_ratio": 2.053,
+    "longest": [
+     {
+      "key": "85237a8796",
+      "en": "Rename or retag {0}",
+      "ratio": 2.05
+     },
+     {
+      "key": "fea8e6dd46",
+      "en": "y-axis label",
+      "ratio": 2.0
+     },
+     {
+      "key": "ba6353442c",
+      "en": "x-axis label",
+      "ratio": 2.0
+     },
+     {
+      "key": "33f3ef7d5c",
+      "en": "no match: {0}",
+      "ratio": 2.0
+     },
+     {
+      "key": "bea52329c7",
+      "en": "hypothesized",
+      "ratio": 1.92
+     },
+     {
+      "key": "6c11363470",
+      "en": "Logged steps",
+      "ratio": 1.92
+     },
+     {
+      "key": "29fd8609f0",
+      "en": "Retry failed or cancelled items",
+      "ratio": 1.9
+     },
+     {
+      "key": "cc737ce725",
+      "en": "Re-run & compare",
+      "ratio": 1.88
+     }
+    ]
+   }
+  }
+ }
+}

@@ -19,12 +19,24 @@
     <span class="pill none" id="data-pill">No target</span>
     <span class="spacer"></span>
     <div class="segmented level-switch" role="group" aria-label="Level of detail">
-      <button type="button" data-level="explore" title="Plain-language view: outcomes, images and comparisons">Explore</button>
-      <button type="button" data-level="investigate" title="Adds evidence, criteria, measurements, hypotheses and parameters">Investigate</button>
-      <button type="button" data-level="research" title="Adds identifiers, hashes, raw values and diagnostics">Research</button>
+      <button type="button" data-level="explore" title="Plain-language view: outcomes, images and comparisons">Explorer</button>
+      <button type="button" data-level="investigate" title="Adds evidence, criteria, measurements, hypotheses and parameters">Researcher</button>
+      <button type="button" data-level="research" title="Adds identifiers, hashes, raw values and diagnostics">Advanced</button>
     </div>
     <button class="btn ghost" id="palette-btn" type="button" aria-haspopup="dialog" title="Search and commands (Ctrl+K or /)">Search <kbd>⌘K</kbd></button>
     <button class="btn ghost" id="help-btn" type="button" aria-haspopup="dialog" title="Glossary and keyboard shortcuts (?)">?</button>
+    <div class="lang-picker" translate="no">
+      <label for="lang-select" class="sr-only" id="lang-label">Language</label>
+      <select id="lang-select" aria-labelledby="lang-label" title="Interface language">
+        <option value="en" lang="en">English</option>
+        <option value="bn" lang="bn">বাংলা</option>
+        <option value="hi" lang="hi">हिन्दी</option>
+        <option value="es" lang="es">Español</option>
+        <option value="fr" lang="fr">Français</option>
+        <option value="de" lang="de">Deutsch</option>
+      </select>
+    </div>
+    <button class="btn ghost" id="settings-btn" type="button" aria-haspopup="dialog" aria-label="Settings" title="Settings">⚙</button>
     <span class="pill offline" id="offline-pill" hidden>Offline mode</span>
     <span class="pill preview" id="preview-pill" hidden title="Static preview: responses recorded from the Skytrace server at build time">Static preview</span>
     <span class="pill model" id="model-pill" title="">Copilot status</span>
@@ -54,6 +66,7 @@
       <button data-ws="reasoning" data-min-level="investigate">Reasoning Graph</button>
       <button data-ws="quality" data-min-level="investigate">Data Quality</button>
       <button data-ws="negative" data-min-level="research">Negative Space</button>
+      <button data-ws="world" data-min-level="research">World Model</button>
     </div>
     <div class="nav-group"><h3 class="nav-h">Analyze</h3>
       <button data-ws="lab">Discovery Lab</button>
@@ -62,6 +75,7 @@
       <button data-ws="models" data-min-level="research">Model Arena</button>
       <button data-ws="uflow" data-min-level="research">Uncertainty Flow</button>
       <button data-ws="debugger" data-min-level="research">Scientific Debugger</button>
+      <button data-ws="signal" data-min-level="investigate">Signal Intelligence</button>
     </div>
     <div class="nav-group"><h3 class="nav-h">Challenge</h3>
       <button data-ws="compiler" data-min-level="investigate">Scientific Compiler</button>
@@ -87,10 +101,12 @@
       <button data-ws="notebook">Research Notebook</button>
       <button data-ws="knowledge" data-min-level="investigate">Knowledge Atlas</button>
       <button data-ws="argue" data-min-level="research">Reasoning Lab</button>
+      <button data-ws="languages">Multilingual Research</button>
     </div>
     <div class="nav-group"><h3 class="nav-h">Publish</h3>
       <button data-ws="integrity" data-min-level="investigate">Integrity Firewall</button>
       <button data-ws="records">Vault &amp; Reports</button>
+      <button data-ws="gateway" data-min-level="investigate">Open Science Gateway</button>
     </div>
     <div class="nav-foot" id="nav-foot"></div>
   </nav>
@@ -155,6 +171,30 @@
       <h2 class="ws-title" id="ws-negative-title">Negative Space</h2>
       <p class="ws-sub">What was attempted and could not be established: excluded images, refused measurements, invalid comparisons, tests not run or inconclusive, unavailable services, unresolved contradictions, failed reproductions and hypotheses you abandoned. Each entry says why it was attempted, what happened, what remains unknown and what would unblock it. Failed work is evidence too, and nothing here is erased.</p>
       <div id="negative-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-signal" aria-labelledby="ws-signal-title">
+      <h2 class="ws-title" id="ws-signal-title">Signal Intelligence</h2>
+      <p class="ws-sub">Time-series methods on the series this investigation actually contains — sampling, the spectral window, noise checks, Lomb–Scargle, Fourier, wavelets, correlation, robust trends, change points and model comparison — each with the rule that decides whether it applies, its assumptions and its limits. Short or uneven series are not forced through methods that need more.</p>
+      <div id="signal-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-world" aria-labelledby="ws-world-title">
+      <h2 class="ws-title" id="ws-world-title">World Model</h2>
+      <p class="ws-sub">The investigation's objects and their relationships, each with the rule and recorded field it comes from; how many lines of evidence are truly independent; contradictions kept as research leads; every measurement in one representation; and the discovery timeline with observation, processing, publication and event times kept apart.</p>
+      <div id="world-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-languages" aria-labelledby="ws-languages-title">
+      <h2 class="ws-title" id="ws-languages-title">Multilingual Research</h2>
+      <p class="ws-sub">Research in six languages: search across languages through the scientific terminology base, read every outcome explained in your language, browse the terminology with definitions and pronunciation, and see how complete and consistent each translation is.</p>
+      <div id="languages-body"></div>
+    </section>
+
+    <section class="workspace" id="ws-gateway" aria-labelledby="ws-gateway-title">
+      <h2 class="ws-title" id="ws-gateway-title">Open Science Gateway</h2>
+      <p class="ws-sub">Hand an investigation to the next researcher, replay what happened in a session, prepare an open-science bundle and write the report in any of six languages. Nothing is published or sent: every file is downloaded to your computer.</p>
+      <div id="gateway-body"></div>
     </section>
 
     <section class="workspace" id="ws-models" aria-labelledby="ws-models-title">
@@ -344,6 +384,12 @@
   <div class="dialog help" role="dialog" aria-modal="true" aria-labelledby="help-title">
     <header><h2 id="help-title">Glossary and shortcuts</h2><button class="btn small ghost" id="help-close" type="button">Close</button></header>
     <div id="help-body"></div>
+  </div>
+</div>
+<div class="overlay" id="settings" hidden>
+  <div class="dialog settings" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <header><h2 id="settings-title">Settings</h2><button class="btn small ghost" id="settings-close" type="button">Close</button></header>
+    <div id="settings-body"></div>
   </div>
 </div>
 <script type="module" src="/static/js/main.js"></script>

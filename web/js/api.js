@@ -24,7 +24,7 @@ const serverApi = {
   stability: (tid, params = {}) => req(`/api/targets/${encodeURIComponent(tid)}/stability`, { method: "POST", body: JSON.stringify({ params }) }),
   investigation: (iid) => req(`/api/investigations/${iid}`),
   graph: (iid) => req(`/api/investigations/${iid}/graph`),
-  report: (iid) => req(`/api/investigations/${iid}/report.md`),
+  report: (iid, lang = "en") => req(`/api/investigations/${iid}/report.md${lang && lang !== "en" ? `?lang=${lang}` : ""}`),
   recordExportUrl: (iid) => `/api/investigations/${iid}/record.json`,
   recordText: async (iid) => {   // raw text, so numbers keep the exact form the content hash was computed on
     const r = await fetch(`/api/investigations/${iid}/record.json`);
@@ -77,6 +77,8 @@ const serverApi = {
   intelligence: (iid) => req(`/api/investigations/${iid}/intelligence`),
   corpus: () => req("/api/intelligence/corpus"),
   simAudit: (scenario, seeds) => req("/api/simulation-audit", { method: "POST", body: JSON.stringify(seeds ? { scenario, seeds } : { scenario }) }),
+  // Phase 10
+  universal: (iid) => req(`/api/investigations/${iid}/universal`),
 };
 
 export const api = STATIC ? (await import("./static/backend.js")).staticApi : serverApi;

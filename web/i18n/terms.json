@@ -1,0 +1,2938 @@
+{
+ "schema": "skytrace.terms/1",
+ "method": "TERM-1",
+ "version": "0.10.0",
+ "status": "machine-translated by an AI model; not reviewed by a native speaker or a domain expert",
+ "pronunciation": "romanised transliteration for Bangla and Hindi (not IPA)",
+ "languages": [
+  "en",
+  "bn",
+  "hi",
+  "es",
+  "fr",
+  "de"
+ ],
+ "n": 48,
+ "terms": [
+  {
+   "id": "proper-motion",
+   "context": "astrometry",
+   "units": "mas/yr",
+   "en": {
+    "term": "proper motion",
+    "synonyms": [
+     "pm",
+     "apparent motion"
+    ],
+    "definition": "The apparent angular motion of a star across the sky per year, measured against distant reference stars."
+   },
+   "bn": {
+    "term": "নিজস্ব গতি",
+    "synonyms": [
+     "স্বকীয় গতি"
+    ],
+    "match": [
+     "নিজস্ব গতি",
+     "গতি"
+    ],
+    "definition": "দূরবর্তী রেফারেন্স তারার সাপেক্ষে আকাশে একটি তারার বার্ষিক আপাত কৌণিক গতি।",
+    "pronunciation": "nijoshwo goti"
+   },
+   "hi": {
+    "term": "उचित गति",
+    "synonyms": [
+     "निजी गति"
+    ],
+    "match": [
+     "उचित गति",
+     "गति"
+    ],
+    "definition": "दूरस्थ संदर्भ तारों के सापेक्ष आकाश में किसी तारे की वार्षिक आभासी कोणीय गति।",
+    "pronunciation": "uchit gati"
+   },
+   "es": {
+    "term": "movimiento propio",
+    "synonyms": [],
+    "match": [
+     "movimiento"
+    ],
+    "definition": "Movimiento angular aparente anual de una estrella en el cielo, medido frente a estrellas de referencia lejanas."
+   },
+   "fr": {
+    "term": "mouvement propre",
+    "synonyms": [],
+    "match": [
+     "mouvement"
+    ],
+    "definition": "Mouvement angulaire apparent annuel d’une étoile sur le ciel, mesuré par rapport à des étoiles de référence lointaines."
+   },
+   "de": {
+    "term": "Eigenbewegung",
+    "synonyms": [],
+    "match": [
+     "Eigenbewegung",
+     "Bewegung"
+    ],
+    "definition": "Die scheinbare jährliche Winkelbewegung eines Sterns am Himmel, gemessen gegen ferne Referenzsterne."
+   }
+  },
+  {
+   "id": "parallax",
+   "context": "astrometry",
+   "units": "mas",
+   "en": {
+    "term": "parallax",
+    "synonyms": [
+     "annual parallax",
+     "trigonometric parallax"
+    ],
+    "definition": "The yearly apparent shift of a star's position caused by Earth's orbit around the Sun."
+   },
+   "bn": {
+    "term": "লম্বন",
+    "synonyms": [
+     "বার্ষিক লম্বন"
+    ],
+    "match": [
+     "লম্বন"
+    ],
+    "definition": "সূর্যের চারপাশে পৃথিবীর কক্ষপথের কারণে একটি তারার অবস্থানের বার্ষিক আপাত সরণ।",
+    "pronunciation": "lombon"
+   },
+   "hi": {
+    "term": "लंबन",
+    "synonyms": [
+     "वार्षिक लंबन"
+    ],
+    "match": [
+     "लंबन"
+    ],
+    "definition": "सूर्य के चारों ओर पृथ्वी की कक्षा के कारण किसी तारे की स्थिति का वार्षिक आभासी विस्थापन।",
+    "pronunciation": "lamban"
+   },
+   "es": {
+    "term": "paralaje",
+    "synonyms": [
+     "paralaje anual"
+    ],
+    "match": [
+     "paralaje"
+    ],
+    "definition": "Desplazamiento aparente anual de la posición de una estrella causado por la órbita de la Tierra alrededor del Sol."
+   },
+   "fr": {
+    "term": "parallaxe",
+    "synonyms": [
+     "parallaxe annuelle"
+    ],
+    "match": [
+     "parallaxe"
+    ],
+    "definition": "Déplacement apparent annuel de la position d’une étoile dû à l’orbite de la Terre autour du Soleil."
+   },
+   "de": {
+    "term": "Parallaxe",
+    "synonyms": [
+     "jährliche Parallaxe"
+    ],
+    "match": [
+     "Parallaxe"
+    ],
+    "definition": "Die jährliche scheinbare Verschiebung einer Sternposition durch die Bahn der Erde um die Sonne."
+   }
+  },
+  {
+   "id": "astrometry",
+   "context": "astrometry",
+   "units": "",
+   "en": {
+    "term": "astrometry",
+    "synonyms": [
+     "positional astronomy"
+    ],
+    "definition": "The measurement of positions and motions of celestial objects."
+   },
+   "bn": {
+    "term": "অ্যাস্ট্রোমেট্রি",
+    "synonyms": [
+     "জ্যোতির্মিতি"
+    ],
+    "match": [
+     "অ্যাস্ট্রোমেট্রি",
+     "জ্যোতির্মিতি"
+    ],
+    "definition": "মহাজাগতিক বস্তুর অবস্থান ও গতির পরিমাপ।",
+    "pronunciation": "astrometri"
+   },
+   "hi": {
+    "term": "खगोलमिति",
+    "synonyms": [
+     "एस्ट्रोमेट्री"
+    ],
+    "match": [
+     "खगोलमिति",
+     "एस्ट्रोमेट्री"
+    ],
+    "definition": "खगोलीय पिंडों की स्थितियों और गतियों का मापन।",
+    "pronunciation": "khagolmiti"
+   },
+   "es": {
+    "term": "astrometría",
+    "synonyms": [],
+    "match": [
+     "astrometr"
+    ],
+    "definition": "Medición de las posiciones y los movimientos de los objetos celestes."
+   },
+   "fr": {
+    "term": "astrométrie",
+    "synonyms": [],
+    "match": [
+     "astrométr"
+    ],
+    "definition": "Mesure des positions et des mouvements des objets célestes."
+   },
+   "de": {
+    "term": "Astrometrie",
+    "synonyms": [],
+    "match": [
+     "Astrometrie"
+    ],
+    "definition": "Die Messung von Positionen und Bewegungen von Himmelsobjekten."
+   }
+  },
+  {
+   "id": "photometry",
+   "context": "photometry",
+   "units": "µJy",
+   "en": {
+    "term": "photometry",
+    "synonyms": [
+     "flux measurement"
+    ],
+    "definition": "The measurement of the brightness (flux density) of an object."
+   },
+   "bn": {
+    "term": "ফটোমেট্রি",
+    "synonyms": [
+     "আলোকমিতি"
+    ],
+    "match": [
+     "ফটোমেট্রি",
+     "আলোকমিতি"
+    ],
+    "definition": "একটি বস্তুর উজ্জ্বলতা (ফ্লাক্স ঘনত্ব) পরিমাপ।",
+    "pronunciation": "fotometri"
+   },
+   "hi": {
+    "term": "फ़ोटोमेट्री",
+    "synonyms": [
+     "प्रकाशमिति"
+    ],
+    "match": [
+     "फ़ोटोमेट्री",
+     "प्रकाशमिति"
+    ],
+    "definition": "किसी पिंड की चमक (फ़्लक्स घनत्व) का मापन।",
+    "pronunciation": "photometry"
+   },
+   "es": {
+    "term": "fotometría",
+    "synonyms": [],
+    "match": [
+     "fotometr",
+     "fotométric"
+    ],
+    "definition": "Medición del brillo (densidad de flujo) de un objeto."
+   },
+   "fr": {
+    "term": "photométrie",
+    "synonyms": [],
+    "match": [
+     "photométr"
+    ],
+    "definition": "Mesure de la luminosité (densité de flux) d’un objet."
+   },
+   "de": {
+    "term": "Photometrie",
+    "synonyms": [],
+    "match": [
+     "Photometrie"
+    ],
+    "definition": "Die Messung der Helligkeit (Flussdichte) eines Objekts."
+   }
+  },
+  {
+   "id": "flux-density",
+   "context": "photometry",
+   "units": "µJy",
+   "en": {
+    "term": "flux density",
+    "synonyms": [
+     "flux"
+    ],
+    "definition": "The power received per unit area and per unit frequency; Skytrace reports it in microjansky (µJy)."
+   },
+   "bn": {
+    "term": "ফ্লাক্স ঘনত্ব",
+    "synonyms": [
+     "ফ্লাক্স"
+    ],
+    "match": [
+     "ফ্লাক্স"
+    ],
+    "definition": "প্রতি একক ক্ষেত্রফল ও প্রতি একক কম্পাঙ্কে প্রাপ্ত শক্তি; Skytrace এটি মাইক্রোজ্যানস্কি (µJy) এককে দেয়।",
+    "pronunciation": "flaks ghonotto"
+   },
+   "hi": {
+    "term": "फ़्लक्स घनत्व",
+    "synonyms": [
+     "फ़्लक्स"
+    ],
+    "match": [
+     "फ़्लक्स"
+    ],
+    "definition": "प्रति इकाई क्षेत्रफल और प्रति इकाई आवृत्ति प्राप्त शक्ति; Skytrace इसे माइक्रोजैन्स्की (µJy) में देता है।",
+    "pronunciation": "flux ghanatva"
+   },
+   "es": {
+    "term": "densidad de flujo",
+    "synonyms": [
+     "flujo"
+    ],
+    "match": [
+     "flujo"
+    ],
+    "definition": "Potencia recibida por unidad de área y de frecuencia; Skytrace la expresa en microjanskys (µJy)."
+   },
+   "fr": {
+    "term": "densité de flux",
+    "synonyms": [
+     "flux"
+    ],
+    "match": [
+     "flux"
+    ],
+    "definition": "Puissance reçue par unité de surface et de fréquence ; Skytrace l’exprime en microjanskys (µJy)."
+   },
+   "de": {
+    "term": "Flussdichte",
+    "synonyms": [
+     "Fluss"
+    ],
+    "match": [
+     "Fluss"
+    ],
+    "definition": "Die pro Flächen- und Frequenzeinheit empfangene Leistung; Skytrace gibt sie in Mikrojansky (µJy) an."
+   }
+  },
+  {
+   "id": "brightness",
+   "context": "photometry",
+   "units": "µJy",
+   "en": {
+    "term": "brightness",
+    "synonyms": [],
+    "definition": "How bright an object appears; measured here as flux density."
+   },
+   "bn": {
+    "term": "উজ্জ্বলতা",
+    "synonyms": [],
+    "match": [
+     "উজ্জ্বল"
+    ],
+    "definition": "একটি বস্তু কতটা উজ্জ্বল দেখায়; এখানে ফ্লাক্স ঘনত্ব হিসেবে মাপা।",
+    "pronunciation": "ujjolota"
+   },
+   "hi": {
+    "term": "चमक",
+    "synonyms": [
+     "दीप्ति"
+    ],
+    "match": [
+     "चमक",
+     "दीप्ति"
+    ],
+    "definition": "कोई पिंड कितना चमकीला दिखता है; यहाँ फ़्लक्स घनत्व के रूप में मापा जाता है।",
+    "pronunciation": "chamak"
+   },
+   "es": {
+    "term": "brillo",
+    "synonyms": [],
+    "match": [
+     "brill"
+    ],
+    "definition": "Lo brillante que parece un objeto; aquí se mide como densidad de flujo."
+   },
+   "fr": {
+    "term": "luminosité",
+    "synonyms": [
+     "éclat"
+    ],
+    "match": [
+     "lumin",
+     "brillant",
+     "éclat"
+    ],
+    "definition": "L’éclat apparent d’un objet ; mesuré ici comme densité de flux."
+   },
+   "de": {
+    "term": "Helligkeit",
+    "synonyms": [],
+    "match": [
+     "Helligkeit",
+     "heller",
+     "hell"
+    ],
+    "definition": "Wie hell ein Objekt erscheint; hier als Flussdichte gemessen."
+   }
+  },
+  {
+   "id": "wavelength",
+   "context": "spectroscopy",
+   "units": "µm",
+   "en": {
+    "term": "wavelength",
+    "synonyms": [
+     "λ"
+    ],
+    "definition": "The distance between successive wave crests of light; SPHEREx observes 0.75–5.0 µm."
+   },
+   "bn": {
+    "term": "তরঙ্গদৈর্ঘ্য",
+    "synonyms": [],
+    "match": [
+     "তরঙ্গদৈর্ঘ্য"
+    ],
+    "definition": "আলোর পরপর দুটি তরঙ্গশীর্ষের দূরত্ব; SPHEREx 0.75–5.0 µm পর্যবেক্ষণ করে।",
+    "pronunciation": "toronggodoirgho"
+   },
+   "hi": {
+    "term": "तरंगदैर्ध्य",
+    "synonyms": [],
+    "match": [
+     "तरंगदैर्ध्य"
+    ],
+    "definition": "प्रकाश के क्रमिक तरंग-शिखरों के बीच की दूरी; SPHEREx 0.75–5.0 µm का प्रेक्षण करता है।",
+    "pronunciation": "tarangdairghya"
+   },
+   "es": {
+    "term": "longitud de onda",
+    "synonyms": [],
+    "match": [
+     "longitud de onda",
+     "longitudes de onda"
+    ],
+    "definition": "Distancia entre crestas sucesivas de la luz; SPHEREx observa entre 0,75 y 5,0 µm."
+   },
+   "fr": {
+    "term": "longueur d’onde",
+    "synonyms": [],
+    "match": [
+     "longueur d’onde",
+     "longueurs d’onde"
+    ],
+    "definition": "Distance entre crêtes successives de la lumière ; SPHEREx observe de 0,75 à 5,0 µm."
+   },
+   "de": {
+    "term": "Wellenlänge",
+    "synonyms": [],
+    "match": [
+     "Wellenlänge",
+     "wellenlängen"
+    ],
+    "definition": "Der Abstand zwischen aufeinanderfolgenden Wellenbergen des Lichts; SPHEREx beobachtet 0,75–5,0 µm."
+   }
+  },
+  {
+   "id": "wavelength-matched-pair",
+   "context": "photometry",
+   "units": "",
+   "en": {
+    "term": "wavelength-matched pair",
+    "synonyms": [
+     "matched pair"
+    ],
+    "definition": "Two exposures from one detector whose wavelengths at the target agree within the WLMATCH-2 tolerance; only these are compared for brightness."
+   },
+   "bn": {
+    "term": "তরঙ্গদৈর্ঘ্য-মিলিত জোড়া",
+    "synonyms": [],
+    "match": [
+     "মিলিত জোড়া",
+     "মিলিত"
+    ],
+    "definition": "একই ডিটেক্টরের দুটি এক্সপোজার যাদের লক্ষ্যে তরঙ্গদৈর্ঘ্য WLMATCH-2 সহনশীলতার মধ্যে মেলে; শুধু এগুলিরই উজ্জ্বলতা তুলনা হয়।",
+    "pronunciation": "toronggodoirgho-milito jora"
+   },
+   "hi": {
+    "term": "तरंगदैर्ध्य-मिलान जोड़ा",
+    "synonyms": [],
+    "match": [
+     "मिलान"
+    ],
+    "definition": "एक डिटेक्टर के दो एक्सपोज़र जिनकी लक्ष्य पर तरंगदैर्ध्य WLMATCH-2 सहनशीलता में मेल खाती है; केवल इन्हीं की चमक की तुलना होती है।",
+    "pronunciation": "tarangdairghya-milan joda"
+   },
+   "es": {
+    "term": "par con longitud de onda coincidente",
+    "synonyms": [
+     "par emparejado en longitud de onda"
+    ],
+    "match": [
+     "coincidente",
+     "emparejad"
+    ],
+    "definition": "Dos exposiciones de un detector cuyas longitudes de onda en el objetivo coinciden dentro de la tolerancia WLMATCH-2; solo estas se comparan en brillo."
+   },
+   "fr": {
+    "term": "paire appariée en longueur d’onde",
+    "synonyms": [],
+    "match": [
+     "appariée",
+     "appariées"
+    ],
+    "definition": "Deux poses d’un détecteur dont les longueurs d’onde à la cible concordent dans la tolérance WLMATCH-2 ; seules celles-ci sont comparées en luminosité."
+   },
+   "de": {
+    "term": "wellenlängengleiches Paar",
+    "synonyms": [
+     "wellenlängenabgeglichenes Paar"
+    ],
+    "match": [
+     "wellenlängengleich",
+     "wellenlängenabgeglichen"
+    ],
+    "definition": "Zwei Belichtungen eines Detektors, deren Wellenlängen am Ziel innerhalb der WLMATCH-2-Toleranz übereinstimmen; nur diese werden in der Helligkeit verglichen."
+   }
+  },
+  {
+   "id": "exposure",
+   "context": "observation",
+   "units": "",
+   "en": {
+    "term": "exposure",
+    "synonyms": [
+     "image",
+     "frame"
+    ],
+    "definition": "One image taken by the telescope with a recorded start time, detector and duration."
+   },
+   "bn": {
+    "term": "এক্সপোজার",
+    "synonyms": [
+     "চিত্র"
+    ],
+    "match": [
+     "এক্সপোজার"
+    ],
+    "definition": "টেলিস্কোপের তোলা একটি চিত্র, যার শুরুর সময়, ডিটেক্টর ও স্থায়িত্ব রেকর্ড করা।",
+    "pronunciation": "eksposhar"
+   },
+   "hi": {
+    "term": "एक्सपोज़र",
+    "synonyms": [
+     "छवि"
+    ],
+    "match": [
+     "एक्सपोज़र"
+    ],
+    "definition": "दूरबीन द्वारा ली गई एक छवि, जिसका आरंभ समय, डिटेक्टर और अवधि दर्ज है।",
+    "pronunciation": "exposure"
+   },
+   "es": {
+    "term": "exposición",
+    "synonyms": [
+     "imagen"
+    ],
+    "match": [
+     "exposici"
+    ],
+    "definition": "Una imagen tomada por el telescopio, con hora de inicio, detector y duración registrados."
+   },
+   "fr": {
+    "term": "pose",
+    "synonyms": [
+     "image"
+    ],
+    "match": [
+     "pose"
+    ],
+    "definition": "Une image prise par le télescope, avec heure de début, détecteur et durée enregistrés."
+   },
+   "de": {
+    "term": "Belichtung",
+    "synonyms": [
+     "Aufnahme"
+    ],
+    "match": [
+     "Belichtung"
+    ],
+    "definition": "Ein vom Teleskop aufgenommenes Bild mit aufgezeichneter Startzeit, Detektor und Dauer."
+   }
+  },
+  {
+   "id": "observation",
+   "context": "observation",
+   "units": "",
+   "en": {
+    "term": "observation",
+    "synonyms": [],
+    "definition": "A recorded exposure of the target, identified by its archive identifier."
+   },
+   "bn": {
+    "term": "পর্যবেক্ষণ",
+    "synonyms": [],
+    "match": [
+     "পর্যবেক্ষণ"
+    ],
+    "definition": "লক্ষ্যের একটি রেকর্ডকৃত এক্সপোজার, আর্কাইভ-শনাক্তকারী দিয়ে চিহ্নিত।",
+    "pronunciation": "porjobekkhon"
+   },
+   "hi": {
+    "term": "प्रेक्षण",
+    "synonyms": [
+     "अवलोकन"
+    ],
+    "match": [
+     "प्रेक्षण"
+    ],
+    "definition": "लक्ष्य का एक दर्ज एक्सपोज़र, जिसकी पहचान आर्काइव पहचानकर्ता से होती है।",
+    "pronunciation": "prekshan"
+   },
+   "es": {
+    "term": "observación",
+    "synonyms": [],
+    "match": [
+     "observaci"
+    ],
+    "definition": "Una exposición registrada del objetivo, identificada por su identificador de archivo."
+   },
+   "fr": {
+    "term": "observation",
+    "synonyms": [],
+    "match": [
+     "observation"
+    ],
+    "definition": "Une pose enregistrée de la cible, identifiée par son identifiant d’archive."
+   },
+   "de": {
+    "term": "Beobachtung",
+    "synonyms": [],
+    "match": [
+     "Beobachtung"
+    ],
+    "definition": "Eine aufgezeichnete Belichtung des Ziels, gekennzeichnet durch ihre Archivkennung."
+   }
+  },
+  {
+   "id": "detector",
+   "context": "instrument",
+   "units": "",
+   "en": {
+    "term": "detector",
+    "synonyms": [
+     "array"
+    ],
+    "definition": "One of SPHEREx's six infrared detector arrays, D1–D6, each behind a linear variable filter."
+   },
+   "bn": {
+    "term": "ডিটেক্টর",
+    "synonyms": [
+     "সংবেদক"
+    ],
+    "match": [
+     "ডিটেক্টর"
+    ],
+    "definition": "SPHEREx-এর ছয়টি অবলোহিত ডিটেক্টরের একটি, D1–D6, প্রতিটি একটি লিনিয়ার ভেরিয়েবল ফিল্টারের পিছনে।",
+    "pronunciation": "ditektor"
+   },
+   "hi": {
+    "term": "डिटेक्टर",
+    "synonyms": [
+     "संसूचक"
+    ],
+    "match": [
+     "डिटेक्टर"
+    ],
+    "definition": "SPHEREx के छह अवरक्त डिटेक्टरों में से एक, D1–D6, प्रत्येक रैखिक परिवर्ती फ़िल्टर के पीछे।",
+    "pronunciation": "detector"
+   },
+   "es": {
+    "term": "detector",
+    "synonyms": [],
+    "match": [
+     "detector"
+    ],
+    "definition": "Uno de los seis detectores infrarrojos de SPHEREx, D1–D6, cada uno tras un filtro lineal variable."
+   },
+   "fr": {
+    "term": "détecteur",
+    "synonyms": [],
+    "match": [
+     "détecteur"
+    ],
+    "definition": "L’un des six détecteurs infrarouges de SPHEREx, D1–D6, chacun derrière un filtre linéaire variable."
+   },
+   "de": {
+    "term": "Detektor",
+    "synonyms": [],
+    "match": [
+     "Detektor"
+    ],
+    "definition": "Einer der sechs Infrarotdetektoren von SPHEREx, D1–D6, jeder hinter einem linear variablen Filter."
+   }
+  },
+  {
+   "id": "visit",
+   "context": "observation",
+   "units": "",
+   "en": {
+    "term": "visit",
+    "synonyms": [
+     "epoch"
+    ],
+    "definition": "Exposures taken within a few days of each other; their positions are averaged before the motion fit."
+   },
+   "bn": {
+    "term": "ভিজিট",
+    "synonyms": [
+     "যুগ"
+    ],
+    "match": [
+     "ভিজিট",
+     "যুগ"
+    ],
+    "definition": "কয়েক দিনের মধ্যে তোলা এক্সপোজার; গতি-ফিটের আগে এদের অবস্থানের গড় নেওয়া হয়।",
+    "pronunciation": "visit"
+   },
+   "hi": {
+    "term": "विज़िट",
+    "synonyms": [
+     "युग"
+    ],
+    "match": [
+     "विज़िट",
+     "युग"
+    ],
+    "definition": "कुछ दिनों के भीतर लिए गए एक्सपोज़र; गति फ़िट से पहले इनकी स्थितियों का औसत लिया जाता है।",
+    "pronunciation": "visit"
+   },
+   "es": {
+    "term": "visita",
+    "synonyms": [
+     "época"
+    ],
+    "match": [
+     "visita",
+     "época"
+    ],
+    "definition": "Exposiciones tomadas con pocos días de diferencia; sus posiciones se promedian antes del ajuste de movimiento."
+   },
+   "fr": {
+    "term": "visite",
+    "synonyms": [
+     "époque"
+    ],
+    "match": [
+     "visite",
+     "époque"
+    ],
+    "definition": "Poses prises à quelques jours d’intervalle ; leurs positions sont moyennées avant l’ajustement du mouvement."
+   },
+   "de": {
+    "term": "Besuch",
+    "synonyms": [
+     "Epoche"
+    ],
+    "match": [
+     "Besuch",
+     "Epoche"
+    ],
+    "definition": "Innerhalb weniger Tage aufgenommene Belichtungen; ihre Positionen werden vor der Bewegungsanpassung gemittelt."
+   }
+  },
+  {
+   "id": "calibration",
+   "context": "photometry",
+   "units": "",
+   "en": {
+    "term": "calibration",
+    "synonyms": [],
+    "definition": "The correction that makes measurements from different exposures comparable; here checked with constant reference stars."
+   },
+   "bn": {
+    "term": "ক্যালিব্রেশন",
+    "synonyms": [
+     "মাপাঙ্কন"
+    ],
+    "match": [
+     "ক্যালিব্রেট",
+     "ক্যালিব্রেশন"
+    ],
+    "definition": "যে সংশোধন বিভিন্ন এক্সপোজারের পরিমাপ তুলনীয় করে; এখানে স্থির রেফারেন্স তারা দিয়ে যাচাই করা।",
+    "pronunciation": "kalibreshon"
+   },
+   "hi": {
+    "term": "अंशांकन",
+    "synonyms": [
+     "कैलिब्रेशन"
+    ],
+    "match": [
+     "अंशांक"
+    ],
+    "definition": "वह सुधार जो विभिन्न एक्सपोज़रों के मापों को तुलनीय बनाता है; यहाँ स्थिर संदर्भ तारों से जाँचा जाता है।",
+    "pronunciation": "anshankan"
+   },
+   "es": {
+    "term": "calibración",
+    "synonyms": [],
+    "match": [
+     "calibra"
+    ],
+    "definition": "Corrección que hace comparables las mediciones de distintas exposiciones; aquí se comprueba con estrellas de referencia constantes."
+   },
+   "fr": {
+    "term": "étalonnage",
+    "synonyms": [
+     "calibration"
+    ],
+    "match": [
+     "étalonn",
+     "calibr"
+    ],
+    "definition": "Correction qui rend comparables les mesures de poses différentes ; ici vérifiée avec des étoiles de référence constantes."
+   },
+   "de": {
+    "term": "Kalibrierung",
+    "synonyms": [],
+    "match": [
+     "kalibrier",
+     "Kalibrier"
+    ],
+    "definition": "Die Korrektur, die Messungen verschiedener Belichtungen vergleichbar macht; hier mit konstanten Referenzsternen geprüft."
+   }
+  },
+  {
+   "id": "reference-star",
+   "context": "calibration",
+   "units": "",
+   "en": {
+    "term": "reference star",
+    "synonyms": [
+     "comparison star"
+    ],
+    "definition": "A Gaia star near the target used to fix positions and to check calibration; assumed constant."
+   },
+   "bn": {
+    "term": "রেফারেন্স তারা",
+    "synonyms": [
+     "তুলনা-তারা"
+    ],
+    "match": [
+     "রেফারেন্স তারা",
+     "রেফারেন্স"
+    ],
+    "definition": "লক্ষ্যের কাছের একটি Gaia তারা, যা অবস্থান নির্ধারণ ও ক্যালিব্রেশন যাচাইয়ে ব্যবহৃত; স্থির বলে ধরা হয়।",
+    "pronunciation": "referens tara"
+   },
+   "hi": {
+    "term": "संदर्भ तारा",
+    "synonyms": [
+     "तुलना तारा"
+    ],
+    "match": [
+     "संदर्भ तार"
+    ],
+    "definition": "लक्ष्य के पास का एक Gaia तारा, जिससे स्थितियाँ तय होती हैं और अंशांकन जाँचा जाता है; स्थिर माना जाता है।",
+    "pronunciation": "sandarbh tara"
+   },
+   "es": {
+    "term": "estrella de referencia",
+    "synonyms": [],
+    "match": [
+     "estrella de referencia",
+     "estrellas de referencia"
+    ],
+    "definition": "Estrella de Gaia cercana al objetivo usada para fijar posiciones y comprobar la calibración; se supone constante."
+   },
+   "fr": {
+    "term": "étoile de référence",
+    "synonyms": [],
+    "match": [
+     "étoile de référence",
+     "étoiles de référence"
+    ],
+    "definition": "Étoile Gaia proche de la cible, utilisée pour fixer les positions et vérifier l’étalonnage ; supposée constante."
+   },
+   "de": {
+    "term": "Referenzstern",
+    "synonyms": [],
+    "match": [
+     "Referenzstern"
+    ],
+    "definition": "Ein Gaia-Stern nahe dem Ziel zur Festlegung von Positionen und Prüfung der Kalibrierung; als konstant angenommen."
+   }
+  },
+  {
+   "id": "plate-solution",
+   "context": "astrometry",
+   "units": "",
+   "en": {
+    "term": "plate solution",
+    "synonyms": [
+     "astrometric solution",
+     "WCS fit"
+    ],
+    "definition": "The mapping from image pixels to sky positions, fitted to reference stars in each exposure."
+   },
+   "bn": {
+    "term": "প্লেট-সমাধান",
+    "synonyms": [],
+    "match": [
+     "প্লেট"
+    ],
+    "definition": "চিত্র-পিক্সেল থেকে আকাশ-অবস্থানে রূপান্তর, প্রতিটি এক্সপোজারে রেফারেন্স তারার সঙ্গে ফিট করা।",
+    "pronunciation": "plet somadhan"
+   },
+   "hi": {
+    "term": "प्लेट समाधान",
+    "synonyms": [],
+    "match": [
+     "प्लेट"
+    ],
+    "definition": "छवि पिक्सेल से आकाश स्थितियों का प्रतिचित्रण, हर एक्सपोज़र में संदर्भ तारों से फ़िट किया गया।",
+    "pronunciation": "plate samadhan"
+   },
+   "es": {
+    "term": "solución de placa",
+    "synonyms": [
+     "solución astrométrica"
+    ],
+    "match": [
+     "placa",
+     "astrométric"
+    ],
+    "definition": "Correspondencia entre píxeles de la imagen y posiciones en el cielo, ajustada a estrellas de referencia en cada exposición."
+   },
+   "fr": {
+    "term": "solution astrométrique",
+    "synonyms": [
+     "solution de plaque"
+    ],
+    "match": [
+     "solution astrométrique",
+     "plaque"
+    ],
+    "definition": "Correspondance entre pixels de l’image et positions sur le ciel, ajustée sur des étoiles de référence dans chaque pose."
+   },
+   "de": {
+    "term": "Plattenlösung",
+    "synonyms": [
+     "astrometrische Lösung"
+    ],
+    "match": [
+     "Plattenlösung",
+     "astrometrisch"
+    ],
+    "definition": "Die Abbildung von Bildpixeln auf Himmelspositionen, in jeder Belichtung an Referenzsterne angepasst."
+   }
+  },
+  {
+   "id": "registration",
+   "context": "imaging",
+   "units": "",
+   "en": {
+    "term": "registration",
+    "synonyms": [
+     "image alignment"
+    ],
+    "definition": "Placing two images on a common pixel grid using their plate solutions; geometric only."
+   },
+   "bn": {
+    "term": "নিবন্ধন",
+    "synonyms": [
+     "চিত্র-সারিবদ্ধকরণ"
+    ],
+    "match": [
+     "নিবন্ধন"
+    ],
+    "definition": "প্লেট-সমাধান দিয়ে দুটি চিত্রকে একটি অভিন্ন পিক্সেল-গ্রিডে বসানো; কেবল জ্যামিতিক।",
+    "pronunciation": "nibondhon"
+   },
+   "hi": {
+    "term": "पंजीकरण",
+    "synonyms": [
+     "छवि संरेखण"
+    ],
+    "match": [
+     "पंजीकरण"
+    ],
+    "definition": "प्लेट समाधानों से दो छवियों को एक साझा पिक्सेल ग्रिड पर रखना; केवल ज्यामितीय।",
+    "pronunciation": "panjikaran"
+   },
+   "es": {
+    "term": "registro",
+    "synonyms": [
+     "alineación de imágenes"
+    ],
+    "match": [
+     "registr",
+     "alinea"
+    ],
+    "definition": "Colocar dos imágenes en una rejilla de píxeles común usando sus soluciones de placa; solo geométrico."
+   },
+   "fr": {
+    "term": "recalage",
+    "synonyms": [
+     "alignement d’images"
+    ],
+    "match": [
+     "recal",
+     "align"
+    ],
+    "definition": "Placer deux images sur une grille de pixels commune à l’aide de leurs solutions astrométriques ; purement géométrique."
+   },
+   "de": {
+    "term": "Registrierung",
+    "synonyms": [
+     "Bildausrichtung"
+    ],
+    "match": [
+     "Registrierung",
+     "registriert"
+    ],
+    "definition": "Zwei Bilder mithilfe ihrer Plattenlösungen auf ein gemeinsames Pixelraster bringen; rein geometrisch."
+   }
+  },
+  {
+   "id": "significance",
+   "context": "statistics",
+   "units": "",
+   "en": {
+    "term": "significance (z)",
+    "synonyms": [
+     "z",
+     "z-score"
+    ],
+    "definition": "A difference divided by its stated uncertainty; a significance, not a probability."
+   },
+   "bn": {
+    "term": "তাৎপর্য (z)",
+    "synonyms": [
+     "z-মান"
+    ],
+    "match": [
+     "তাৎপর্য"
+    ],
+    "definition": "একটি পার্থক্যকে তার ঘোষিত অনিশ্চয়তা দিয়ে ভাগ; একটি তাৎপর্য, সম্ভাবনা নয়।",
+    "pronunciation": "tatporjo"
+   },
+   "hi": {
+    "term": "महत्त्व (z)",
+    "synonyms": [
+     "z-मान"
+    ],
+    "match": [
+     "महत्त्व"
+    ],
+    "definition": "किसी अंतर को उसकी घोषित अनिश्चितता से भाग; एक महत्त्व, प्रायिकता नहीं।",
+    "pronunciation": "mahattva"
+   },
+   "es": {
+    "term": "significación (z)",
+    "synonyms": [],
+    "match": [
+     "significaci"
+    ],
+    "definition": "Una diferencia dividida por su incertidumbre declarada; una significación, no una probabilidad."
+   },
+   "fr": {
+    "term": "significativité (z)",
+    "synonyms": [],
+    "match": [
+     "significativ"
+    ],
+    "definition": "Une différence divisée par son incertitude annoncée ; une significativité, pas une probabilité."
+   },
+   "de": {
+    "term": "Signifikanz (z)",
+    "synonyms": [],
+    "match": [
+     "Signifikanz",
+     "signifikant"
+    ],
+    "definition": "Eine Differenz geteilt durch ihre angegebene Unsicherheit; eine Signifikanz, keine Wahrscheinlichkeit."
+   }
+  },
+  {
+   "id": "uncertainty",
+   "context": "statistics",
+   "units": "",
+   "en": {
+    "term": "uncertainty",
+    "synonyms": [
+     "error",
+     "σ"
+    ],
+    "definition": "The stated spread of a measurement (one standard deviation, σ, unless stated otherwise)."
+   },
+   "bn": {
+    "term": "অনিশ্চয়তা",
+    "synonyms": [
+     "ত্রুটি"
+    ],
+    "match": [
+     "অনিশ্চয়তা"
+    ],
+    "definition": "একটি পরিমাপের ঘোষিত বিস্তার (অন্যথা না বলা হলে এক মানক বিচ্যুতি, σ)।",
+    "pronunciation": "onishchoyota"
+   },
+   "hi": {
+    "term": "अनिश्चितता",
+    "synonyms": [
+     "त्रुटि"
+    ],
+    "match": [
+     "अनिश्चितता"
+    ],
+    "definition": "किसी माप का घोषित फैलाव (अन्यथा न कहा जाए तो एक मानक विचलन, σ)।",
+    "pronunciation": "anishchitata"
+   },
+   "es": {
+    "term": "incertidumbre",
+    "synonyms": [
+     "error"
+    ],
+    "match": [
+     "incertidumbre"
+    ],
+    "definition": "Dispersión declarada de una medición (una desviación típica, σ, salvo indicación)."
+   },
+   "fr": {
+    "term": "incertitude",
+    "synonyms": [
+     "erreur"
+    ],
+    "match": [
+     "incertitude"
+    ],
+    "definition": "Dispersion annoncée d’une mesure (un écart-type, σ, sauf indication contraire)."
+   },
+   "de": {
+    "term": "Unsicherheit",
+    "synonyms": [
+     "Fehler"
+    ],
+    "match": [
+     "Unsicherheit"
+    ],
+    "definition": "Die angegebene Streuung einer Messung (eine Standardabweichung, σ, sofern nicht anders angegeben)."
+   }
+  },
+  {
+   "id": "sensitivity",
+   "context": "statistics",
+   "units": "",
+   "en": {
+    "term": "sensitivity",
+    "synonyms": [
+     "detection limit"
+    ],
+    "definition": "The smallest change the data would detect at the stated threshold; smaller changes are not excluded."
+   },
+   "bn": {
+    "term": "সংবেদনশীলতা",
+    "synonyms": [
+     "শনাক্তকরণ-সীমা"
+    ],
+    "match": [
+     "সংবেদনশীল"
+    ],
+    "definition": "ঘোষিত থ্রেশহোল্ডে ডেটা যে ক্ষুদ্রতম পরিবর্তন শনাক্ত করবে; এর চেয়ে ছোট পরিবর্তন বাদ পড়ে না।",
+    "pronunciation": "shongbedonshilota"
+   },
+   "hi": {
+    "term": "संवेदनशीलता",
+    "synonyms": [
+     "पहचान सीमा"
+    ],
+    "match": [
+     "संवेदनशील"
+    ],
+    "definition": "घोषित सीमा पर डेटा जो सबसे छोटा परिवर्तन पकड़ेगा; इससे छोटे परिवर्तन वर्जित नहीं हैं।",
+    "pronunciation": "sanvedanshilta"
+   },
+   "es": {
+    "term": "sensibilidad",
+    "synonyms": [
+     "límite de detección"
+    ],
+    "match": [
+     "sensib"
+    ],
+    "definition": "El cambio más pequeño que los datos detectarían con el umbral declarado; los menores no quedan excluidos."
+   },
+   "fr": {
+    "term": "sensibilité",
+    "synonyms": [
+     "limite de détection"
+    ],
+    "match": [
+     "sensib"
+    ],
+    "definition": "Le plus petit changement que les données détecteraient au seuil annoncé ; les plus petits ne sont pas exclus."
+   },
+   "de": {
+    "term": "Empfindlichkeit",
+    "synonyms": [
+     "Nachweisgrenze"
+    ],
+    "match": [
+     "Empfindlich"
+    ],
+    "definition": "Die kleinste Änderung, die die Daten bei der angegebenen Schwelle erkennen würden; kleinere sind nicht ausgeschlossen."
+   }
+  },
+  {
+   "id": "variability",
+   "context": "photometry",
+   "units": "",
+   "en": {
+    "term": "variability",
+    "synonyms": [
+     "brightness change"
+    ],
+    "definition": "A change in an object's brightness over time."
+   },
+   "bn": {
+    "term": "পরিবর্তনশীলতা",
+    "synonyms": [
+     "উজ্জ্বলতার পরিবর্তন"
+    ],
+    "match": [
+     "পরিবর্তনশীল"
+    ],
+    "definition": "সময়ের সঙ্গে একটি বস্তুর উজ্জ্বলতার পরিবর্তন।",
+    "pronunciation": "poriborttonshilota"
+   },
+   "hi": {
+    "term": "परिवर्तनशीलता",
+    "synonyms": [
+     "चमक में परिवर्तन"
+    ],
+    "match": [
+     "परिवर्तनशील"
+    ],
+    "definition": "समय के साथ किसी पिंड की चमक में परिवर्तन।",
+    "pronunciation": "parivartanshilta"
+   },
+   "es": {
+    "term": "variabilidad",
+    "synonyms": [],
+    "match": [
+     "variab"
+    ],
+    "definition": "Cambio del brillo de un objeto a lo largo del tiempo."
+   },
+   "fr": {
+    "term": "variabilité",
+    "synonyms": [],
+    "match": [
+     "variab"
+    ],
+    "definition": "Changement de la luminosité d’un objet au cours du temps."
+   },
+   "de": {
+    "term": "Variabilität",
+    "synonyms": [
+     "Helligkeitsänderung"
+    ],
+    "match": [
+     "Variabilität"
+    ],
+    "definition": "Eine Änderung der Helligkeit eines Objekts über die Zeit."
+   }
+  },
+  {
+   "id": "candidate",
+   "context": "assessment",
+   "units": "",
+   "en": {
+    "term": "candidate",
+    "synonyms": [],
+    "definition": "An outcome that meets a stated rule for further examination; never a discovery."
+   },
+   "bn": {
+    "term": "প্রার্থী",
+    "synonyms": [],
+    "match": [
+     "প্রার্থী"
+    ],
+    "definition": "যে ফলাফল আরও পরীক্ষার ঘোষিত নিয়ম পূরণ করে; কখনও আবিষ্কার নয়।",
+    "pronunciation": "prarthi"
+   },
+   "hi": {
+    "term": "उम्मीदवार",
+    "synonyms": [
+     "अभ्यर्थी"
+    ],
+    "match": [
+     "उम्मीदवार"
+    ],
+    "definition": "वह परिणाम जो आगे जाँच के घोषित नियम को पूरा करता है; कभी खोज नहीं।",
+    "pronunciation": "ummidvar"
+   },
+   "es": {
+    "term": "candidato",
+    "synonyms": [],
+    "match": [
+     "candidat"
+    ],
+    "definition": "Resultado que cumple una regla declarada para un examen posterior; nunca un descubrimiento."
+   },
+   "fr": {
+    "term": "candidat",
+    "synonyms": [],
+    "match": [
+     "candidat"
+    ],
+    "definition": "Résultat qui satisfait une règle énoncée pour un examen ultérieur ; jamais une découverte."
+   },
+   "de": {
+    "term": "Kandidat",
+    "synonyms": [],
+    "match": [
+     "Kandidat"
+    ],
+    "definition": "Ein Ergebnis, das eine angegebene Regel für weitere Prüfung erfüllt; nie eine Entdeckung."
+   }
+  },
+  {
+   "id": "hypothesis",
+   "context": "reasoning",
+   "units": "",
+   "en": {
+    "term": "hypothesis",
+    "synonyms": [
+     "explanation"
+    ],
+    "definition": "A proposed explanation that is tested against recorded values by stated rules."
+   },
+   "bn": {
+    "term": "প্রকল্প",
+    "synonyms": [
+     "অনুমিত ব্যাখ্যা"
+    ],
+    "match": [
+     "প্রকল্প"
+    ],
+    "definition": "একটি প্রস্তাবিত ব্যাখ্যা যা ঘোষিত নিয়মে রেকর্ডকৃত মানের বিপরীতে পরীক্ষিত হয়।",
+    "pronunciation": "prokolpo"
+   },
+   "hi": {
+    "term": "परिकल्पना",
+    "synonyms": [],
+    "match": [
+     "परिकल्पना"
+    ],
+    "definition": "एक प्रस्तावित व्याख्या जिसका घोषित नियमों से दर्ज मानों के विरुद्ध परीक्षण होता है।",
+    "pronunciation": "parikalpana"
+   },
+   "es": {
+    "term": "hipótesis",
+    "synonyms": [],
+    "match": [
+     "hipótesis"
+    ],
+    "definition": "Explicación propuesta que se pone a prueba frente a valores registrados mediante reglas declaradas."
+   },
+   "fr": {
+    "term": "hypothèse",
+    "synonyms": [],
+    "match": [
+     "hypothèse"
+    ],
+    "definition": "Explication proposée, testée par rapport à des valeurs enregistrées selon des règles énoncées."
+   },
+   "de": {
+    "term": "Hypothese",
+    "synonyms": [],
+    "match": [
+     "Hypothese"
+    ],
+    "definition": "Eine vorgeschlagene Erklärung, die nach angegebenen Regeln gegen aufgezeichnete Werte getestet wird."
+   }
+  },
+  {
+   "id": "evidence",
+   "context": "reasoning",
+   "units": "",
+   "en": {
+    "term": "evidence",
+    "synonyms": [],
+    "definition": "Recorded values and results that a claim rests on."
+   },
+   "bn": {
+    "term": "প্রমাণ",
+    "synonyms": [],
+    "match": [
+     "প্রমাণ"
+    ],
+    "definition": "যে রেকর্ডকৃত মান ও ফলের উপর একটি দাবি দাঁড়িয়ে থাকে।",
+    "pronunciation": "praman"
+   },
+   "hi": {
+    "term": "साक्ष्य",
+    "synonyms": [
+     "प्रमाण"
+    ],
+    "match": [
+     "साक्ष्य"
+    ],
+    "definition": "दर्ज मान और परिणाम जिन पर कोई दावा टिका है।",
+    "pronunciation": "sakshya"
+   },
+   "es": {
+    "term": "evidencia",
+    "synonyms": [],
+    "match": [
+     "evidencia"
+    ],
+    "definition": "Valores y resultados registrados en los que se apoya una afirmación."
+   },
+   "fr": {
+    "term": "preuves",
+    "synonyms": [
+     "éléments de preuve"
+    ],
+    "match": [
+     "preuve"
+    ],
+    "definition": "Valeurs et résultats enregistrés sur lesquels repose une affirmation."
+   },
+   "de": {
+    "term": "Belege",
+    "synonyms": [
+     "Evidenz"
+    ],
+    "match": [
+     "Beleg"
+    ],
+    "definition": "Aufgezeichnete Werte und Ergebnisse, auf denen eine Aussage beruht."
+   }
+  },
+  {
+   "id": "claim",
+   "context": "reasoning",
+   "units": "",
+   "en": {
+    "term": "claim",
+    "synonyms": [
+     "statement"
+    ],
+    "definition": "A statement about the target that should be traceable to evidence."
+   },
+   "bn": {
+    "term": "দাবি",
+    "synonyms": [
+     "বিবৃতি"
+    ],
+    "match": [
+     "দাবি"
+    ],
+    "definition": "লক্ষ্য সম্পর্কে একটি বিবৃতি, যা প্রমাণ পর্যন্ত অনুসরণযোগ্য হওয়া উচিত।",
+    "pronunciation": "dabi"
+   },
+   "hi": {
+    "term": "दावा",
+    "synonyms": [
+     "कथन"
+    ],
+    "match": [
+     "दावा",
+     "दावे",
+     "दावों"
+    ],
+    "definition": "लक्ष्य के बारे में एक कथन, जिसे साक्ष्य तक ट्रेस किया जा सके।",
+    "pronunciation": "dava"
+   },
+   "es": {
+    "term": "afirmación",
+    "synonyms": [
+     "enunciado"
+    ],
+    "match": [
+     "afirmaci"
+    ],
+    "definition": "Enunciado sobre el objetivo que debe poder rastrearse hasta la evidencia."
+   },
+   "fr": {
+    "term": "affirmation",
+    "synonyms": [
+     "énoncé"
+    ],
+    "match": [
+     "affirmation"
+    ],
+    "definition": "Énoncé sur la cible qui doit pouvoir être relié aux preuves."
+   },
+   "de": {
+    "term": "Aussage",
+    "synonyms": [
+     "Behauptung"
+    ],
+    "match": [
+     "Aussage"
+    ],
+    "definition": "Eine Aussage über das Ziel, die auf Belege zurückführbar sein soll."
+   }
+  },
+  {
+   "id": "provenance",
+   "context": "data",
+   "units": "",
+   "en": {
+    "term": "provenance",
+    "synonyms": [
+     "lineage of data"
+    ],
+    "definition": "Where each file came from, when it was retrieved, and its checksum."
+   },
+   "bn": {
+    "term": "উৎস-বৃত্তান্ত",
+    "synonyms": [
+     "উৎস"
+    ],
+    "match": [
+     "উৎস"
+    ],
+    "definition": "প্রতিটি ফাইল কোথা থেকে এসেছে, কখন সংগৃহীত হয়েছে এবং এর চেকসাম।",
+    "pronunciation": "utsho-brittanto"
+   },
+   "hi": {
+    "term": "उद्गम",
+    "synonyms": [
+     "स्रोत-इतिहास"
+    ],
+    "match": [
+     "उद्गम"
+    ],
+    "definition": "हर फ़ाइल कहाँ से आई, कब प्राप्त हुई और उसका चेकसम।",
+    "pronunciation": "udgam"
+   },
+   "es": {
+    "term": "procedencia",
+    "synonyms": [],
+    "match": [
+     "procedencia"
+    ],
+    "definition": "De dónde procede cada archivo, cuándo se obtuvo y su suma de comprobación."
+   },
+   "fr": {
+    "term": "provenance",
+    "synonyms": [],
+    "match": [
+     "provenance"
+    ],
+    "definition": "D’où vient chaque fichier, quand il a été récupéré, et sa somme de contrôle."
+   },
+   "de": {
+    "term": "Herkunft",
+    "synonyms": [
+     "Provenienz"
+    ],
+    "match": [
+     "Herkunft"
+    ],
+    "definition": "Woher jede Datei stammt, wann sie abgerufen wurde und ihre Prüfsumme."
+   }
+  },
+  {
+   "id": "reproducibility",
+   "context": "reproducibility",
+   "units": "",
+   "en": {
+    "term": "reproducibility",
+    "synonyms": [],
+    "definition": "Whether re-running the recorded calculation yields the same result; it shows repeatability, not truth."
+   },
+   "bn": {
+    "term": "পুনরুৎপাদনযোগ্যতা",
+    "synonyms": [],
+    "match": [
+     "পুনরুৎপাদন"
+    ],
+    "definition": "রেকর্ডকৃত গণনা পুনরায় চালালে একই ফল আসে কিনা; এটি পুনরাবৃত্তিযোগ্যতা দেখায়, সত্যতা নয়।",
+    "pronunciation": "punorutpadonjogyota"
+   },
+   "hi": {
+    "term": "पुनरुत्पादनीयता",
+    "synonyms": [],
+    "match": [
+     "पुनरुत्पाद"
+    ],
+    "definition": "दर्ज गणना फिर चलाने पर वही परिणाम आता है या नहीं; यह दोहराव दिखाता है, सत्यता नहीं।",
+    "pronunciation": "punarutpadaniyata"
+   },
+   "es": {
+    "term": "reproducibilidad",
+    "synonyms": [],
+    "match": [
+     "reproduc"
+    ],
+    "definition": "Si volver a ejecutar el cálculo registrado da el mismo resultado; muestra repetibilidad, no verdad."
+   },
+   "fr": {
+    "term": "reproductibilité",
+    "synonyms": [],
+    "match": [
+     "reprodu"
+    ],
+    "definition": "Si la réexécution du calcul enregistré donne le même résultat ; cela montre la répétabilité, pas la vérité."
+   },
+   "de": {
+    "term": "Reproduzierbarkeit",
+    "synonyms": [],
+    "match": [
+     "Reproduzierbar",
+     "Reproduktion",
+     "reproduz"
+    ],
+    "definition": "Ob die erneute Ausführung der aufgezeichneten Berechnung dasselbe Ergebnis liefert; zeigt Wiederholbarkeit, nicht Wahrheit."
+   }
+  },
+  {
+   "id": "synthetic-data",
+   "context": "data",
+   "units": "",
+   "en": {
+    "term": "synthetic data",
+    "synonyms": [
+     "simulated data",
+     "test data"
+    ],
+    "definition": "Data generated by code to test the software; never an astronomical observation."
+   },
+   "bn": {
+    "term": "কৃত্রিম ডেটা",
+    "synonyms": [
+     "পরীক্ষা-ডেটা"
+    ],
+    "match": [
+     "কৃত্রিম"
+    ],
+    "definition": "সফটওয়্যার পরীক্ষার জন্য কোড দ্বারা তৈরি ডেটা; কখনও জ্যোতির্বৈজ্ঞানিক পর্যবেক্ষণ নয়।",
+    "pronunciation": "kritrim deta"
+   },
+   "hi": {
+    "term": "कृत्रिम डेटा",
+    "synonyms": [
+     "परीक्षण डेटा"
+    ],
+    "match": [
+     "कृत्रिम"
+    ],
+    "definition": "सॉफ़्टवेयर जाँचने के लिए कोड से बनाया गया डेटा; कभी खगोलीय प्रेक्षण नहीं।",
+    "pronunciation": "kritrim data"
+   },
+   "es": {
+    "term": "datos sintéticos",
+    "synonyms": [
+     "datos de prueba"
+    ],
+    "match": [
+     "sintétic"
+    ],
+    "definition": "Datos generados por código para probar el software; nunca una observación astronómica."
+   },
+   "fr": {
+    "term": "données synthétiques",
+    "synonyms": [
+     "données de test"
+    ],
+    "match": [
+     "synthétique"
+    ],
+    "definition": "Données générées par du code pour tester le logiciel ; jamais une observation astronomique."
+   },
+   "de": {
+    "term": "synthetische Daten",
+    "synonyms": [
+     "Testdaten"
+    ],
+    "match": [
+     "synthetisch"
+    ],
+    "definition": "Durch Code erzeugte Daten zum Testen der Software; nie eine astronomische Beobachtung."
+   }
+  },
+  {
+   "id": "simulation",
+   "context": "simulation",
+   "units": "",
+   "en": {
+    "term": "simulation",
+    "synonyms": [
+     "model run"
+    ],
+    "definition": "A computed scenario under stated assumptions; not a direct observation of the universe."
+   },
+   "bn": {
+    "term": "সিমুলেশন",
+    "synonyms": [
+     "অনুকরণ"
+    ],
+    "match": [
+     "সিমুলেশন",
+     "সিমুলেটেড"
+    ],
+    "definition": "ঘোষিত অনুমিতিতে গণনা করা একটি দৃশ্যপট; মহাবিশ্বের সরাসরি পর্যবেক্ষণ নয়।",
+    "pronunciation": "simuleshon"
+   },
+   "hi": {
+    "term": "सिमुलेशन",
+    "synonyms": [
+     "अनुकरण"
+    ],
+    "match": [
+     "सिमुलेशन",
+     "सिम्युलेटेड"
+    ],
+    "definition": "घोषित मान्यताओं पर गणना किया गया परिदृश्य; ब्रह्मांड का प्रत्यक्ष प्रेक्षण नहीं।",
+    "pronunciation": "simulation"
+   },
+   "es": {
+    "term": "simulación",
+    "synonyms": [],
+    "match": [
+     "simula"
+    ],
+    "definition": "Escenario calculado bajo supuestos declarados; no es una observación directa del universo."
+   },
+   "fr": {
+    "term": "simulation",
+    "synonyms": [],
+    "match": [
+     "simul"
+    ],
+    "definition": "Scénario calculé sous des hypothèses énoncées ; pas une observation directe de l’univers."
+   },
+   "de": {
+    "term": "Simulation",
+    "synonyms": [],
+    "match": [
+     "Simulation",
+     "simuliert"
+    ],
+    "definition": "Ein unter angegebenen Annahmen berechnetes Szenario; keine direkte Beobachtung des Universums."
+   }
+  },
+  {
+   "id": "counterfactual",
+   "context": "experiment",
+   "units": "",
+   "en": {
+    "term": "counterfactual scenario",
+    "synonyms": [
+     "what-if"
+    ],
+    "definition": "A hypothetical change to an analysis, computed in isolation; it never alters the recorded baseline."
+   },
+   "bn": {
+    "term": "কাউন্টারফ্যাকচুয়াল দৃশ্যপট",
+    "synonyms": [
+     "what-if"
+    ],
+    "match": [
+     "কাউন্টারফ্যাকচুয়াল"
+    ],
+    "definition": "একটি বিশ্লেষণে অনুমানমূলক পরিবর্তন, আলাদাভাবে গণনা করা; এটি কখনও রেকর্ডকৃত ভিত্তিরেখা বদলায় না।",
+    "pronunciation": "kauntarfakchual drishyopot"
+   },
+   "hi": {
+    "term": "प्रतितथ्यात्मक परिदृश्य",
+    "synonyms": [
+     "what-if"
+    ],
+    "match": [
+     "प्रतितथ्यात्मक"
+    ],
+    "definition": "किसी विश्लेषण में काल्पनिक परिवर्तन, अलग से गणना किया गया; यह दर्ज आधार रेखा कभी नहीं बदलता।",
+    "pronunciation": "pratitathyatmak paridrishya"
+   },
+   "es": {
+    "term": "escenario contrafactual",
+    "synonyms": [
+     "«y si»"
+    ],
+    "match": [
+     "contrafactual"
+    ],
+    "definition": "Cambio hipotético en un análisis, calculado de forma aislada; nunca altera la línea de base registrada."
+   },
+   "fr": {
+    "term": "scénario contrefactuel",
+    "synonyms": [
+     "« et si »"
+    ],
+    "match": [
+     "contrefactuel"
+    ],
+    "definition": "Modification hypothétique d’une analyse, calculée isolément ; elle ne modifie jamais la référence enregistrée."
+   },
+   "de": {
+    "term": "kontrafaktisches Szenario",
+    "synonyms": [
+     "Was-wäre-wenn"
+    ],
+    "match": [
+     "kontrafaktisch"
+    ],
+    "definition": "Eine hypothetische Änderung einer Analyse, isoliert berechnet; sie ändert nie die aufgezeichnete Ausgangslage."
+   }
+  },
+  {
+   "id": "negative-control",
+   "context": "methodology",
+   "units": "",
+   "en": {
+    "term": "negative control",
+    "synonyms": [],
+    "definition": "The same analysis on data where the effect is absent by construction; detecting it there reveals a method problem."
+   },
+   "bn": {
+    "term": "নেতিবাচক নিয়ন্ত্রণ",
+    "synonyms": [],
+    "match": [
+     "নেতিবাচক নিয়ন্ত্রণ"
+    ],
+    "definition": "এমন ডেটায় একই বিশ্লেষণ যেখানে প্রভাবটি গঠনগতভাবে অনুপস্থিত; সেখানে শনাক্তকরণ পদ্ধতিগত সমস্যা প্রকাশ করে।",
+    "pronunciation": "netibachok niyontron"
+   },
+   "hi": {
+    "term": "नकारात्मक नियंत्रण",
+    "synonyms": [],
+    "match": [
+     "नकारात्मक नियंत्रण"
+    ],
+    "definition": "ऐसे डेटा पर वही विश्लेषण जहाँ प्रभाव संरचना से अनुपस्थित है; वहाँ पता चलना विधि की समस्या दिखाता है।",
+    "pronunciation": "nakaratmak niyantran"
+   },
+   "es": {
+    "term": "control negativo",
+    "synonyms": [],
+    "match": [
+     "control negativo"
+    ],
+    "definition": "El mismo análisis sobre datos en los que el efecto está ausente por construcción; detectarlo allí revela un problema del método."
+   },
+   "fr": {
+    "term": "contrôle négatif",
+    "synonyms": [],
+    "match": [
+     "contrôle négatif"
+    ],
+    "definition": "La même analyse sur des données où l’effet est absent par construction ; le détecter révèle un problème de méthode."
+   },
+   "de": {
+    "term": "Negativkontrolle",
+    "synonyms": [],
+    "match": [
+     "Negativkontrolle"
+    ],
+    "definition": "Dieselbe Analyse auf Daten, in denen der Effekt konstruktionsbedingt fehlt; ein Nachweis dort zeigt ein Methodenproblem."
+   }
+  },
+  {
+   "id": "blind-analysis",
+   "context": "methodology",
+   "units": "",
+   "en": {
+    "term": "blind analysis",
+    "synonyms": [],
+    "definition": "Working with outcomes hidden until a documented unblinding, so that choices are fixed before results are seen."
+   },
+   "bn": {
+    "term": "অন্ধ বিশ্লেষণ",
+    "synonyms": [],
+    "match": [
+     "অন্ধ"
+    ],
+    "definition": "নথিভুক্ত অন্ধত্ব-মোচন পর্যন্ত ফলাফল লুকিয়ে কাজ, যাতে ফল দেখার আগে পছন্দ স্থির হয়।",
+    "pronunciation": "ondho bishleshon"
+   },
+   "hi": {
+    "term": "अंध विश्लेषण",
+    "synonyms": [],
+    "match": [
+     "अंध"
+    ],
+    "definition": "प्रलेखित अंधता-निवारण तक परिणाम छिपाकर काम करना, ताकि परिणाम देखने से पहले विकल्प तय हों।",
+    "pronunciation": "andh vishleshan"
+   },
+   "es": {
+    "term": "análisis ciego",
+    "synonyms": [],
+    "match": [
+     "ciego"
+    ],
+    "definition": "Trabajar con los resultados ocultos hasta un desenmascaramiento documentado, para fijar las decisiones antes de verlos."
+   },
+   "fr": {
+    "term": "analyse à l’aveugle",
+    "synonyms": [],
+    "match": [
+     "aveugle"
+    ],
+    "definition": "Travailler avec les résultats masqués jusqu’à une levée d’aveugle documentée, pour fixer les choix avant de les voir."
+   },
+   "de": {
+    "term": "Blindanalyse",
+    "synonyms": [],
+    "match": [
+     "Blind"
+    ],
+    "definition": "Arbeiten mit verborgenen Ergebnissen bis zu einer dokumentierten Entblindung, damit Entscheidungen vorher feststehen."
+   }
+  },
+  {
+   "id": "periodogram",
+   "context": "time series",
+   "units": "1/d",
+   "en": {
+    "term": "periodogram",
+    "synonyms": [
+     "Lomb–Scargle periodogram"
+    ],
+    "definition": "Power as a function of frequency for a time series; for uneven sampling the Lomb–Scargle form is used."
+   },
+   "bn": {
+    "term": "পর্যায়লেখ",
+    "synonyms": [
+     "পিরিয়ডোগ্রাম"
+    ],
+    "match": [
+     "পর্যায়লেখ",
+     "পিরিয়ডোগ্রাম",
+     "Lomb–Scargle"
+    ],
+    "definition": "একটি সময়-সারির কম্পাঙ্ক অনুযায়ী শক্তি; অসম নমুনায়নে Lomb–Scargle রূপ ব্যবহৃত হয়।",
+    "pronunciation": "porjaylekh"
+   },
+   "hi": {
+    "term": "आवर्तलेख",
+    "synonyms": [
+     "पीरियडोग्राम"
+    ],
+    "match": [
+     "आवर्तलेख",
+     "पीरियडोग्राम",
+     "Lomb–Scargle"
+    ],
+    "definition": "किसी समय-श्रेणी की आवृत्ति के अनुसार शक्ति; असमान प्रतिचयन में Lomb–Scargle रूप प्रयुक्त होता है।",
+    "pronunciation": "aavartlekh"
+   },
+   "es": {
+    "term": "periodograma",
+    "synonyms": [],
+    "match": [
+     "periodogram",
+     "Lomb–Scargle"
+    ],
+    "definition": "Potencia en función de la frecuencia de una serie temporal; con muestreo irregular se usa la forma de Lomb–Scargle."
+   },
+   "fr": {
+    "term": "périodogramme",
+    "synonyms": [],
+    "match": [
+     "périodogramme",
+     "Lomb–Scargle"
+    ],
+    "definition": "Puissance en fonction de la fréquence d’une série temporelle ; pour un échantillonnage irrégulier, la forme de Lomb–Scargle est utilisée."
+   },
+   "de": {
+    "term": "Periodogramm",
+    "synonyms": [],
+    "match": [
+     "Periodogramm",
+     "Lomb–Scargle"
+    ],
+    "definition": "Leistung in Abhängigkeit von der Frequenz einer Zeitreihe; bei ungleichmäßiger Abtastung wird die Lomb–Scargle-Form verwendet."
+   }
+  },
+  {
+   "id": "window-function",
+   "context": "time series",
+   "units": "",
+   "en": {
+    "term": "spectral window",
+    "synonyms": [
+     "window function"
+    ],
+    "definition": "The periodogram of the sampling times alone; peaks there can be produced by the sampling, not the source."
+   },
+   "bn": {
+    "term": "বর্ণালি-জানালা",
+    "synonyms": [
+     "উইন্ডো ফাংশন"
+    ],
+    "match": [
+     "জানালা",
+     "উইন্ডো"
+    ],
+    "definition": "শুধু নমুনায়ন-সময়ের পর্যায়লেখ; সেখানে শিখর উৎস নয়, নমুনায়ন থেকে আসতে পারে।",
+    "pronunciation": "bornali janala"
+   },
+   "hi": {
+    "term": "स्पेक्ट्रमी विंडो",
+    "synonyms": [
+     "विंडो फ़ंक्शन"
+    ],
+    "match": [
+     "विंडो"
+    ],
+    "definition": "केवल प्रतिचयन समयों का आवर्तलेख; वहाँ के शिखर स्रोत नहीं, प्रतिचयन से बन सकते हैं।",
+    "pronunciation": "spectrami window"
+   },
+   "es": {
+    "term": "ventana espectral",
+    "synonyms": [
+     "función ventana"
+    ],
+    "match": [
+     "ventana"
+    ],
+    "definition": "El periodograma de los tiempos de muestreo; sus picos pueden deberse al muestreo y no a la fuente."
+   },
+   "fr": {
+    "term": "fenêtre spectrale",
+    "synonyms": [
+     "fonction fenêtre"
+    ],
+    "match": [
+     "fenêtre"
+    ],
+    "definition": "Le périodogramme des seuls instants d’échantillonnage ; ses pics peuvent venir de l’échantillonnage, pas de la source."
+   },
+   "de": {
+    "term": "Spektralfenster",
+    "synonyms": [
+     "Fensterfunktion"
+    ],
+    "match": [
+     "Fenster"
+    ],
+    "definition": "Das Periodogramm der Abtastzeiten allein; Spitzen dort können durch die Abtastung entstehen, nicht durch die Quelle."
+   }
+  },
+  {
+   "id": "change-point",
+   "context": "time series",
+   "units": "",
+   "en": {
+    "term": "change point",
+    "synonyms": [],
+    "definition": "A time at which a series switches between two levels, located only between observations."
+   },
+   "bn": {
+    "term": "পরিবর্তন-বিন্দু",
+    "synonyms": [],
+    "match": [
+     "পরিবর্তন-বিন্দু",
+     "পরিবর্তন বিন্দু"
+    ],
+    "definition": "যে সময়ে একটি সারি দুটি স্তরের মধ্যে বদলায়, কেবল পর্যবেক্ষণের মাঝে অবস্থিত।",
+    "pronunciation": "poribortton-bindu"
+   },
+   "hi": {
+    "term": "परिवर्तन बिंदु",
+    "synonyms": [],
+    "match": [
+     "परिवर्तन बिंदु"
+    ],
+    "definition": "वह समय जब कोई श्रेणी दो स्तरों के बीच बदलती है, केवल प्रेक्षणों के बीच स्थित।",
+    "pronunciation": "parivartan bindu"
+   },
+   "es": {
+    "term": "punto de cambio",
+    "synonyms": [],
+    "match": [
+     "punto de cambio"
+    ],
+    "definition": "Instante en que una serie pasa de un nivel a otro, situado solo entre observaciones."
+   },
+   "fr": {
+    "term": "point de rupture",
+    "synonyms": [],
+    "match": [
+     "rupture"
+    ],
+    "definition": "Instant où une série passe d’un niveau à un autre, situé uniquement entre deux observations."
+   },
+   "de": {
+    "term": "Änderungspunkt",
+    "synonyms": [
+     "Bruchpunkt"
+    ],
+    "match": [
+     "Änderungspunkt",
+     "Bruchpunkt"
+    ],
+    "definition": "Ein Zeitpunkt, an dem eine Reihe zwischen zwei Niveaus wechselt, nur zwischen Beobachtungen verortet."
+   }
+  },
+  {
+   "id": "robust-regression",
+   "context": "statistics",
+   "units": "",
+   "en": {
+    "term": "robust regression",
+    "synonyms": [
+     "Theil–Sen estimator"
+    ],
+    "definition": "A trend estimate that resists outliers, here the median of pairwise slopes (Theil–Sen)."
+   },
+   "bn": {
+    "term": "দৃঢ় রিগ্রেশন",
+    "synonyms": [
+     "Theil–Sen"
+    ],
+    "match": [
+     "দৃঢ়",
+     "Theil–Sen"
+    ],
+    "definition": "বহিঃস্থ মানে অপ্রভাবিত প্রবণতা-অনুমান, এখানে জোড়াভিত্তিক ঢালগুলির মধ্যমা (Theil–Sen)।",
+    "pronunciation": "dridho rigreshon"
+   },
+   "hi": {
+    "term": "मज़बूत प्रतिगमन",
+    "synonyms": [
+     "Theil–Sen"
+    ],
+    "match": [
+     "मज़बूत",
+     "Theil–Sen"
+    ],
+    "definition": "बाह्य-मानों से अप्रभावित प्रवृत्ति अनुमान, यहाँ जोड़ीवार ढलानों की माध्यिका (Theil–Sen)।",
+    "pronunciation": "mazboot pratigaman"
+   },
+   "es": {
+    "term": "regresión robusta",
+    "synonyms": [
+     "Theil–Sen"
+    ],
+    "match": [
+     "robust",
+     "Theil–Sen"
+    ],
+    "definition": "Estimación de tendencia resistente a valores atípicos; aquí, la mediana de las pendientes por pares (Theil–Sen)."
+   },
+   "fr": {
+    "term": "régression robuste",
+    "synonyms": [
+     "Theil–Sen"
+    ],
+    "match": [
+     "robuste",
+     "Theil–Sen"
+    ],
+    "definition": "Estimation de tendance résistante aux valeurs aberrantes, ici la médiane des pentes par paires (Theil–Sen)."
+   },
+   "de": {
+    "term": "robuste Regression",
+    "synonyms": [
+     "Theil–Sen"
+    ],
+    "match": [
+     "robust",
+     "Theil–Sen"
+    ],
+    "definition": "Eine gegen Ausreißer unempfindliche Trendschätzung, hier der Median der paarweisen Steigungen (Theil–Sen)."
+   }
+  },
+  {
+   "id": "information-criterion",
+   "context": "statistics",
+   "units": "",
+   "en": {
+    "term": "information criterion",
+    "synonyms": [
+     "AIC",
+     "BIC"
+    ],
+    "definition": "A model-comparison statistic (AIC, BIC) valid only when its assumptions hold; never the only criterion."
+   },
+   "bn": {
+    "term": "তথ্য-মানদণ্ড",
+    "synonyms": [
+     "AIC",
+     "BIC"
+    ],
+    "match": [
+     "AIC",
+     "BIC"
+    ],
+    "definition": "মডেল-তুলনার একটি পরিসংখ্যান (AIC, BIC), শুধু অনুমিতি টিকলে বৈধ; কখনও একমাত্র মানদণ্ড নয়।",
+    "pronunciation": "tottho-mandondo"
+   },
+   "hi": {
+    "term": "सूचना मानदंड",
+    "synonyms": [
+     "AIC",
+     "BIC"
+    ],
+    "match": [
+     "AIC",
+     "BIC"
+    ],
+    "definition": "मॉडल तुलना का सांख्यिकीय माप (AIC, BIC), केवल मान्यताएँ टिकने पर वैध; कभी एकमात्र मानदंड नहीं।",
+    "pronunciation": "suchna mandand"
+   },
+   "es": {
+    "term": "criterio de información",
+    "synonyms": [
+     "AIC",
+     "BIC"
+    ],
+    "match": [
+     "AIC",
+     "BIC"
+    ],
+    "definition": "Estadístico de comparación de modelos (AIC, BIC), válido solo si se cumplen sus supuestos; nunca el único criterio."
+   },
+   "fr": {
+    "term": "critère d’information",
+    "synonyms": [
+     "AIC",
+     "BIC"
+    ],
+    "match": [
+     "AIC",
+     "BIC"
+    ],
+    "definition": "Statistique de comparaison de modèles (AIC, BIC), valable seulement si ses hypothèses tiennent ; jamais le seul critère."
+   },
+   "de": {
+    "term": "Informationskriterium",
+    "synonyms": [
+     "AIC",
+     "BIC"
+    ],
+    "match": [
+     "AIC",
+     "BIC"
+    ],
+    "definition": "Eine Statistik zum Modellvergleich (AIC, BIC), nur gültig, wenn ihre Annahmen gelten; nie das einzige Kriterium."
+   }
+  },
+  {
+   "id": "reduced-chi2",
+   "context": "statistics",
+   "units": "",
+   "en": {
+    "term": "reduced χ²",
+    "synonyms": [
+     "chi-squared per degree of freedom"
+    ],
+    "definition": "χ² divided by the degrees of freedom; near 1 when a model and the stated errors describe the data."
+   },
+   "bn": {
+    "term": "হ্রাসকৃত χ²",
+    "synonyms": [],
+    "match": [
+     "χ²"
+    ],
+    "definition": "χ²-কে স্বাধীনতার মাত্রা দিয়ে ভাগ; মডেল ও ঘোষিত ত্রুটি ডেটা বর্ণনা করলে প্রায় 1।",
+    "pronunciation": "hrashkrito kai-skoyar"
+   },
+   "hi": {
+    "term": "घटित χ²",
+    "synonyms": [],
+    "match": [
+     "χ²"
+    ],
+    "definition": "χ² को स्वतंत्रता की कोटियों से भाग; मॉडल और घोषित त्रुटियाँ डेटा का वर्णन करें तो लगभग 1।",
+    "pronunciation": "ghatit chi-square"
+   },
+   "es": {
+    "term": "χ² reducido",
+    "synonyms": [],
+    "match": [
+     "χ²"
+    ],
+    "definition": "χ² dividido entre los grados de libertad; cercano a 1 cuando el modelo y los errores declarados describen los datos."
+   },
+   "fr": {
+    "term": "χ² réduit",
+    "synonyms": [],
+    "match": [
+     "χ²"
+    ],
+    "definition": "χ² divisé par le nombre de degrés de liberté ; proche de 1 quand le modèle et les erreurs annoncées décrivent les données."
+   },
+   "de": {
+    "term": "reduziertes χ²",
+    "synonyms": [],
+    "match": [
+     "χ²"
+    ],
+    "definition": "χ² geteilt durch die Freiheitsgrade; nahe 1, wenn Modell und angegebene Fehler die Daten beschreiben."
+   }
+  },
+  {
+   "id": "outlier",
+   "context": "statistics",
+   "units": "",
+   "en": {
+    "term": "outlier",
+    "synonyms": [],
+    "definition": "A point rejected by a stated rule; it is kept on record, never deleted."
+   },
+   "bn": {
+    "term": "বহিঃস্থ মান",
+    "synonyms": [
+     "বহির্মান"
+    ],
+    "match": [
+     "বহিঃস্থ",
+     "বহির্মান"
+    ],
+    "definition": "ঘোষিত নিয়মে বাতিল একটি বিন্দু; এটি রেকর্ডে থাকে, কখনও মোছা হয় না।",
+    "pronunciation": "bohisstho man"
+   },
+   "hi": {
+    "term": "बाह्य मान",
+    "synonyms": [],
+    "match": [
+     "बाह्य"
+    ],
+    "definition": "घोषित नियम से अस्वीकृत बिंदु; यह रिकॉर्ड में रहता है, कभी हटाया नहीं जाता।",
+    "pronunciation": "bahya maan"
+   },
+   "es": {
+    "term": "valor atípico",
+    "synonyms": [],
+    "match": [
+     "atípic"
+    ],
+    "definition": "Punto rechazado por una regla declarada; se conserva en el registro, nunca se borra."
+   },
+   "fr": {
+    "term": "valeur aberrante",
+    "synonyms": [],
+    "match": [
+     "aberrant"
+    ],
+    "definition": "Point rejeté par une règle énoncée ; il reste dans l’enregistrement, jamais supprimé."
+   },
+   "de": {
+    "term": "Ausreißer",
+    "synonyms": [],
+    "match": [
+     "Ausreißer"
+    ],
+    "definition": "Ein durch eine angegebene Regel verworfener Punkt; er bleibt im Datensatz, wird nie gelöscht."
+   }
+  },
+  {
+   "id": "non-detection",
+   "context": "assessment",
+   "units": "",
+   "en": {
+    "term": "non-detection",
+    "synonyms": [
+     "upper limit"
+    ],
+    "definition": "No significant signal at the stated sensitivity; not proof that the source or effect is absent."
+   },
+   "bn": {
+    "term": "অশনাক্তকরণ",
+    "synonyms": [
+     "ঊর্ধ্বসীমা"
+    ],
+    "match": [
+     "শনাক্ত"
+    ],
+    "definition": "ঘোষিত সংবেদনশীলতায় কোনো তাৎপর্যপূর্ণ সংকেত নেই; উৎস বা প্রভাব অনুপস্থিতির প্রমাণ নয়।",
+    "pronunciation": "oshonaktokoron"
+   },
+   "hi": {
+    "term": "अप्राप्ति",
+    "synonyms": [
+     "ऊपरी सीमा"
+    ],
+    "match": [
+     "पता"
+    ],
+    "definition": "घोषित संवेदनशीलता पर कोई महत्त्वपूर्ण संकेत नहीं; स्रोत या प्रभाव की अनुपस्थिति का प्रमाण नहीं।",
+    "pronunciation": "aprapti"
+   },
+   "es": {
+    "term": "no detección",
+    "synonyms": [
+     "límite superior"
+    ],
+    "match": [
+     "detec"
+    ],
+    "definition": "Ninguna señal significativa con la sensibilidad declarada; no prueba que la fuente o el efecto estén ausentes."
+   },
+   "fr": {
+    "term": "non-détection",
+    "synonyms": [
+     "limite supérieure"
+    ],
+    "match": [
+     "détect"
+    ],
+    "definition": "Aucun signal significatif à la sensibilité annoncée ; ce n’est pas une preuve d’absence."
+   },
+   "de": {
+    "term": "Nichtnachweis",
+    "synonyms": [
+     "Obergrenze"
+    ],
+    "match": [
+     "nachweis",
+     "Nachweis"
+    ],
+    "definition": "Kein signifikantes Signal bei der angegebenen Empfindlichkeit; kein Beweis für ein Fehlen."
+   }
+  },
+  {
+   "id": "research-lead",
+   "context": "reasoning",
+   "units": "",
+   "en": {
+    "term": "research lead",
+    "synonyms": [
+     "contradiction"
+    ],
+    "definition": "A recorded disagreement between methods, fits or tests; a lead to examine, not a paradox."
+   },
+   "bn": {
+    "term": "গবেষণা-সূত্র",
+    "synonyms": [
+     "বিরোধ"
+    ],
+    "match": [
+     "সূত্র",
+     "বিরোধ"
+    ],
+    "definition": "পদ্ধতি, ফিট বা পরীক্ষার মধ্যে রেকর্ডকৃত অমিল; পরীক্ষার একটি সূত্র, প্যারাডক্স নয়।",
+    "pronunciation": "gobeshona-sutro"
+   },
+   "hi": {
+    "term": "शोध सूत्र",
+    "synonyms": [
+     "विरोधाभास"
+    ],
+    "match": [
+     "सूत्र",
+     "विरोधाभास"
+    ],
+    "definition": "विधियों, फ़िट या परीक्षणों के बीच दर्ज असहमति; जाँच का सूत्र, विरोधाभासी पहेली नहीं।",
+    "pronunciation": "shodh sutra"
+   },
+   "es": {
+    "term": "pista de investigación",
+    "synonyms": [
+     "contradicción"
+    ],
+    "match": [
+     "pista",
+     "contradic"
+    ],
+    "definition": "Desacuerdo registrado entre métodos, ajustes o pruebas; una pista que examinar, no una paradoja."
+   },
+   "fr": {
+    "term": "piste de recherche",
+    "synonyms": [
+     "contradiction"
+    ],
+    "match": [
+     "piste",
+     "contradiction"
+    ],
+    "definition": "Désaccord enregistré entre méthodes, ajustements ou tests ; une piste à examiner, pas un paradoxe."
+   },
+   "de": {
+    "term": "Forschungsspur",
+    "synonyms": [
+     "Widerspruch"
+    ],
+    "match": [
+     "Spur",
+     "Widerspr"
+    ],
+    "definition": "Eine aufgezeichnete Abweichung zwischen Methoden, Anpassungen oder Tests; eine Spur zur Prüfung, kein Paradoxon."
+   }
+  },
+  {
+   "id": "independent-confirmation",
+   "context": "reasoning",
+   "units": "",
+   "en": {
+    "term": "independent confirmation",
+    "synonyms": [],
+    "definition": "Support from evidence that shares no data, calibration or method with the first line; repeated use of the same data does not count."
+   },
+   "bn": {
+    "term": "স্বাধীন নিশ্চিতকরণ",
+    "synonyms": [],
+    "match": [
+     "স্বাধীন"
+    ],
+    "definition": "এমন প্রমাণের সমর্থন যা প্রথম সূত্রের সঙ্গে কোনো ডেটা, ক্যালিব্রেশন বা পদ্ধতি ভাগ করে না; একই ডেটার পুনর্ব্যবহার গণ্য নয়।",
+    "pronunciation": "shadhin nishchitokoron"
+   },
+   "hi": {
+    "term": "स्वतंत्र पुष्टि",
+    "synonyms": [],
+    "match": [
+     "स्वतंत्र"
+    ],
+    "definition": "ऐसे साक्ष्य का समर्थन जो पहली पंक्ति से कोई डेटा, अंशांकन या विधि साझा नहीं करता; उसी डेटा का दोहराव गिना नहीं जाता।",
+    "pronunciation": "swatantra pushti"
+   },
+   "es": {
+    "term": "confirmación independiente",
+    "synonyms": [],
+    "match": [
+     "independ"
+    ],
+    "definition": "Apoyo de evidencia que no comparte datos, calibración ni método con la primera línea; reutilizar los mismos datos no cuenta."
+   },
+   "fr": {
+    "term": "confirmation indépendante",
+    "synonyms": [],
+    "match": [
+     "indépend"
+    ],
+    "definition": "Soutien par des preuves qui ne partagent ni données, ni étalonnage, ni méthode avec la première ; réutiliser les mêmes données ne compte pas."
+   },
+   "de": {
+    "term": "unabhängige Bestätigung",
+    "synonyms": [],
+    "match": [
+     "unabhängig"
+    ],
+    "definition": "Stützung durch Belege, die mit der ersten Linie weder Daten noch Kalibrierung noch Methode teilen; wiederholte Nutzung derselben Daten zählt nicht."
+   }
+  },
+  {
+   "id": "knowledge-boundary",
+   "context": "reasoning",
+   "units": "",
+   "en": {
+    "term": "knowledge boundary",
+    "synonyms": [],
+    "definition": "Where a claim stands: established, supported under assumptions, unresolved, or outside the evidence."
+   },
+   "bn": {
+    "term": "জ্ঞান-সীমা",
+    "synonyms": [],
+    "match": [
+     "সীমা"
+    ],
+    "definition": "একটি দাবি কোথায় দাঁড়িয়ে: প্রতিষ্ঠিত, অনুমিতিতে সমর্থিত, অমীমাংসিত বা প্রমাণের বাইরে।",
+    "pronunciation": "gyan-shima"
+   },
+   "hi": {
+    "term": "ज्ञान सीमा",
+    "synonyms": [],
+    "match": [
+     "सीमा"
+    ],
+    "definition": "कोई दावा कहाँ खड़ा है: स्थापित, मान्यताओं के अधीन समर्थित, अनसुलझा या साक्ष्य से बाहर।",
+    "pronunciation": "gyan seema"
+   },
+   "es": {
+    "term": "límite del conocimiento",
+    "synonyms": [
+     "frontera del conocimiento"
+    ],
+    "match": [
+     "límite",
+     "frontera"
+    ],
+    "definition": "Dónde se sitúa una afirmación: establecida, respaldada bajo supuestos, sin resolver o fuera de la evidencia."
+   },
+   "fr": {
+    "term": "frontière des connaissances",
+    "synonyms": [],
+    "match": [
+     "frontière",
+     "limite"
+    ],
+    "definition": "Où se situe une affirmation : établie, étayée sous hypothèses, non résolue ou hors des preuves."
+   },
+   "de": {
+    "term": "Wissensgrenze",
+    "synonyms": [],
+    "match": [
+     "Grenze"
+    ],
+    "definition": "Wo eine Aussage steht: gesichert, unter Annahmen gestützt, ungeklärt oder außerhalb der Belege."
+   }
+  },
+  {
+   "id": "research-session",
+   "context": "workflow",
+   "units": "",
+   "en": {
+    "term": "research session",
+    "synonyms": [],
+    "definition": "One line of work — question, runs, notes, plans — validated and hashed, kept as a whole."
+   },
+   "bn": {
+    "term": "গবেষণা-সেশন",
+    "synonyms": [],
+    "match": [
+     "সেশন"
+    ],
+    "definition": "এক ধারার কাজ — প্রশ্ন, রান, নোট, পরিকল্পনা — যাচাই ও হ্যাশ করে একসঙ্গে রাখা।",
+    "pronunciation": "gobeshona-seshon"
+   },
+   "hi": {
+    "term": "शोध सत्र",
+    "synonyms": [],
+    "match": [
+     "सत्र"
+    ],
+    "definition": "कार्य की एक धारा — प्रश्न, रन, नोट, योजनाएँ — सत्यापित और हैश कर एक साथ रखी गई।",
+    "pronunciation": "shodh satra"
+   },
+   "es": {
+    "term": "sesión de investigación",
+    "synonyms": [],
+    "match": [
+     "sesi"
+    ],
+    "definition": "Una línea de trabajo —pregunta, ejecuciones, notas, planes— validada, con hash y guardada en conjunto."
+   },
+   "fr": {
+    "term": "session de recherche",
+    "synonyms": [],
+    "match": [
+     "session"
+    ],
+    "definition": "Une ligne de travail — question, exécutions, notes, plans — validée, hachée et conservée d’un seul tenant."
+   },
+   "de": {
+    "term": "Forschungssitzung",
+    "synonyms": [],
+    "match": [
+     "Sitzung"
+    ],
+    "definition": "Ein Arbeitsstrang – Frage, Läufe, Notizen, Pläne – validiert, gehasht und als Ganzes aufbewahrt."
+   }
+  },
+  {
+   "id": "content-hash",
+   "context": "reproducibility",
+   "units": "",
+   "en": {
+    "term": "content hash",
+    "synonyms": [
+     "SHA-256"
+    ],
+    "definition": "The SHA-256 of a record's content; an identical hash means an identical result."
+   },
+   "bn": {
+    "term": "কনটেন্ট-হ্যাশ",
+    "synonyms": [
+     "SHA-256"
+    ],
+    "match": [
+     "হ্যাশ"
+    ],
+    "definition": "একটি রেকর্ডের বিষয়বস্তুর SHA-256; অভিন্ন হ্যাশ মানে অভিন্ন ফল।",
+    "pronunciation": "kontent-hash"
+   },
+   "hi": {
+    "term": "सामग्री हैश",
+    "synonyms": [
+     "SHA-256"
+    ],
+    "match": [
+     "हैश"
+    ],
+    "definition": "किसी रिकॉर्ड की सामग्री का SHA-256; समान हैश का अर्थ समान परिणाम।",
+    "pronunciation": "samagri hash"
+   },
+   "es": {
+    "term": "hash de contenido",
+    "synonyms": [
+     "SHA-256"
+    ],
+    "match": [
+     "hash"
+    ],
+    "definition": "El SHA-256 del contenido de un registro; un hash idéntico significa un resultado idéntico."
+   },
+   "fr": {
+    "term": "hash de contenu",
+    "synonyms": [
+     "SHA-256"
+    ],
+    "match": [
+     "hash"
+    ],
+    "definition": "Le SHA-256 du contenu d’un enregistrement ; un hash identique signifie un résultat identique."
+   },
+   "de": {
+    "term": "Inhalts-Hash",
+    "synonyms": [
+     "SHA-256"
+    ],
+    "match": [
+     "Hash"
+    ],
+    "definition": "Der SHA-256 des Inhalts eines Datensatzes; ein identischer Hash bedeutet ein identisches Ergebnis."
+   }
+  },
+  {
+   "id": "spectrum",
+   "context": "spectroscopy",
+   "units": "µJy",
+   "en": {
+    "term": "spectrum",
+    "synonyms": [],
+    "definition": "Flux density as a function of wavelength; here assembled from the detectors' wavelength coverage."
+   },
+   "bn": {
+    "term": "বর্ণালি",
+    "synonyms": [
+     "বর্ণালী"
+    ],
+    "match": [
+     "বর্ণালি",
+     "বর্ণালী"
+    ],
+    "definition": "তরঙ্গদৈর্ঘ্য অনুযায়ী ফ্লাক্স ঘনত্ব; এখানে ডিটেক্টরগুলির তরঙ্গদৈর্ঘ্য-আচ্ছাদন থেকে গঠিত।",
+    "pronunciation": "bornali"
+   },
+   "hi": {
+    "term": "स्पेक्ट्रम",
+    "synonyms": [
+     "वर्णक्रम"
+    ],
+    "match": [
+     "स्पेक्ट्रम"
+    ],
+    "definition": "तरंगदैर्ध्य के अनुसार फ़्लक्स घनत्व; यहाँ डिटेक्टरों के तरंगदैर्ध्य आवरण से बना।",
+    "pronunciation": "spectrum"
+   },
+   "es": {
+    "term": "espectro",
+    "synonyms": [],
+    "match": [
+     "espectr"
+    ],
+    "definition": "Densidad de flujo en función de la longitud de onda; aquí construida a partir de la cobertura de los detectores."
+   },
+   "fr": {
+    "term": "spectre",
+    "synonyms": [],
+    "match": [
+     "spectr"
+    ],
+    "definition": "Densité de flux en fonction de la longueur d’onde ; ici construite à partir de la couverture des détecteurs."
+   },
+   "de": {
+    "term": "Spektrum",
+    "synonyms": [],
+    "match": [
+     "Spektr"
+    ],
+    "definition": "Flussdichte in Abhängigkeit von der Wellenlänge; hier aus der Wellenlängenabdeckung der Detektoren zusammengesetzt."
+   }
+  },
+  {
+   "id": "linear-variable-filter",
+   "context": "instrument",
+   "units": "",
+   "en": {
+    "term": "linear variable filter",
+    "synonyms": [
+     "LVF"
+    ],
+    "definition": "A filter whose transmitted wavelength changes across the detector, so each position sees a different wavelength."
+   },
+   "bn": {
+    "term": "লিনিয়ার ভেরিয়েবল ফিল্টার",
+    "synonyms": [
+     "LVF"
+    ],
+    "match": [
+     "ফিল্টার"
+    ],
+    "definition": "যে ফিল্টারের সঞ্চারিত তরঙ্গদৈর্ঘ্য ডিটেক্টর জুড়ে বদলায়, ফলে প্রতিটি অবস্থান ভিন্ন তরঙ্গদৈর্ঘ্য দেখে।",
+    "pronunciation": "liniyar veriyebol filtar"
+   },
+   "hi": {
+    "term": "रैखिक परिवर्ती फ़िल्टर",
+    "synonyms": [
+     "LVF"
+    ],
+    "match": [
+     "फ़िल्टर"
+    ],
+    "definition": "वह फ़िल्टर जिसकी पारित तरंगदैर्ध्य डिटेक्टर में बदलती है, इसलिए हर स्थिति भिन्न तरंगदैर्ध्य देखती है।",
+    "pronunciation": "rekhik parivarti filter"
+   },
+   "es": {
+    "term": "filtro lineal variable",
+    "synonyms": [
+     "LVF"
+    ],
+    "match": [
+     "filtro"
+    ],
+    "definition": "Filtro cuya longitud de onda transmitida varía a lo largo del detector, de modo que cada posición ve una longitud de onda distinta."
+   },
+   "fr": {
+    "term": "filtre linéaire variable",
+    "synonyms": [
+     "LVF"
+    ],
+    "match": [
+     "filtre"
+    ],
+    "definition": "Filtre dont la longueur d’onde transmise varie le long du détecteur : chaque position voit une longueur d’onde différente."
+   },
+   "de": {
+    "term": "linear variables Filter",
+    "synonyms": [
+     "LVF"
+    ],
+    "match": [
+     "Filter"
+    ],
+    "definition": "Ein Filter, dessen durchgelassene Wellenlänge sich über den Detektor ändert, sodass jede Position eine andere Wellenlänge sieht."
+   }
+  },
+  {
+   "id": "archive-release",
+   "context": "data",
+   "units": "",
+   "en": {
+    "term": "archive release",
+    "synonyms": [
+     "data release",
+     "QR3"
+    ],
+    "definition": "A versioned publication of archive data (SPHEREx QR3 by default, QR2 as fallback)."
+   },
+   "bn": {
+    "term": "আর্কাইভ-রিলিজ",
+    "synonyms": [
+     "ডেটা-রিলিজ"
+    ],
+    "match": [
+     "রিলিজ"
+    ],
+    "definition": "আর্কাইভ-ডেটার সংস্করণযুক্ত প্রকাশ (ডিফল্ট SPHEREx QR3, বিকল্প QR2)।",
+    "pronunciation": "arkaiv-rilij"
+   },
+   "hi": {
+    "term": "आर्काइव रिलीज़",
+    "synonyms": [
+     "डेटा रिलीज़"
+    ],
+    "match": [
+     "रिलीज़"
+    ],
+    "definition": "आर्काइव डेटा का संस्करणित प्रकाशन (डिफ़ॉल्ट SPHEREx QR3, विकल्प QR2)।",
+    "pronunciation": "archive release"
+   },
+   "es": {
+    "term": "publicación del archivo",
+    "synonyms": [
+     "versión de datos"
+    ],
+    "match": [
+     "publicaci"
+    ],
+    "definition": "Publicación versionada de datos del archivo (SPHEREx QR3 por defecto, QR2 como alternativa)."
+   },
+   "fr": {
+    "term": "publication d’archive",
+    "synonyms": [
+     "version des données"
+    ],
+    "match": [
+     "publication"
+    ],
+    "definition": "Publication versionnée des données d’archive (SPHEREx QR3 par défaut, QR2 en repli)."
+   },
+   "de": {
+    "term": "Archivveröffentlichung",
+    "synonyms": [
+     "Datenveröffentlichung"
+    ],
+    "match": [
+     "Veröffentlichung"
+    ],
+    "definition": "Eine versionierte Veröffentlichung von Archivdaten (standardmäßig SPHEREx QR3, ersatzweise QR2)."
+   }
+  },
+  {
+   "id": "epistemic-status",
+   "context": "reasoning",
+   "units": "",
+   "en": {
+    "term": "epistemic status",
+    "synonyms": [],
+    "definition": "How a statement was produced — recorded, measured, derived, assumed, hypothesized, simulated or unknown; not a measure of truth."
+   },
+   "bn": {
+    "term": "জ্ঞানতাত্ত্বিক অবস্থা",
+    "synonyms": [],
+    "match": [
+     "অবস্থা"
+    ],
+    "definition": "একটি বিবৃতি কীভাবে তৈরি — রেকর্ডকৃত, মাপা, উদ্ভূত, অনুমিত, প্রকল্পিত, সিমুলেটেড বা অজানা; সত্যের মাপ নয়।",
+    "pronunciation": "gyantattik obostha"
+   },
+   "hi": {
+    "term": "ज्ञानमीमांसीय स्थिति",
+    "synonyms": [],
+    "match": [
+     "स्थिति"
+    ],
+    "definition": "कोई कथन कैसे बना — दर्ज, मापा, व्युत्पन्न, माना, परिकल्पित, सिम्युलेटेड या अज्ञात; सत्य का माप नहीं।",
+    "pronunciation": "gyanmimansiya sthiti"
+   },
+   "es": {
+    "term": "estado epistémico",
+    "synonyms": [],
+    "match": [
+     "epistémic",
+     "estado"
+    ],
+    "definition": "Cómo se produjo un enunciado —registrado, medido, derivado, supuesto, hipotético, simulado o desconocido—; no mide la verdad."
+   },
+   "fr": {
+    "term": "statut épistémique",
+    "synonyms": [],
+    "match": [
+     "épistémique",
+     "statut"
+    ],
+    "definition": "Comment un énoncé a été produit — enregistré, mesuré, dérivé, supposé, hypothétique, simulé ou inconnu ; pas une mesure de vérité."
+   },
+   "de": {
+    "term": "epistemischer Status",
+    "synonyms": [],
+    "match": [
+     "epistemisch",
+     "Status"
+    ],
+    "definition": "Wie eine Aussage entstand – aufgezeichnet, gemessen, abgeleitet, angenommen, hypothetisch, simuliert oder unbekannt; kein Wahrheitsmaß."
+   }
+  }
+ ]
+}

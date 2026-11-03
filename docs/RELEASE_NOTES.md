@@ -1,5 +1,63 @@
 # Release notes
 
+## 0.10.0 — 2026-11-03 · the universal frontier
+
+Skytrace now works in six languages — English, বাংলা (Bangla), हिन्दी (Hindi), Español, Français and Deutsch — and adds a signal
+workbench, a world model of each investigation, a multilingual research workspace and an open science gateway. All five
+translations were written by an AI model (Claude) and **have not been reviewed by native speakers**; every translated view and
+report says so. Translation changes wording only: numbers, units, identifiers, method names and the statements recorded by the
+scientific engines are kept unchanged in English. Nothing in this release measures anything new from images, invents a
+probability, scores a discovery or calls a model, and the bundled data are still synthetic. Real-data acquisition, the Meta
+model, semantic search and external monitoring are still blocked in the build environment.
+
+**Six languages** (I18N-1, see [I18N.md](I18N.md))
+* Language selector in the navigation and in Settings; the choice persists (`localStorage`, `?lang=`, the session's
+  `preferences`). Number formatting per language, with a Western-digits option. Noto Sans Bengali and Devanagari fonts bundled.
+* 3,668 interface messages and 16 keyed messages with plural forms, all translated in all five languages; a release-blocking test
+  fails if any is missing or if a translation drops a number, a placeholder or a method identifier.
+* Terminology base (TERM-1): 48 scientific terms with definitions, synonyms and Bangla/Hindi pronunciation.
+* Reports in six languages (`report.md?lang=xx`) with a language header; every number identical to English (tested).
+* **Cross-language search** (XSEARCH-1): exact text, terminology mapping and lexical matching across scripts, in Multilingual
+  Research and the command palette. The method is labelled in the results: **it is not semantic search**.
+* **Translation Quality Observatory** (I18N-Q1): completeness, placeholder, Unicode, number, identifier, script and terminology
+  checks and text expansion per language, plus a live check for clipped text. Counts, never percentages.
+* Explanations in eight layers (EXPLAIN-1) written as keyed messages in all six languages.
+
+**New workspaces** (methods in [UNIVERSAL_METHODS.md](UNIVERSAL_METHODS.md))
+* **Signal Intelligence** (SIGNAL-1): per-detector, wavelength-matched photometry series and astrometry series, never
+  interpolated; ten methods (sampling, window, noise check, generalised Lomb–Scargle, Fourier, Haar, DCF, Theil–Sen, change point,
+  model comparison), each listed as applicable or not with the reason. BIC is reported only when its assumptions hold; no
+  false-alarm probabilities.
+* **World Model** (WORLD-1) with a structured query, **discovery convergence** (CONV-1; exposure-independent lines only; repeated
+  use of the same data is never confirmation), **research leads** from contradictions (LEAD-1; a lead is not a paradox), one
+  multimodal measurement table (MODAL-1) and a **timeline** that keeps observation, processing, publication and event time apart
+  (TIMES-1).
+* **Multilingual Research**: language, cross-language search, terminology, explanations and translation quality.
+* **Open Science Gateway** (OSG-1): the discovery handoff protocol (HANDOFF-1, `skytrace.handoff/1` with validation and digest),
+  the research flight recorder (FLIGHT-1, tamper-evident replay, not cryptographic), a reproducibility checklist and ZIP bundle,
+  and reports in any language. Nothing is uploaded or published.
+
+**Added to existing workspaces**
+* Negative Space: nine distinctions (NEGX-1), each saying what it does not mean.
+* Scientific Compiler: Passed / Passed with warnings / Incomplete / Failed / Not evaluated (KCOMP-1).
+* Discovery Radar: opportunities in ten fields with a bounded novelty scope (OPP-2; "new to this collection" at most); external
+  sources registered and shown as **not connected** (EXTSRC-1).
+* Research Autopilot: the investigation director (DIRECT-1), every step approved before it runs, with an audit log.
+* Review & Story: five role agents and their debate record (AGENTS-1); shared model, data and assumptions, so agreement is not
+  independent confirmation.
+* Experiments: the experiment marketplace (EXPMKT-1); "recommended" only with a known-answer test.
+* Levels renamed Explorer / Researcher / Advanced.
+* API: `GET /api/investigations/{iid}/universal`; `report.md?lang=`. The static preview records the universal report for every run.
+* Session fields `preferences`, `monitors`, `director`, `debates`, `handoffs`; earlier sessions stay valid.
+* [Phase 10 catalogue](PHASE10_CATALOGUE.md): 800 ideas in 65 domains with ten fields each (A 372 implemented and tested, B 163
+  implementable now, C 177 need data or infrastructure, D 88 speculative or out of scope); and the [Phase 10 audit](PHASE10_AUDIT.md).
+
+**Not done** (see the audit): native-speaker review; semantic search; live monitoring of external sources; a digital twin beyond
+the Phase 7 instrument twin; information gain without priors; multi-user collaboration; right-to-left scripts.
+
+**Unchanged**: the pipeline and record hashes, English reports byte for byte, the copilot's tools and guard, and every earlier
+workspace and test. Earlier release artifacts are kept.
+
 ## 0.9.0 — 2026-11-02 · the scientific intelligence layer
 
 Skytrace now connects what it knows across investigations and helps decide what to do next, within stated rules. One new

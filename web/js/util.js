@@ -1,5 +1,7 @@
 // Small DOM and formatting helpers. No external libraries: the app must run offline.
 
+import { getLang, getMeta, languages, translateText } from "./i18n.js";
+
 export function el(tag, attrs = {}, ...children) {
   const isSvg = ["svg", "g", "path", "line", "circle", "rect", "text", "polyline", "title", "defs", "marker", "tspan"].includes(tag);
   const n = isSvg ? document.createElementNS("http://www.w3.org/2000/svg", tag) : document.createElement(tag);
@@ -84,7 +86,32 @@ export function b64ToUint8(b64) {
 // Offer a file to save. Inside a claude.ai artifact viewer, page-started downloads are blocked, so the viewer's
 // `downloads` capability is used (the viewer confirms the save). Elsewhere (the local app, a plain browser) a Blob
 // link is used. Resolves true when the file was handed over, false (with a message) otherwise.
-export async function download(name, text, type = "text/markdown") {
+/** Text exports (Markdown, plain text) follow the interface language line by line, with language metadata at the top.
+ *  Structured exports (JSON, CSV, SVG data) stay language-independent: their field names and values are never translated. */
+export function localizeExport(text, type) {
+  const lang = getLang();
+  if (lang === "en" || !/^text\/(markdown|plain)/.test(type) || typeof text !== "string") return text;
+  if (text.startsWith("<!-- language:")) return text;              // already written in this language by the server (I18N-1)
+  const m = getMeta();
+  const name = (languages().find((l) => l.code === lang) || {}).name || lang;
+  let fence = false;
+  const out = text.split("\n").map((ln) => {
+    if (/^\s*```/.test(ln)) { fence = !fence; return ln; }           // code and JSON blocks are never translated
+    if (fence || /^\s*\|/.test(ln)) return ln;                       // nor table rows of recorded values
+    const whole = translateText(ln);
+    if (whole !== null) return whole;
+    const lead = ln.match(/^(\s*(?:#{1,6} |[-*] |> |\d+\. )?)(.*)$/);
+    const core = lead[2].replace(/\*\*(.+?)\*\*/g, "$1");
+    const t = translateText(lead[2]) ?? (core !== lead[2] ? translateText(core) : null);
+    return t === null ? ln : lead[1] + t;
+  });
+  const head = [`<!-- language: ${name} (${lang}); interface translation: ${m.status || "machine-translated"}; translator: ${m.translator || "AI model"}; `
+    + "numbers, identifiers, units and recorded scientific text are unchanged from the English original -->", ""];
+  return head.concat(out).join("\n");
+}
+
+export async function download(name, text, type = "text/markdown", { raw = false } = {}) {
+  if (!raw) text = localizeExport(text, type);          // raw: the text is already in the language it should be saved in
   if (window.claude?.use) {
     let dl = null;
     try { dl = await window.claude.use("downloads"); } catch { dl = null; }

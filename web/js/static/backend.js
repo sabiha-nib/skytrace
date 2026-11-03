@@ -323,6 +323,8 @@ export const staticApi = {
   },
   // Phase 9: recorded by the server at build time, after every run existed (so sibling runs and the corpus are complete)
   intelligence: (iid) => getJSON(`t/${runTarget.get(iid)}/run/${iid}/intelligence.json`),
+  // Phase 10: recorded by the server at build time inside intelligence.json (keeps the preview under its file limit)
+  universal: async (iid) => (await getJSON(`t/${runTarget.get(iid)}/run/${iid}/intelligence.json`)).universal,
   corpus: () => getJSON("corpus.json"),
   async provenance() { throw new PreviewLimit("provenance verification re-reads the stored files and re-runs the analysis: it needs the local server (python run.py)."); },
   connectors: () => getJSON("connectors.json"),

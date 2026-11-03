@@ -16,6 +16,7 @@ import { getResearch } from "./state.js";
 import { buildFigure, figureCard, figureList } from "./figurestudio.js";
 import { build as buildKG, view as kgView } from "./kg.js";
 import * as S from "./session.js";
+import { getLang } from "./i18n.js";
 
 let figId = "timeline", figCfg = {};
 
@@ -156,7 +157,7 @@ function studioCard() {
     inv ? el("p", { class: "muted" }, `Exports of investigation ${inv.record.content_hash.slice(0, 16)}… (${inv.record.target}${state.model?.synthetic ? ", synthetic test data" : ""}). Every file is written by the pipeline; the report carries its limitations and the synthetic label where it applies.`)
         : el("p", { class: "muted" }, "Run an analysis first."),
     el("ul", { class: "studio" },
-      item("dl-report", "Report (Markdown)", "Findings, method versions, limitations, provenance.", async () => download(`${base}-report.md`, await api.report(iid), "text/markdown")),
+      item("dl-report", "Report (Markdown)", "Findings, method versions, limitations, provenance.", async () => download(`${base}-report${getLang() === "en" ? "" : "." + getLang()}.md`, await api.report(iid, getLang()), "text/markdown")),
       item("export-record", "Record (JSON)", "The investigation record exactly as written; its content hash can be re-verified.", async () => download(`${base}.json`, await api.recordText(iid), "application/json")),
       item("dl-graph", "Evidence graph (JSON)", "Every claim linked to its measurements, methods and files.", async () => download(`${base}-evidence-graph.json`, JSON.stringify(await api.graph(iid), null, 1), "application/json")),
       item("dl-discovery", "Discovery report (JSON)", "Inventory, questions, hypothesis tests, uncertainty components, next steps.", async () => download(`${base}-discovery.json`, JSON.stringify(await api.discovery(iid), null, 1), "application/json")),

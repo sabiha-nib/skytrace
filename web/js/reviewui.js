@@ -10,6 +10,7 @@ import { parse } from "./planner.js";
 import * as S from "./session.js";
 import { loadFrontier, needRun } from "./horizonui.js";
 import { categoryLabel, clear, download, el, questionLabel, renderToken, toast, $ } from "./util.js";
+import { agentsCard } from "./universalui.js";
 
 let tab = "review", lastAudit = null;
 export function setReviewTab(t) { tab = t; }
@@ -21,7 +22,7 @@ export async function renderReview() {
   if (!state.inv) { needRun(body, "The Review Room reads the recorded analysis, its checks and your session."); return; }
   const f = await loadFrontier(body, "review");
   if (!f || !live()) return;
-  body.append(el("div", { class: "tabs", role: "tablist", "aria-label": "Review Room" }, ...[["review", "Review"], ["board", "Review board"], ["repro", "Reproducibility Challenge"], ["story", "Discovery Story"]].map(([k, t]) => {
+  body.append(el("div", { class: "tabs", role: "tablist", "aria-label": "Review Room" }, ...[["review", "Review"], ["board", "Review board"], ["repro", "Reproducibility Challenge"], ["story", "Discovery Story"], ["agents", "Role agents"]].map(([k, t]) => {
     const b = el("button", { type: "button", role: "tab", "aria-selected": String(tab === k), "data-rtab": k }, t);
     b.addEventListener("click", () => { tab = k; renderReview(); });
     return b;
@@ -29,6 +30,7 @@ export async function renderReview() {
   if (tab === "review") body.append(await reviewView(f));
   else if (tab === "board") body.append(await reviewBoardView(renderReview));
   else if (tab === "repro") body.append(reproView(f));
+  else if (tab === "agents") agentsCard(body);
   else body.append(await storyView(f));
 }
 

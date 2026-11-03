@@ -95,6 +95,14 @@ SESSION_SCHEMA = O({
     "completion": ({"t": "json", "max_bytes": 6000, "depth": 4}, False),
     "capsules": (A({"t": "json", "max_bytes": 20000, "depth": 6}, 20), False),
     "cycles": (A({"t": "json", "max_bytes": 12000, "depth": 6}, 20), False),
+    # v0.10 (optional): interface preferences (language, numerals; the investigation data stay language-independent), external
+    # monitoring interests (Discovery Radar sources, never contacted unless connected), investigation-director runs, role-agent
+    # debate records and handoffs you exported or imported
+    "preferences": ({"t": "json", "max_bytes": 1000, "depth": 2}, False),
+    "monitors": (A({"t": "json", "max_bytes": 3000, "depth": 4}, 50), False),
+    "director": (A({"t": "json", "max_bytes": 20000, "depth": 6}, 20), False),
+    "debates": (A({"t": "json", "max_bytes": 20000, "depth": 6}, 20), False),
+    "handoffs": (A({"t": "json", "max_bytes": 4000, "depth": 4}, 30), False),
     "examined": (A(S(200, 1), 500), True),
     "history": (A(O({"seq": (INT(1, 10 ** 9), True), "at": (ISO, True), "kind": (S(40, 1, r"^[a-z_.]{1,40}$"), True),
                      "summary": (S(300), True), "ref": (OPT(S(300)), True), "h": (HEX64, False)}), 2000), True),

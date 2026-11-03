@@ -197,6 +197,39 @@
 - **Catalogue.** Of 600 Phase 9 concepts, 286 are implemented and tested (most from earlier phases), 114 implementable now but not
   built, 127 need data or infrastructure, and 73 are speculative or out of scope. See [PHASE9_CATALOGUE.md](PHASE9_CATALOGUE.md).
 
+## Six languages and the universal frontier (v0.10)
+
+- **The translations are AI-made and unreviewed.** All five non-English languages were translated by an AI model (Claude). No
+  native speaker or astronomer working in those languages has read them. Automated checks (completeness, placeholders, numbers,
+  identifiers, script, terminology consistency) cannot judge fluency, idiom or whether a term is the one a community uses.
+- **Engine narrative stays in English.** Outcome statements, rule details, reasons and limitations recorded by the engines are
+  scientific content and are shown unchanged (marked `lang="en"`) inside translated views and reports. A translated page
+  therefore still contains English sentences by design. Text assembled from several separately rendered pieces may stay partly
+  in English where no catalogue message covers the whole.
+- **Cross-language search is not semantic.** It matches exact text, the 48 TERM-1 terms and their synonyms, and shared word stems.
+  A query that uses a word outside the terminology base in another language finds nothing in English text.
+- No right-to-left scripts; Hindi uses Western digits (its CLDR default); Bangla digits are the default for Bangla, switchable.
+- **Signal Intelligence on the bundled data is mostly refusals.** Every synthetic series has four points, so the periodogram,
+  Fourier, wavelet, DCF and change-point methods correctly do not apply and BIC is not reported. The methods are validated on
+  generated series with known answers, not on real observations. No false-alarm probability is computed. Photometry series are raw
+  (not reference-calibrated) fluxes.
+- **Convergence, leads and agents are rule-based over one record.** Independence is judged only by shared exposures and shared
+  reference stars; other kinds of dependence (the same calibration pipeline, the same instrument model) are stated, not measured.
+  The five agents are rule sets sharing one model of the data: their agreement is not independent confirmation.
+- **Novelty is local.** "New to this collection" means no other investigation held here produced the same kind of signal. No
+  literature or catalogue index is connected, so nothing is called globally new or underexplored.
+- **External sources are not connected.** IRSA releases, Gaia alerts, TNS, ATel, arXiv and ADS are listed with that status. Nothing
+  is monitored and no update is shown; "note interest" only records an interest in the session.
+- **The director and the marketplace run nothing new.** Executing a director step opens a recorded result; the marketplace
+  recommends only items with a known-answer test on synthetic data.
+- **The flight recorder is tamper-evident, not immutable.** The VAULT-1 chain has no signature or external anchor.
+- **The open science gateway publishes nothing.** It builds a local ZIP; the repository declares no licence, and the checklist
+  says so. Handoffs describe recorded work; importing one is not a reproduction.
+- **Not built in Phase 10**: semantic search, live monitoring, a literature novelty check, information-gain values, a validated
+  physical digital twin, multi-user collaboration. See [PHASE10_AUDIT.md](PHASE10_AUDIT.md).
+- **Catalogue.** Of 800 Phase 10 ideas, 372 are implemented and tested (most from earlier phases), 163 implementable now, 177 need
+  data or infrastructure, and 88 are speculative or out of scope. See [PHASE10_CATALOGUE.md](PHASE10_CATALOGUE.md).
+
 ## Product
 
 - Single-user: no accounts, and saved investigations are visible to anyone who can reach the server.

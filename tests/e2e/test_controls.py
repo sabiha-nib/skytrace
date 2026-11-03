@@ -274,8 +274,10 @@ def test_h_copilot_controls(app):
 def test_h2_copilot_sources_drafts_and_plan(app):
     """Copilot 2.0: each answer names its source; a draft goes to the notebook as an assistant draft; a plan question
     hands the exact question to the Planner."""
+    n = app.locator(".msg.bot .answer").count()            # wait for this question's answer, not the previous one
     app.fill("#ask-input", "Which evidence is still missing?")
     app.keyboard.press("Enter")
+    app.locator(".msg.bot .answer").nth(n).wait_for(timeout=60000)
     mode = app.locator(".msg.bot .mode", has_text="source: deterministic local logic").last
     mode.wait_for(timeout=60000)
     assert app.locator(".msg.user .mode", has_text="user-authored content").count() >= 1
@@ -1422,3 +1424,128 @@ def test_i6_memory_reproduction_and_preservation(app):
         app.click("#gt-handoff")
     assert "## How to reproduce" in Path(d.value.path()).read_text()
     app.click("[data-ipanel=command]")
+
+
+# ------------------------------------------------------------------ Phase 10: six languages and the signature systems
+def test_l1_language_switch_persists_and_localises(app):
+    n0 = len(app.errors)                  # errors from earlier tests (e.g. the deliberately refused import) are not this test's
+    app.select_option("#lang-select", "bn")
+    pw.expect(app.locator(".nav button[data-ws=command]")).not_to_have_text("Command Center")
+    assert app.evaluate("document.documentElement.lang") == "bn"
+    pw.expect(app.locator(".level-switch button[data-level=explore]")).to_have_text("অন্বেষক")
+    app.reload()
+    app.locator("#data-pill").wait_for()
+    pw.expect(app.locator("html")).to_have_attribute("lang", "bn")
+    assert app.evaluate("localStorage.getItem('skytrace.lang')") == "bn"
+    app.click("#run-btn")                                    # a reload in server mode forgets the open run: restore it for later tests
+    pw.expect(app.locator("#run-btn .spinner")).to_have_count(0, timeout=120000)
+    pw.expect(app.locator("#run-btn")).to_be_enabled()
+    app.click("#settings-btn")
+    pw.expect(app.locator("#settings .set-lang.current")).to_have_attribute("data-lang", "bn")
+    assert app.locator("#settings [data-set-level=research]").bounding_box()["height"] >= 20   # the level switch is not collapsed
+    app.select_option("#set-digits", "latn")
+    app.keyboard.press("Escape")
+    app.select_option("#lang-select", "de")
+    pw.expect(app.locator(".level-switch button[data-level=research]")).to_have_text("Fortgeschritten")
+    app.click(".level-switch button[data-level=research]")
+    app.click(".nav button[data-ws=languages]")
+    app.locator("#xs-input").wait_for(timeout=30000)
+    app.fill("#xs-input", "নিজস্ব গতি")
+    app.locator("#xs-table tr[data-xs='term:proper-motion']").wait_for()
+    pw.expect(app.locator("#xs-method")).to_contain_text("keine semantische Suche")
+    app.select_option("#lang-select", "en")
+    pw.expect(app.locator(".nav button[data-ws=command]")).to_have_text("Command Center")
+    app.click("#settings-btn")
+    app.select_option("#set-digits", "locale")
+    app.keyboard.press("Escape")
+    assert app.errors[n0:] == [], app.errors[n0:]
+
+
+def test_l2_signal_world_and_explanations(app):
+    n0 = len(app.errors)                  # errors from earlier tests (e.g. the deliberately refused import) are not this test's
+    _research_level(app)
+    app.click(".nav button[data-ws=signal]")
+    app.locator("#sig-selection tbody tr").first.wait_for(timeout=120000)
+    assert app.locator("#sig-selection tbody tr").count() == 8
+    pw.expect(app.locator("#sig-selection tr[data-sig-method=lomb_scargle]")).to_contain_text("does not apply")
+    pw.expect(app.locator("#sig-bic-reading")).to_contain_text("not reported")
+    app.click(".nav button[data-ws=world]")
+    app.locator("#wq-count").wait_for(timeout=60000)
+    app.select_option("#wq-from", "hypothesis")
+    pw.expect(app.locator("#wq-count")).not_to_contain_text("0 of")
+    app.click("[data-world-tab=convergence]")
+    pw.expect(app.locator("#world-out")).to_contain_text("runs of the same data bundle never confirm one another")
+    app.click("[data-world-tab=leads]")
+    pw.expect(app.locator("#world-out")).to_contain_text("not a paradox")
+    app.click("[data-world-tab=timeline]")
+    pw.expect(app.locator("#world-out")).to_contain_text("not determined")
+    app.click(".nav button[data-ws=languages]")
+    app.click("[data-lang-tab=explain]")
+    app.locator("[data-explain]").first.wait_for(timeout=60000)
+    for q in app.locator("[data-explain]").all():
+        assert q.locator(".explain-layer").count() == 8
+    app.click("[data-lang-tab=terms]")
+    assert app.locator("#term-table tbody tr").count() >= 48
+    app.click("[data-lang-tab=quality]")
+    pw.expect(app.locator("#tq-table")).to_contain_text("Reviewed by a native speaker")
+    app.click("#overflow-check")
+    app.locator("#overflow-result").wait_for()
+    assert app.errors[n0:] == [], app.errors[n0:]
+
+
+def test_l3_gateway_handoff_reports_and_recorder(app, tmp_path):
+    n0 = len(app.errors)                  # errors from earlier tests (e.g. the deliberately refused import) are not this test's
+    _research_level(app)
+    app.click(".nav button[data-ws=gateway]")
+    h = _dl_json(app, "#ho-export")
+    assert h["schema"] == "skytrace.handoff/1" and h["language"]["content"] == "en" and len(h["digest"]) == 64
+    p = tmp_path / "h.json"
+    p.write_text(json.dumps(h))
+    app.set_input_files("#ho-file", str(p))
+    app.locator("#ho-valid").wait_for()
+    h["established"][0]["category"] = "discovery"
+    p.write_text(json.dumps(h))                              # the same file, edited: it must be checked again
+    app.set_input_files("#ho-file", str(p))
+    pw.expect(app.locator("#ho-invalid")).to_contain_text("digest")
+    app.click("[data-gw-tab=reports]")
+    with app.expect_download() as d:
+        app.click("#report-langs [data-report-lang=bn]")
+    t = Path(d.value.path()).read_text()
+    assert t.startswith("<!-- language: বাংলা (bn)") and "machine-translated" in t
+    pw.expect(app.locator(".nav button[data-ws=command]")).to_have_text("Command Center")    # the interface language is unchanged
+    app.click("[data-gw-tab=recorder]")
+    app.locator("#fr-slider").wait_for()
+    pw.expect(app.locator("#gw-out")).to_contain_text("not cryptographic immutability")
+    app.click("[data-gw-tab=bundle]")
+    pw.expect(app.locator("#osg-checks")).to_contain_text("Software licence declared")
+    with app.expect_download() as d:
+        app.click("#osg-download")
+    assert Path(d.value.path()).read_bytes()[:2] == b"PK"
+    assert app.errors[n0:] == [], app.errors[n0:]
+
+
+def test_l4_phase10_sections_in_existing_workspaces(app):
+    n0 = len(app.errors)                  # errors from earlier tests (e.g. the deliberately refused import) are not this test's
+    _research_level(app)
+    app.click(".nav button[data-ws=negative]")
+    app.locator("#negx tbody tr").first.wait_for(timeout=60000)
+    assert app.locator("#negx-dist option").count() == 10
+    app.click(".nav button[data-ws=compiler]")
+    app.locator("#kcomp tr[data-kcomp]").first.wait_for(timeout=60000)
+    app.click(".nav button[data-ws=radar]")
+    app.locator("#ext-sources tbody tr").first.wait_for(timeout=60000)
+    assert app.locator("#ext-sources tbody tr").count() == app.locator("#ext-sources tbody tr", has_text="not connected").count() == 6
+    app.click(".nav button[data-ws=autopilot]")
+    app.click("#dir-start")
+    app.locator("#dir-log tbody tr").first.wait_for()
+    first = app.locator("#dir-steps tr[data-dir-step]").first.get_attribute("data-dir-step")
+    pw.expect(app.locator(f"[data-dir-execute={first}]")).to_be_disabled()
+    app.click(f"[data-dir-approve={first}]")
+    pw.expect(app.locator(f"[data-dir-execute={first}]")).to_be_enabled()
+    app.click(".nav button[data-ws=experiments]")
+    app.locator("#market-table tbody tr").first.wait_for(timeout=60000)
+    assert app.locator("#market-table tr", has_text="not recommended").count() >= 1
+    app.click(".nav button[data-ws=review]")
+    app.click("button[data-rtab=agents]")
+    pw.expect(app.locator("#agents")).to_contain_text("not independent confirmation")
+    assert app.errors[n0:] == [], app.errors[n0:]

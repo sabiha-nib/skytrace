@@ -297,3 +297,25 @@ def test_phase9_intelligence_corpus_oracle_whatif_reproduction(base):
     assert get(base, f"/api/investigations/{iid}/intelligence").json()["content_hash"] == d["content_hash"]
     sp = get(base, "/api/specs").json()["intelligence"]
     assert len(sp["entity"]["types"]) >= 22 and len(sp["unknown"]["regions"]) == 8 and len(sp["gate"]["requirements"]) == 8
+
+
+def test_phase10_universal_and_multilingual_report(base):
+    iid = post(base, "/api/targets/syn-var-1/analyze", {"params": {}}).json()["investigation_id"]
+    u = get(base, f"/api/investigations/{iid}/universal").json()
+    assert {"signal", "convergence", "leads", "negative", "multimodal", "world", "opportunities", "compiler", "sources", "agents", "explain",
+            "timeline", "director", "market"} <= set(u)
+    assert all(s["state"] == "not connected" and s["updates"] == [] for s in u["sources"]["sources"])
+    assert {i["novelty"]["scope"] for i in u["opportunities"]["items"]} <= {"new to this investigation", "new to this collection"}
+    en = get(base, f"/api/investigations/{iid}/report.md").text
+    for lang in ("bn", "hi", "es", "fr", "de"):
+        r = get(base, f"/api/investigations/{iid}/report.md?lang={lang}")
+        assert r.status_code == 200 and r.headers["content-language"] == lang and f".{lang}.md" in r.headers["content-disposition"]
+        t = r.text
+        assert t.startswith("<!-- language:") and "machine-translated by an AI model" in t
+        body = t.split("\n", 2)[2]
+        # the same numbers, in the same order, outside the translation notice
+        from skytrace import i18n
+        notice = [ln for ln in body.splitlines() if ln.startswith("> ") and "(" + lang + ")" in ln]
+        assert len(notice) == 1
+        assert sorted(i18n.numbers("\n".join(ln for ln in body.splitlines() if ln not in notice))) == sorted(i18n.numbers(en))
+    assert get(base, f"/api/investigations/{iid}/report.md?lang=xx").headers["content-language"] == "en"

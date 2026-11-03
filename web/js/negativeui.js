@@ -6,6 +6,7 @@ import { getSpecs, state } from "./state.js";
 import * as S from "./session.js";
 import { download, el, renderToken, toast, $, clear } from "./util.js";
 import { loadEpistemic, needRun, syntheticNote, table } from "./epiui.js";
+import { negativeNine } from "./universalui.js";
 
 let q = "", cat = "all", dist = "all";
 
@@ -60,6 +61,7 @@ export async function renderNegative() {
   exp.addEventListener("click", async () => { if (await download("skytrace-negative-knowledge.json", JSON.stringify({ method: "NEG-1", entries: all }, null, 1), "application/json")) toast("Registry exported"); });
   body.append(syntheticNote(d), el("div", { class: "card" }, el("p", { class: "muted" }, d.negative.note),
     el("div", { class: "controls" }, search, cSel, dSel, exp)), out, addForm(sp));
+  negativeNine(body);
 }
 
 function addForm(sp) {

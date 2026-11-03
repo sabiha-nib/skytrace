@@ -1,8 +1,13 @@
 // Command palette (Ctrl/⌘+K or /) and the glossary/shortcut reference (?). Both are modal dialogs with focus kept
 // inside and returned to the opener on close. Commands only call existing actions; nothing here computes results.
 
-import { state } from "./state.js";
+import { emit, state } from "./state.js";
 import { $, clear, el, fmtDate, shortKey } from "./util.js";
+import { getLang, translateText } from "./i18n.js";
+import { index as xIndex, LABEL as XLABEL, search as xSearch } from "./xsearch.js";
+import { getTerms } from "./languagesui.js";
+
+let T = null, TI = null;            // terminology base (TERM-1) for cross-language matching (XSEARCH-1)
 
 let commands = [], shown = [], active = 0, opener = null, build = () => [];
 
@@ -35,6 +40,14 @@ export function bindPalette(buildCommands) {
 export function openPalette() {
   opener = document.activeElement;
   commands = build();
+  getTerms().then((t) => {
+    T = t; TI = TI || xIndex(t);
+    const L = getLang();
+    commands = commands.concat(t.terms.map((x) => ({ group: "Term", label: x.en.term, hint: L !== "en" ? x[L]?.term : x.context, keep: true,
+      text: ["en", "bn", "hi", "es", "fr", "de"].map((l) => [x[l]?.term, ...(x[l]?.synonyms || [])].join(" ")).join(" "),
+      run: () => emit("goto", { ws: "languages", tab: "terms" }) })));
+    if (!$("#palette").hidden) renderList();
+  }).catch(() => { /* the palette still matches text without the terminology base */ });
   $("#palette").hidden = false;
   const input = $("#palette-input");
   input.value = ""; active = 0; renderList();
@@ -56,10 +69,22 @@ function score(c, q) {
 
 function renderList() {
   const q = $("#palette-input").value.trim();
-  shown = commands.map((c) => [score(c, q), c]).filter(([s]) => s > 0).sort((a, b) => b[0] - a[0]).map(([, c]) => c).slice(0, 40);
+  let method = null;
+  if (q && T) {
+    const docs = commands.map((c, i) => ({ id: i, text: [c.label, c.hint || "", c.group, translateText(c.label) || "", c.hint ? translateText(c.hint) || "" : "", c.text || ""].join(" ") }));
+    const r = xSearch(q, docs, T, getLang(), TI);
+    shown = r.results.map((x) => commands[x.id]).slice(0, 40);
+    method = r.label;
+  } else {
+    shown = commands.filter((c) => !q ? !c.keep || false : true).map((c) => [score(c, q), c]).filter(([s]) => s > 0).sort((a, b) => b[0] - a[0]).map(([, c]) => c).slice(0, 40);
+  }
   const list = $("#palette-list");
   clear(list);
+  let mEl = $("#palette-method");
+  if (!mEl) { mEl = el("p", { id: "palette-method", class: "faint small" }); list.before(mEl); }
+  mEl.textContent = method ? `Matched by ${method}` : "";
   if (!shown.length) { list.append(el("li", { class: "empty-row" }, "No matches")); return; }
+  void XLABEL;
   shown.forEach((c, i) => {
     const li = el("li", { role: "option", id: `pal-${i}`, "aria-selected": i === active ? "true" : "false", "aria-disabled": c.disabled ? "true" : null },
       el("span", { class: "pal-group" }, c.group), el("span", { class: "pal-label" }, c.label), c.hint ? el("span", { class: "pal-hint" }, c.hint) : null);

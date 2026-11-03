@@ -10,6 +10,7 @@ import * as S from "./session.js";
 import { execute, recordExperiment, setHooks } from "./executor.js";
 import { nowIso } from "./sessioncore.js";
 import { clear, download, el, fmtDate, toast, $ } from "./util.js";
+import { marketCard } from "./universalui.js";
 
 let tab = "experiments", template = "sensitivity", sets = [{ aperture_radius_px: 2.5 }], ncQuestion = "variability", last = null, running = false;
 let wfText = null, wfLog = null, cancel = false;
@@ -84,6 +85,7 @@ export async function renderExperiments() {
     el("div", { class: "card" }, el("h3", {}, "Experiment definition"), def, cfg, el("div", { class: "controls" }, go))));
   if (last && !last.error) body.append(resultView(last));
   body.append(historyView());
+  if (state.inv) marketCard(body);
 }
 
 function resultView(r) {

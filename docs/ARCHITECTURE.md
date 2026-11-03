@@ -268,6 +268,44 @@ times. The session gained optional `challenges`, `completion`, `capsules` and `c
 
 Methods: [INTELLIGENCE_METHODS.md](INTELLIGENCE_METHODS.md). Audit and decisions: [PHASE9_AUDIT.md](PHASE9_AUDIT.md).
 
+## Phase 10 additions (v0.10): six languages and the universal frontier
+
+**Internationalisation** (I18N-1, full description in [I18N.md](I18N.md)). The English text in the code is the message id. A
+generated catalogue (`web/i18n/catalog.json`, `scripts/i18n_extract.py`) holds every interface message; language files hold the
+translations by key. In the browser, `i18n.js` translates the rendered document and everything rendered later (a
+`MutationObserver`), formats numbers and dates per language, and gives keyed messages with plurals (`t(key, params)`). On the
+server, `i18n.py` translates marked report wording (`_t("…")`). Engine narrative text, numbers, units, identifiers and JSON exports
+are never translated. The language persists in the browser, the URL (`?lang=`) and the session's `preferences`.
+
+```
+ web/i18n/catalog.json  ◄── scripts/i18n_extract.py  (index.html, web/js/**, _t("…") in src/, engine vocabularies)
+ web/i18n/{bn,hi,es,fr,de}.json  ◄── scripts/i18n_merge.py (TSV batches; refuses placeholder mismatches)
+ web/i18n/terms.json    ◄── scripts/i18n_terms.py   (TERM-1, 48 terms × 6 languages)
+ web/i18n/quality.json  ◄── scripts/i18n_quality.py (I18N-Q1 counts)
+        │                                   │
+        ▼                                   ▼
+ browser: i18n.js (DOM translator, Intl)    server: i18n.py → report.render_markdown(inv, lang) → report.md?lang=xx
+          xsearch.js (XSEARCH-1)                    xsearch.py (parity-tested)
+```
+
+**Universal report.** Phase 10 engines are deterministic readers of a finished record, like those of Phases 5–9: no network, no
+model, no probability, no score. `server/universal.py` builds one report per record (cached by content hash and the hashes of the
+target's other runs) from the record, HYPO-1, NEG-1, SCICOMP-1 and RADAR-1:
+
+| Engine | Module | Shown in |
+|---|---|---|
+| SIGNAL-1 signal workbench | `sigintel.py` | Signal Intelligence (Analyze) |
+| WORLD-1, CONV-1, LEAD-1, MODAL-1, TIMES-1 | `universal.py` | World Model (Evidence) |
+| NEGX-1, KCOMP-1, OPP-2 + EXTSRC-1, DIRECT-1, AGENTS-1, EXPMKT-1 | `universal.py` | Negative Space, Scientific Compiler, Discovery Radar, Research Autopilot, Review & Story, Experiments |
+| EXPLAIN-1 | `universal.py` (keyed messages `explain.*`) | Multilingual Research (Knowledge) |
+| HANDOFF-1 | `handoff.py`, `web/js/handoff.js` (parity-tested) | Open Science Gateway (Publish) |
+| FLIGHT-1, OSG-1 | browser (`universalui.js`) over the session and the record | Open Science Gateway |
+
+API: `GET /api/investigations/{iid}/universal`; `GET /api/investigations/{iid}/report.md?lang=xx`. The static preview stores the
+universal report inside each run's `intelligence.json` (key `universal`), which keeps the preview under the artifact's file
+limit. The session gained optional `preferences`, `monitors`, `director`, `debates` and `handoffs`; earlier sessions still
+validate. Methods: [UNIVERSAL_METHODS.md](UNIVERSAL_METHODS.md). Audit and decisions: [PHASE10_AUDIT.md](PHASE10_AUDIT.md).
+
 ## Layers and their rules
 
 | Layer | Code | May | May not |

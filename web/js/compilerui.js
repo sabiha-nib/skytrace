@@ -7,6 +7,7 @@ import { focusNode } from "./reasoningui.js";
 import { emit } from "./state.js";
 import { download, el, renderToken, toast, $, clear } from "./util.js";
 import { kv, loadEpistemic, needRun, outcomePill, syntheticNote, table, tabs } from "./epiui.js";
+import { compilerStatuses } from "./universalui.js";
 
 let tab = "compile", stageFilter = "all", outFilter = "all", methodSel = null, cmpA = "PAIRDIFF-1", cmpB = "PAIRDIFF-2";
 export function setCompilerTab(t) { tab = t; }
@@ -20,6 +21,7 @@ export async function renderCompiler() {
   if (!d || !live()) return;
   body.append(syntheticNote(d), tabs("Compiler", [["compile", "Compilation"], ["genome", "Method genome"]], tab, "data-ctab", (k) => { tab = k; renderCompiler(); }));
   body.append(tab === "compile" ? compileView(d.compile) : genomeView(d.genome, d.method_graph));
+  if (tab === "compile") compilerStatuses(body);
 }
 
 function compileView(C) {
